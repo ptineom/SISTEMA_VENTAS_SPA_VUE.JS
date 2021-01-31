@@ -127,7 +127,7 @@ export default {
     },
     computed: {
         totalPagarFormateado() {
-            return `${this.getMoneda()} ${this.$formatoMilesRegex(this.totales.totalPagar, 2)}`
+            return `${this.getMoneda()} ${this.$formatoMiles(this.totales.totalPagar, 2)}`
         },
     },
     methods: {
@@ -445,7 +445,6 @@ export default {
                             color: "warning",
                             right: false,
                             timeout: 5000,
-                            multiLine: "true"
                         });
                         return;
                     }
@@ -565,22 +564,18 @@ export default {
                     _self.$root.$alertSB(resultado.sMensaje, {
                         color: "warning",
                         right: false,
-                        timeout: 3000,
-                        multiLine: true
                     });
                 }
                 let mensaje = `Se generó el/la ${_self.nombreComprobante()}: ${resultado.data.nroSerie}-${resultado.data.nroDocumento}`
                 _self.$root.$alertSB(mensaje, {
                     color: "success",
                     timeout: 5000,
-                    multiLine: true,
                     fontSize: 'text-h6'
                 });
                 _self.modelo.nroSerie = resultado.data.nroSerie;
                 _self.modelo.nroDocumento = resultado.data.nroDocumento;
                 _self.bSeleccionarComprobante = true;
             }).catch((error) => {
-                debugger;
                 _self.$root.$alertSB(error.response.data.Message, { color: "error" })
             }).finally(() => {
                 _self.overlay = false;
@@ -615,8 +610,6 @@ export default {
                 _self.$root.$alertSB(error.mensaje, {
                     color: "warning",
                     right: false,
-                    timeout: 3000,
-                    multiLine: true
                 });
                 return;
             });
@@ -702,6 +695,7 @@ export default {
     mounted() {
         let _self = this;
         _self.overlay = true;
+        debugger;
         _self.$axios.get('/api/Venta/getDataAsync').then((response) => {
             let data = response.data.data.listas;
             let listaComprobantes = data.listaComprobantes;

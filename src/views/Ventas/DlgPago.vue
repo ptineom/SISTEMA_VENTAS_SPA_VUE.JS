@@ -36,7 +36,7 @@
                     <v-col md="7" class="py-0 text-right">
                       <v-chip class="ma-2 text-h6" color="success" label>
                         {{
-                          `${sgnMoneda} ${$formatoMilesRegex(montoTotal, 2)}`
+                          `${sgnMoneda} ${$formatoMiles(montoTotal, 2)}`
                         }}
                       </v-chip>
                     </v-col>
@@ -57,7 +57,7 @@
                         color="warning"
                         label
                       >
-                        {{ `${sgnMoneda} ${$formatoMilesRegex(abono, 2)}` }}
+                        {{ `${sgnMoneda} ${$formatoMiles(abono, 2)}` }}
                       </v-chip>
                     </v-col>
                     <v-col md="5" class="py-0"
@@ -73,7 +73,7 @@
                         label
                         :class="{ 'text--disabled': abono == 0 }"
                       >
-                        {{ `${sgnMoneda} ${$formatoMilesRegex(saldo, 2)}` }}
+                        {{ `${sgnMoneda} ${$formatoMiles(saldo, 2)}` }}
                       </v-chip>
                     </v-col>
                   </v-row>
@@ -106,7 +106,7 @@
                     >
                     <v-col md="7" class="py-0 text-right">
                       <v-chip class="ma-2 text-h6" color="warning" label>
-                        {{ `${sgnMoneda} ${$formatoMilesRegex(vuelto, 2)}` }}
+                        {{ `${sgnMoneda} ${$formatoMiles(vuelto, 2)}` }}
                       </v-chip>
                     </v-col>
                   </v-row>

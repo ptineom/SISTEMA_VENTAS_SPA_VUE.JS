@@ -37,10 +37,10 @@ export default {
       resolve: null,
       message: null,
       options: {
-        timeout: 2000, //-1, //indeterminado
+        timeout: 3000, //-1, //indeterminado
         color: "success",
         colorCerrar: "yellow",
-        multiLine: false,
+        multiLine: true,
         fontSize:''
       },
       intervalId: 0,

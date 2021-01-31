@@ -25,7 +25,7 @@
     </template>
 
     <template v-else>
-      <v-list-group
+      <v-list-group 
         :prepend-icon="menuItem.flgRaiz ? menuItem.icon : undefined"
         :class="menuItem.flgRaiz ? 'border-menu' : 'fondo-sub-item'"
         color="blueTool1"

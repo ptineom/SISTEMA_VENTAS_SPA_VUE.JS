@@ -11,10 +11,12 @@ import pluginsUtilidades from './plugins/utilidades'
 //import axios from './plugins/axios'
 Vue.config.productionTip = false
 
+//Configurando alguna propiedades par la inicialización de axios.
 axios.defaults.baseURL = "http://localhost:51691/"
 axios.defaults.headers.common["Accept"] = "application/json";
 axios.defaults.headers.post["content-type"] = "application/x-www-form-urlencoded";
 
+//Interceptores de axios
 axios.interceptors.request.use(function (config) {
   if (!!localStorage.getItem("tokenSPA_SistemaVentas")) {
     config.headers.common["Authorization"] = "Bearer " + localStorage.getItem("tokenSPA_SistemaVentas");
@@ -77,12 +79,14 @@ axios.interceptors.response.use(function (config) {
   // return Promise.reject(error);
 })
 
+//Agregando valores globales para poder usarse en toda la app.
 Vue.prototype.$appName = "Sistemas de ventas y compras";
 Vue.prototype.$axios = axios;
 Vue.prototype.$moment = moment;
 
-// Vue.use(axios);
+//Agregando plugin de utilidades.
 Vue.use(pluginsUtilidades);
+// Vue.use(axios);
 
 new Vue({
   router,

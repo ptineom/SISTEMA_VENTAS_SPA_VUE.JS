@@ -1,26 +1,29 @@
-// This is your plugin object. It can be exported to be used anywhere.
+//Objeto plugin, puede exportarse para ser usado en cualquier parte
 const MyPlugin = {
-    // The install method is all that needs to exist on the plugin object.
-    // It takes the global Vue object as well as user-defined options.
+    // El método "install" es todo lo que se necesita.
+    // Toma el objeto Vue global así como las opciones definidas por el usuario.
     install(Vue, options) {
         let _self = Vue.prototype;
+
         Vue.prototype.$revertir = (texto) => {
             return texto.split("").reverse().join("");
         };
+
         Vue.prototype.$soloNumerosEnteros = (event) => {
-            var key = window.Event ? event.which : event.keyCode
-            //return (key >= 48 && key <= 57)
-            if (key < 48 || key > 57) {
+            // let regex = /^\d+$/;
+            let regex = /^[0-9]+$/;
+            if (!regex.test(event.key))
                 event.preventDefault();
-            }
         };
+
         Vue.prototype.$convertToInt = (numero) => {
             let entera = parseInt(numero);
             let decimal = (parseFloat(numero) - entera);
             let resultado = decimal > 0 ? numero.toFixed(2) : entera;
             return resultado;
         };
-        Vue.prototype.$formatoMilesRegex = (numero, decimales) => {
+
+        Vue.prototype.$formatoMiles = (numero, decimales, siEsCeroEsvacio) => {
             if (isNaN(numero)) {
                 numero = 0;
             }
@@ -28,9 +31,14 @@ const MyPlugin = {
                 decimales = 2;
             }
 
-            return numero.toFixed(decimales).replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1,")
+            if (siEsCeroEsvacio != undefined) {
+                if (siEsCeroEsvacio && numero == 0)
+                    return '';
+            }
+            //return numero.toFixed(decimales).replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1,")
+            return numero.toFixed(decimales).replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
         };
-        Vue.prototype.$formatoMiles = (numero, decimales) => {
+        Vue.prototype.$formatoMiles_old = (numero, decimales) => {
             if (numero == "") return "";
             if (decimales != undefined) numero = parseFloat(numero).toFixed(decimales);//Agregamos los decimales
             numero = numero.toString();
@@ -67,7 +75,7 @@ const MyPlugin = {
             return numero[0] == "-" ? ("-" + nuevoNumero) : nuevoNumero;
         };
         Vue.prototype.$direccionarFilasGrilla = (event, config) => {
-            let tbody = config.tbody; 
+            let tbody = config.tbody;
             let txtFiltro = config.txtFiltro;
             let indexColumn = config.indexColumn == undefined ? 0 : config.indexColumn;
 
@@ -94,12 +102,12 @@ const MyPlugin = {
 
                 //Obtenemos la fila que tenga la clase rowSelect
                 let arr = Array.from(rowsBody);
-                let rowSelected = arr.find((x) =>{
-                    if(x.classList.contains("rowSelected")){
+                let rowSelected = arr.find((x) => {
+                    if (x.classList.contains("rowSelected")) {
                         return x;
                     }
                 });
-                
+
                 let value = "";
                 let index = undefined;
 
@@ -113,7 +121,7 @@ const MyPlugin = {
                 switch (event.keyCode) {
                     case 40: //Flecha abajo
                         //Si no existe ninguna fila marcada, se marcará la primera fila.
-                 
+
                         if (rowSelected == undefined) {
                             value = rowsBody[0].cells[indexColumn].textContent;
                             resolve(value);

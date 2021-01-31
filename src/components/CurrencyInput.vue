@@ -43,7 +43,7 @@ export default {
           return this.value == 0 ? "" : this.value.toString();
         } else {
           // El usuario no está modificando ahora. Formato de valor de visualización para la interfaz de usuario
-          return this.sgnMoneda + " " + this.$formatoMilesRegex(this.value, 2);
+          return this.sgnMoneda + " " + this.$formatoMiles(this.value, 2);
         }
       },
       set: function (modifiedValue) {

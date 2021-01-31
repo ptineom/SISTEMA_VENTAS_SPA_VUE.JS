@@ -15,14 +15,14 @@
           <v-col cols="12">
             <v-form ref="form" v-model="valid" lazy-validation>
               <v-text-field
-                :value="`${sgnMoneda} ${$formatoMilesRegex(total, 2)}`"
+                :value="`${sgnMoneda} ${$formatoMiles(total, 2)}`"
                 label="Monto total"
                 placeholder="Monto total"
                 readonly
                 filled
               ></v-text-field>
               <v-text-field
-                :value="`${sgnMoneda} ${$formatoMilesRegex(saldo, 2)}`"
+                :value="`${sgnMoneda} ${$formatoMiles(saldo, 2)}`"
                 label="Saldo"
                 placeholder="Saldo"
                 readonly

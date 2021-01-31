@@ -245,7 +245,7 @@
                     <td>{{ item.nomCliente }}</td>
                     <td class="text-right">
                       {{
-                        `${item.sgnMoneda} ${$formatoMilesRegex(
+                        `${item.sgnMoneda} ${$formatoMiles(
                           item.totVenta,
                           2
                         )}`

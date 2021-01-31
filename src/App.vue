@@ -92,7 +92,7 @@
     </v-app-bar>
 
     <v-main class="color-fondo">
-      <v-container fluid class="pa-0">
+      <v-container fluid class="px-1 py-0">
         <v-row v-show="showLayout">
           <v-col class="py-1" cols="12" md="6">
             <div class="font-weight-bold pl-2 text-h5">

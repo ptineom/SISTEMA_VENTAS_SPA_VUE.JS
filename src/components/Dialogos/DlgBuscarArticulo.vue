@@ -134,7 +134,7 @@
                         <td class="text-caption">{{ item.nomUm }}</td>
                         <td class="text-right">
                           {{
-                            $formatoMilesRegex(
+                            $formatoMiles(
                               $convertToInt(item.stockActual),
                               2
                             )

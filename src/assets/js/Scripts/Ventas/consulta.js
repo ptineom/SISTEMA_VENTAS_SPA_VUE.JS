@@ -47,15 +47,15 @@ export default {
         tipoFiltro(newValue, oldValue) {
             let _self = this;
             _self.listadoVentas = [];
-            switch (oldValue) {
+            switch (newValue) {
                 case "cliente":
-                    _self.cliente.idTipoDocumento = '';
-                    _self.cliente.nroDocumento = '';
-                    break;
-                case "comprobante":
                     _self.comprobante.idTipoComprobante = '';
                     _self.comprobante.nroSerie = '';
                     _self.comprobante.nroDocumento = '';
+                    break;
+                case "comprobante":
+                    _self.cliente.idTipoDocumento = '';
+                    _self.cliente.nroDocumento = '';
                     break
             }
         },

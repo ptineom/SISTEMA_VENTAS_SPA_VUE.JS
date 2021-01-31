@@ -1,7 +1,6 @@
 <template>
-  <v-container fluid class="py-0">
-    <div>
-      <v-row>
+  <div >
+    <v-row>
         <v-col cols="6" class="py-0 px-1">
           <v-card elevation="1" tile :disabled="bSeleccionarComprobante">
             <v-card-title class="py-0 text-button">
@@ -53,7 +52,6 @@
               <v-row>
                 <v-col md="4" class="py-0 px-1">
                   <v-menu
-                    ref="txtFecEmi"
                     v-model="showFecEmi"
                     transition="scale-transition"
                     offset-y
@@ -520,7 +518,7 @@
                   <v-card v-show="showPanelCredito">
                     <v-card-text class="mt-2 pb-1 pt-2">
                       <v-text-field
-                        :value="`${getMoneda()} ${$formatoMilesRegex(
+                        :value="`${getMoneda()} ${$formatoMiles(
                           modelo.abono,
                           2
                         )}`"
@@ -547,7 +545,7 @@
                         </template>
                       </v-text-field>
                       <v-text-field
-                        :value="`${getMoneda()} ${$formatoMilesRegex(
+                        :value="`${getMoneda()} ${$formatoMiles(
                           modelo.saldo,2)}`"
                         label="Saldo"
                         placeholder="Saldo"
@@ -572,7 +570,7 @@
                         placeholder="Sub total"
                         class="color-disabled"
                         readonly
-                        :value="$formatoMilesRegex(totales.subTotal, 2)"
+                        :value="$formatoMiles(totales.subTotal, 2)"
                       />
                     </v-col>
 
@@ -605,7 +603,7 @@
                         placeholder="Dscto"
                         class="color-disabled"
                         readonly
-                        :value="$formatoMilesRegex(totales.totalDescuento, 2)"
+                        :value="$formatoMiles(totales.totalDescuento, 2)"
                       />
                     </v-col>
                     <v-col md="3" class="py-0 height-text">
@@ -620,7 +618,7 @@
                         placeholder="I.G.V."
                         class="color-disabled"
                         readonly
-                        :value="$formatoMilesRegex(totales.totalIgv, 2)"
+                        :value="$formatoMiles(totales.totalIgv, 2)"
                       />
                     </v-col>
                     <v-col md="3" class="py-0 height-text">
@@ -634,7 +632,7 @@
                         placeholder="Total"
                         class="color-disabled"
                         readonly
-                        :value="$formatoMilesRegex(totales.total, 2)"
+                        :value="$formatoMiles(totales.total, 2)"
                       />
                     </v-col>
                     <v-col md="3" class="py-0 heighttext">
@@ -704,8 +702,6 @@
           </div>
         </v-col>
       </v-row>
-    </div>
-    <div></div>
 
     <v-overlay :value="overlay" absolute :opacity="'0.36'">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
@@ -719,14 +715,10 @@
     ref="dlgBuscarVenta"
     ></Consulta>
     
-  </v-container>
+  </div>
 </template>
 <script src="@/assets/js/Scripts/Ventas/facturacion.js"></script>
 <style >
-.ajuste .v-text-field__details {
-  height: 0px !important;
-  min-height: 5px !important;
-}
 .color-disabled .v-input__slot {
   background: #eeeeee !important;
 }
