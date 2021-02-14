@@ -93,7 +93,7 @@
                       </template>
                     </v-text-field>
                   </v-col>
-                  <v-col cols="12" md="6" class="py-1 px-1">
+                  <v-col cols="12" md="3" class="py-1 px-1">
                     <v-select
                       dense
                       label="Grupo"
@@ -104,7 +104,7 @@
                       @change="llenarCboFamilia()"
                     ></v-select>
                   </v-col>
-                  <v-col cols="12" md="4" class="py-1 px-1">
+                  <v-col cols="12" md="3" class="py-1 px-1">
                     <v-select
                       dense
                       label="Familia"
@@ -126,6 +126,7 @@
                       v-model="modelo.precioCompra"
                       @keyup.enter="$refs.txtStoMin.focus()"
                       @keypress="$numerosDecimales($event, 2)"
+                      :autocomplete="'off'"
                     />
                   </v-col>
                   <v-col cols="12" md="2" class="py-1 px-1">
@@ -142,11 +143,13 @@
                       :autocomplete="'off'"
                     />
                   </v-col>
+
                   <v-col cols="12" md="2" class="py-1 px-1">
                     <v-checkbox
                       label="Importado"
                       hide-details
                       class="shrink mr-0 mt-0"
+                      v-model="modelo.flgImportado"
                     ></v-checkbox>
                   </v-col>
                   <v-col cols="12" md="2" class="py-1 px-1">
@@ -154,18 +157,31 @@
                       label="Inactivo"
                       hide-details
                       class="shrink mr-0 mt-0"
+                      v-model="modelo.flgInactivo"
                     ></v-checkbox>
+                  </v-col>
+                  <v-col cols="12" md="2"  offset-md="2" class="py-1 px-1">
+                    <v-text-field
+                      label="Moneda"
+                      type="text"
+                     
+                      dense
+                      hide-details
+                      readonly
+                      outlined
+                      v-model="monedaLocal.sgnMoneda"
+                    >
+                    </v-text-field>
                   </v-col>
                 </v-row>
 
                 <v-row>
-                  <v-col class="px-1 pt-0">
-                    <v-card color="grey lighten-5">
+                  <v-col class="px-1 pt-1">
+                    <v-card color="light-green lighten-5" elevation="4">
                       <v-tabs
                         v-model="tab"
                         background-color="transparent"
-                        color="basil"
-                        grow
+                        fixed-tabs
                       >
                         <v-tab> Precios y descuentos </v-tab>
                         <v-tab> Sedes </v-tab>
@@ -378,10 +394,15 @@
                                                   :close-on-content-click="true"
                                                 >
                                                   <template
-                                                    v-slot:activator="{on, attrs,}"
+                                                    v-slot:activator="{
+                                                      on,
+                                                      attrs,
+                                                    }"
                                                   >
                                                     <v-text-field
-                                                      v-model="item.fecIniProFormatted"
+                                                      v-model="
+                                                        item.fecIniProFormatted
+                                                      "
                                                       placeholder="dd/mm/aaaa"
                                                       append-outer-icon="mdi-calendar"
                                                       readonly
@@ -389,20 +410,31 @@
                                                       v-on="on"
                                                       hide-details
                                                       dense
+                                                       :disabled="!item.flgPromocion"
                                                     ></v-text-field>
                                                   </template>
                                                   <v-date-picker
-                                                    v-model="item.fecInicioPromocion"
+                                                    v-model="
+                                                      item.fecInicioPromocion
+                                                    "
                                                     no-title
                                                     locale="es-pe"
                                                     :first-day-of-week="1"
                                                     scrollable
-                                                    @change="cambiarfecha($event, item, 'fechaInicialPromocion')"
-                                                   >
+                                                    @change="
+                                                      cambiarfecha(
+                                                        $event,
+                                                        item,
+                                                        'fechaInicialPromocion'
+                                                      )
+                                                    "
+                                                  >
                                                     <v-spacer></v-spacer>
                                                     <v-btn
                                                       color="error"
-                                                      @click="item.showFecIniPro=false"
+                                                      @click="
+                                                        item.showFecIniPro = false
+                                                      "
                                                     >
                                                       Cancelar
                                                     </v-btn>
@@ -418,10 +450,15 @@
                                                   :close-on-content-click="true"
                                                 >
                                                   <template
-                                                    v-slot:activator="{on, attrs,}"
+                                                    v-slot:activator="{
+                                                      on,
+                                                      attrs,
+                                                    }"
                                                   >
                                                     <v-text-field
-                                                      v-model="item.fecFinProFormatted"
+                                                      v-model="
+                                                        item.fecFinProFormatted
+                                                      "
                                                       placeholder="dd/mm/aaaa"
                                                       append-outer-icon="mdi-calendar"
                                                       readonly
@@ -429,20 +466,31 @@
                                                       v-on="on"
                                                       hide-details
                                                       dense
+                                                       :disabled="!item.flgPromocion"
                                                     ></v-text-field>
                                                   </template>
                                                   <v-date-picker
-                                                    v-model="item.fecFinalPromocion"
+                                                    v-model="
+                                                      item.fecFinalPromocion
+                                                    "
                                                     no-title
                                                     locale="es-pe"
                                                     :first-day-of-week="1"
                                                     scrollable
-                                                    @change="cambiarfecha($event, item, 'fechaFinalPromocion')"
-                                                   >
+                                                    @change="
+                                                      cambiarfecha(
+                                                        $event,
+                                                        item,
+                                                        'fechaFinalPromocion'
+                                                      )
+                                                    "
+                                                  >
                                                     <v-spacer></v-spacer>
                                                     <v-btn
                                                       color="error"
-                                                      @click="item.showFecFinPro=false"
+                                                      @click="
+                                                        item.showFecFinPro = false
+                                                      "
                                                     >
                                                       Cancelar
                                                     </v-btn>
@@ -492,25 +540,11 @@
                                 :items="sucursales"
                                 class="elevation-1"
                                 dense
+                                v-model="sucursalesSeleccionados"
+                                show-select
+                                item-key="idSucursal"
+                                :single-select="singleSelect"
                               >
-                                <template v-slot:body="{ items }">
-                                  <tbody ref="tbodySedes">
-                                    <tr v-for="(item, i) in items" :key="i">
-                                      <td>
-                                        <v-checkbox
-                                          hide-details
-                                          class="shrink mr-0 mt-0"
-                                          :disabled="item.stock > 0"
-                                          v-model="item.flgEnUso"
-                                        ></v-checkbox>
-                                      </td>
-                                      <td>{{ item.nomAlmacen }}</td>
-                                      <td>{{ item.stockActual }}</td>
-                                      <td>{{ item.nomSucursal }}</td>
-                                      <td>{{ item.direccion }}</td>
-                                    </tr>
-                                  </tbody>
-                                </template>
                               </v-data-table>
                             </v-card-text>
                           </v-card>
@@ -519,13 +553,166 @@
                     </v-card>
                   </v-col>
                 </v-row>
+                    </v-col>
+              <v-col md="2" class="py-0 px-2"> 
+                <v-file-input
+                   label="Foto"
+                   prepend-icon="mdi-camera"
+                   show-size
+                   @change.native="getFile($event)"
+                   @click:clear="limpiarFoto"
+                   accept="image/*"
+                   v-model="torito"
+                ></v-file-input>
+                <v-img
+                  ref="imgFoto"
+                  :src="imgFoto"
+                ></v-img>
               </v-col>
-              <v-col md="2" class="py-0 px-2"> </v-col>
             </v-row>
+            <v-row>
+        <v-col md="12" class="pt-0">
+          <div class="text-left">
+
+            <v-btn color="success" class="mr-1" @click="grabar">
+              <v-icon>mdi-content-save</v-icon>
+              Grabar
+            </v-btn>
+            <v-btn
+              class="mr-1"
+              color="error"
+              @click="vista=1"
+            >
+              <v-icon> mdi-cancel </v-icon>
+               Cancelar
+            </v-btn>
+
+          </div>
+        </v-col>
+      </v-row>
           </v-card-text>
         </v-card>
 
-        <v-card elevation="1" tile v-show="vista == 1"> </v-card>
+        <v-card elevation="1" tile v-show="vista == 1">
+          <v-card-title class="py-0 text-button">
+            <v-icon>mdi-filter</v-icon> Búsqueda por filtros
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text class="px-1 py-0">
+            <v-row>
+              <v-col cols="12" class="py-0">
+                <v-card elevation="1" tile>
+                  <v-card-text class="pt-2 pb-0">
+                    <v-row>
+                      <v-col cols="12" class="pt-0 pb-3">
+                        <v-radio-group
+                          row
+                          class="mt-0"
+                          hide-details
+                          v-model="porTipoFiltro"
+                        >
+                          <v-radio label="Por código" value="codigo"></v-radio>
+                          <v-radio
+                            label="Por descripción"
+                            value="descripcion"
+                          ></v-radio>
+                        </v-radio-group>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col cols="4" md="6" class="py-1 px-0">
+                        <v-text-field
+                          label="Filtro"
+                          type="text"
+                          outlined
+                          dense
+                          class="text-right"
+                          hide-details
+                          :autocomplete="'off'"
+                          placeholder="Ingrese el filtro"
+                          autofocus
+                          ref="txtFiltro"
+                          v-model="filtro"
+                          @keyup.enter="consultar"
+                        />
+                      </v-col>
+                      <v-col class="pt-1">
+                        <v-btn dense color="primary" @click="consultar()"
+                          ><v-icon> mdi-magnify </v-icon> Consultar</v-btn
+                        >
+                        <v-btn
+                          class="ml-1"
+                          dense
+                          color="info"
+                          @click="nuevo()"
+                          ><v-icon> mdi-file-plus </v-icon> Nuevo</v-btn
+                        >
+                        <v-btn
+                          class="ml-1"
+                          dense
+                          color="default"
+                          @click="consultarVentas()"
+                          ><v-icon color="green"> mdi-file-excel </v-icon>
+                          Exportar</v-btn
+                        >
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12">
+                <v-data-table
+                  :headers="headersConsulta"
+                  :items="detalleConsulta"
+                  class="elevation-1"
+                  dense
+                  tile
+                >
+                  <template v-slot:body="{ items }">
+                    <tbody>
+                      <tr v-for="item in items" :key="item.comprobante" >
+                        <td>{{ item.idArticulo }}</td>
+                        <td class="text-caption">{{ item.nomArticulo }}</td>
+                        <td class="text-caption">{{ item.nomMarca }}</td>
+                        <td class="text-caption">{{ item.nomGrupo }}</td>
+                        <td class="text-caption">{{ item.nomFamilia }}</td>
+                        <td class="text-caption">{{ item.codigoBarra }}</td>
+                        <td class="text-right text-caption">
+                          {{
+                            `${monedaLocal.sgnMoneda} ${$formatoMiles(
+                              item.precioVentaFinal,
+                              2
+                            )}`
+                          }}
+                        </td>
+                        <td>
+                          <v-simple-checkbox
+                            v-model="item.flgInactivo"
+                            disabled
+                          ></v-simple-checkbox>
+                        </td>
+
+                        <td class="px-1">
+                          <v-btn color="warning" small title="Editar" @click="obtenerArticuloPorId(item.idArticulo)">
+                            <v-icon>mdi-gesture-tap</v-icon>
+                          </v-btn>
+                          <v-btn color="error" small class="mx-1" title="Eliminar" @click="eliminar(item.idArticulo, item.correlativo)">
+                            <v-icon>mdi-delete</v-icon>
+                          </v-btn>
+                          <v-btn color="teal" small title="Ver foto">
+                            <v-icon color="white">mdi-camera</v-icon>
+                          </v-btn>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-data-table>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
 

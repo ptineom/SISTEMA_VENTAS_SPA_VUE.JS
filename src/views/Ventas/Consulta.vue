@@ -230,7 +230,7 @@
               <template v-slot:body="{ items }">
                 <tbody>
                   <tr v-for="item in items" :key="item.comprobante">
-                    <td class="pl-1 pr-0">
+                    <td class="pl-1 pr-0 text-caption">
                       <v-btn
                         color="warning"
                         small
@@ -240,10 +240,10 @@
                         <v-icon>mdi-gesture-tap</v-icon>
                       </v-btn>
                     </td>
-                    <td>{{ item.comprobante }}</td>
-                    <td>{{ item.docCliente }}</td>
-                    <td>{{ item.nomCliente }}</td>
-                    <td class="text-right">
+                    <td class="text-caption">{{ item.comprobante }}</td>
+                    <td class="text-caption">{{ item.docCliente }}</td>
+                    <td class="text-caption">{{ item.nomCliente }}</td>
+                    <td class="text-right text-caption">
                       {{
                         `${item.sgnMoneda} ${$formatoMiles(
                           item.totVenta,
@@ -251,8 +251,8 @@
                         )}`
                       }}
                     </td>
-                    <td>{{ item.fecDocumento }}</td>
-                    <td>
+                    <td class="text-caption">{{ item.fecDocumento }}</td>
+                    <td class="text-caption">
                       <v-chip
                         :color="getColorFormaPago(item.flgEvaluaCredito)"
                         dark
@@ -261,7 +261,7 @@
                         {{ item.nomTipoCondicionPago }}
                       </v-chip>
                     </td>
-                    <td>
+                    <td class="text-caption">
                       <v-chip
                         :color="getColorEstado(item.estDocumento)"
                         dark

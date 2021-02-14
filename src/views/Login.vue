@@ -22,7 +22,7 @@
             :class="{ 'py-0': step == 1 }"
           >
             <span v-show="step == 2 || step == 3">{{ getTitulo }}</span>
-            <h4 v-show="step == 1" class="body-2 mb-3 blue-grey--text">
+            <h4 v-show="step == 1" class="body-2 mb-0 text--disabled font-italic">
               Por favor ingrese su usuario y contraseña.
             </h4>
           </v-card-title>

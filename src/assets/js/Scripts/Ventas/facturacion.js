@@ -687,15 +687,12 @@ export default {
                 }).finally(() => {
                     _self.overlayCliente = false;
                 })
-            }).catch((error) => {
-
-            })
+            }).catch((error) => { })
         }
     },
     mounted() {
         let _self = this;
         _self.overlay = true;
-        debugger;
         _self.$axios.get('/api/Venta/getDataAsync').then((response) => {
             let data = response.data.data.listas;
             let listaComprobantes = data.listaComprobantes;

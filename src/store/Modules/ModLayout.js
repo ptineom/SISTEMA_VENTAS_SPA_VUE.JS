@@ -6,7 +6,8 @@ const ModLayout = {
             breadcrumbs: [{ 'text': 'Home', disabled: false }],
             titleForm: 'Home',
             iconForm: 'mdi-home',
-            flgHome: true
+            flgHome: true,
+            subtitleForm: ''
         },
         bDialogoCambiarContrasenia: false
     },

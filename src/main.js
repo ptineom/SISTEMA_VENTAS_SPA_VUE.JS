@@ -12,15 +12,16 @@ import pluginsUtilidades from './plugins/utilidades'
 Vue.config.productionTip = false
 
 //Configurando alguna propiedades par la inicialización de axios.
-axios.defaults.baseURL = "http://localhost:51691/"
+axios.defaults.baseURL = "http://localhost:53568/"
 axios.defaults.headers.common["Accept"] = "application/json";
-axios.defaults.headers.post["content-type"] = "application/x-www-form-urlencoded";
+// axios.defaults.headers.post["content-type"] = "application/x-www-form-urlencoded";
 
 //Interceptores de axios
 axios.interceptors.request.use(function (config) {
   if (!!localStorage.getItem("tokenSPA_SistemaVentas")) {
     config.headers.common["Authorization"] = "Bearer " + localStorage.getItem("tokenSPA_SistemaVentas");
   }
+
   return config;
 }, function (error) {
   return Promise.reject(error);

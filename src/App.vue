@@ -1,6 +1,6 @@
 <template>
   <v-app id="app">
-    <v-card tile >
+    <v-card tile>
       <v-navigation-drawer
         v-model="drawer"
         :absolute="$vuetify.breakpoint.xsOnly"
@@ -100,6 +100,9 @@
                 {{ headerForm.iconForm }}
               </v-icon>
               {{ !!headerForm.titleForm ? headerForm.titleForm : "Home" }}
+              <span class="font-italic text-body-2 text--disabled">{{
+                headerForm.subtitleForm
+              }}</span>
             </div>
           </v-col>
           <v-col class="py-0 text-right" cols="12" md="6">
@@ -131,7 +134,6 @@ import AlertSB from "./components/Utilitarios/AlertSB";
 import Logout from "./components/Layout/Logout";
 
 import { mapState, mapActions, mapGetters } from "vuex";
-import decode from "jwt-decode";
 
 export default {
   components: {
