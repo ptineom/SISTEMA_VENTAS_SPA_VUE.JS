@@ -119,15 +119,13 @@ export default {
           (value) => {
             //Le quitará el simbolo del dolar y las comas en caso lo tuviera.
             let newValue = parseFloat(value.replace(/[^\d\.]/g, ""));
-            if (isNaN(newValue)) {
-              newValue = 0;
-            }
-            if (newValue == 0) {
-              return "Debe de ingresar el monto a abonar";
-            }
-            if (newValue >= this.total) {
+            if (isNaN(newValue)) newValue = 0;
+
+            if (newValue == 0) return "Debe de ingresar el monto a abonar";
+
+            if (newValue >= this.total)
               return "El monto a abonar no debe ser mayor o igual al monto total";
-            }
+
             return true;
           },
         ],
@@ -186,7 +184,7 @@ export default {
     },
     salir() {
       this.reject();
-      if(!this.editar){
+      if (!this.editar) {
         this.limpiar();
       }
       this.dialog = false;
@@ -194,7 +192,7 @@ export default {
     limpiar() {
       this.abono = 0;
       this.fechaVencimiento = this.$moment(new Date()).format("YYYY-MM-DD");
-    }
+    },
   },
 };
 </script>

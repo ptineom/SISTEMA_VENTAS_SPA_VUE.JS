@@ -1,7 +1,10 @@
 import { mapState } from "vuex";
-
+import DlgMarca from '@/components/Dialogos/DlgMarca'
 export default {
     name: "Articulo",
+    components:{
+        DlgMarca
+    },
     data() {
         return {
             titulo: "Artículo",
@@ -58,13 +61,15 @@ export default {
                 nomVenta: "",
                 idGrupo: "",
                 idFamilia: "",
-                idMarca: "22",
+                idMarca: "",
                 stockMinimo: "",
                 precioCompra: "",
                 flgImportado: false,
                 flgInactivo: false,
-                precioBase: ''
+                precioBase: '',
+                codigoBarra: ''
             },
+            nomMarca:'',
             precioVenta: '',
             precioIgv: '',
             porPrecio: 'venta',
@@ -83,9 +88,10 @@ export default {
             porTipoFiltro: 'descripcion',
             filtro: '',
             monedaLocal: {},
-            imgFoto: 'http://sigpapelera.com.ar/Fotos/sin.jpg',
-            file:null,
-            torito: ''
+            imgVacio: require('@/assets/imagenes/no-disponible.jpg'),
+            srcImg: this.imgVacio,
+            file: null,
+            fileSize: '0kb'
         };
     },
     methods: {
@@ -398,19 +404,19 @@ export default {
                 nomVenta: "",
                 idGrupo: "",
                 idFamilia: "",
-                idMarca: "22",
+                idMarca: "",
                 stockMinimo: "",
                 precioCompra: "",
                 flgImportado: false,
                 flgInactivo: false,
                 precioBase: ''
             };
+            this.nomMarca = "";
             this.precioIgv = "";
             this.precioVenta = "";
             this.detalleUmDscto = [];
             this.sucursalesSeleccionados = this.sucursales.map(x => { return { idSucursal: x.idSucursal } });
             //foto
-            this.torito = "";
             this.limpiarFoto();
         },
         nuevo() {
@@ -515,7 +521,8 @@ export default {
                     formData.append("accion", _self.accion);
                     formData.append("idArticulo", _self.modelo.idArticulo);
                     formData.append("nomArticulo", _self.modelo.nomArticulo);
-                    formData.append("nomVenta", _self.modelo.nomVenta);
+                    formData.append("nomVenta", _self.modelo.nomVenta == null ? '' : _self.modelo.nomVenta);
+                    formData.append("codigoBarra", _self.modelo.codigoBarra == null ? '' : _self.modelo.codigoBarra);
                     formData.append("idGrupo", _self.modelo.idGrupo);
                     formData.append("idFamilia", _self.modelo.idFamilia);
                     formData.append("idMarca", _self.modelo.idMarca);
@@ -573,6 +580,7 @@ export default {
                 _self.modelo.nomVenta = modelo.nomVenta;
                 _self.modelo.codigoBarra = modelo.codigoBarra;
                 _self.modelo.idMarca = modelo.idMarca;
+                _self.nomMarca = modelo.nomMarca;
                 _self.modelo.idGrupo = modelo.idGrupo;
                 _self.modelo.precioCompra = modelo.precioCompra;
                 _self.modelo.stockMinimo = modelo.stockMinimo;
@@ -621,6 +629,18 @@ export default {
                     return { idSucursal: y.idSucursal }
                 });
 
+                //Cargar imagen
+                if (!!modelo.foto1) {
+                    let filename = modelo.foto1.slice(modelo.foto1.lastIndexOf("\\") + 1);
+                    let fotoB64 = `${"data:image/jpg;base64,"}${modelo.fotoB64}`
+                    let file = _self.dataURLtoFile(fotoB64, filename);
+                    _self.srcImg = fotoB64;
+                    _self.fileSize = (file.size / 1024).toFixed(2) + " Kb";
+                    _self.file = file;
+                } else {
+                    _self.srcImg = _self.imgVacio;
+                }
+
                 //Vista mantenimiento
                 _self.vista = 2;
 
@@ -655,22 +675,38 @@ export default {
                 _self.$root.$alertSB(error, { color: "warning" })
             })
         },
-        getFile(e){
+        getFile(e) {
             let input = e.target;
             let _self = this;
-            if(input.files != undefined){
+            if (input.files != undefined) {
                 let foto = input.files[0];
                 let fr = new FileReader();
-                fr.onload = (function(){
-                    _self.imgFoto = fr.result;
+                fr.onload = (function () {
+                    _self.srcImg = fr.result;
                 });
                 fr.readAsDataURL(foto);
                 _self.file = foto;
+                _self.fileSize = `${(foto.size / 1024).toFixed(2)} Kb`;
             }
         },
-        limpiarFoto(){
-            this.imgFoto = "http://sigpapelera.com.ar/Fotos/sin.jpg";
+        limpiarFoto() {
+            this.srcImg = this.imgVacio;
             this.file = null;
+            this.fileSize = "0 Kb";
+        },
+        cancelar(){
+            this.vista = 1;
+            this.filtro = "";
+            this.detalleConsulta = [];
+            this.$refs.txtFiltro.focus();
+            this.porTipoFiltro = "descripcion";
+        },
+        abrirDlgMarca(vista){
+            let _self = this;
+            this.$refs.dlgMarca.show(vista).then((marca)=>{
+                _self.modelo.idMarca = marca.idMarca;
+                _self.nomMarca = marca.nomMarca;
+            }).catch(()=>{});
         }
     },
     watch: {

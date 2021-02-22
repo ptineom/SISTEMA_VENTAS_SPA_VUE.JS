@@ -257,6 +257,30 @@ const MyPlugin = {
         Vue.filter('formatNumber', function (value) {
             return _self.$formatoMiles(value, 2);
         });
+        Vue.prototype.dataURLtoFile = (dataurl, filename) => {
+            //Usage example:
+            //var file = dataURLtoFile('data:text/plain;base64,aGVsbG8gd29ybGQ=','hello.txt');
+            var arr = dataurl.split(','),
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]),
+                n = bstr.length,
+                u8arr = new Uint8Array(n);
+
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+
+            return new File([u8arr], filename, { type: mime });
+        };
+        Vue.prototype.urltoFile = (url, filename, mimeType) => {
+            //Usage example:
+            // let file = urltoFile('data:text/plain;base64,aGVsbG8gd29ybGQ=', 'hello.txt','text/plain')
+            // .then(function(file){ console.log(file);});
+            return (fetch(url)
+                .then(function (res) { return res.arrayBuffer(); })
+                .then(function (buf) { return new File([buf], filename, { type: mimeType }); })
+            );
+        }
 
     }
 };

@@ -1,20 +1,15 @@
 <template>
   <v-container fluid>
-    <v-row
-      style="height: 87vh"
-      class="d-flex flex-row align-center justify-center"
-    >
+    <v-row>
       <v-col
         cols="12"
-        sm="8"
-        md="6"
-        lg="5"
-        class="d-flex flex-column flex-wrap align-center"
+        class="d-flex align-center justify-center"
+        style="height: 100vh"
       >
         <v-card
           class="elevation-12 __b-20 rounded-lg"
-          width="370"
-          max-width="370"
+          :width="370"
+         
         >
           <v-img v-show="step == 1" src="../assets/imagenes/images.png"></v-img>
           <v-card-title
@@ -23,7 +18,7 @@
           >
             <span v-show="step == 2 || step == 3">{{ getTitulo }}</span>
             <h4 v-show="step == 1" class="body-2 mb-0 text--disabled font-italic">
-              Por favor ingrese su usuario y contraseña.
+              Por favor ingrese sus credenciales.
             </h4>
           </v-card-title>
           <v-divider v-show="step == 2 || step == 3"></v-divider>

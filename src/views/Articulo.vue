@@ -71,11 +71,13 @@
                       ref="txtNroDoc"
                       clearable
                       hide-details
-                      v-model="modelo.idMarca"
+                      v-model="nomMarca"
                       readonly
+                      @click:clear="modelo.idMarca=''"
                     >
                       <template slot="prepend">
                         <v-icon
+                          @click="abrirDlgMarca(2)"
                           title="Nuevo"
                           style="cursor: pointer; color: #82b1ff"
                           >mdi-file-outline
@@ -83,6 +85,7 @@
                       </template>
                       <template slot="append">
                         <v-btn
+                         @click="abrirDlgMarca(1)"
                           icon
                           small
                           style="cursor: pointer"
@@ -160,11 +163,10 @@
                       v-model="modelo.flgInactivo"
                     ></v-checkbox>
                   </v-col>
-                  <v-col cols="12" md="2"  offset-md="2" class="py-1 px-1">
+                  <v-col cols="12" md="2" offset-md="2" class="py-1 px-1">
                     <v-text-field
                       label="Moneda"
                       type="text"
-                     
                       dense
                       hide-details
                       readonly
@@ -410,7 +412,9 @@
                                                       v-on="on"
                                                       hide-details
                                                       dense
-                                                       :disabled="!item.flgPromocion"
+                                                      :disabled="
+                                                        !item.flgPromocion
+                                                      "
                                                     ></v-text-field>
                                                   </template>
                                                   <v-date-picker
@@ -466,7 +470,9 @@
                                                       v-on="on"
                                                       hide-details
                                                       dense
-                                                       :disabled="!item.flgPromocion"
+                                                      :disabled="
+                                                        !item.flgPromocion
+                                                      "
                                                     ></v-text-field>
                                                   </template>
                                                   <v-date-picker
@@ -553,43 +559,50 @@
                     </v-card>
                   </v-col>
                 </v-row>
-                    </v-col>
-              <v-col md="2" class="py-0 px-2"> 
-                <v-file-input
-                   label="Foto"
-                   prepend-icon="mdi-camera"
-                   show-size
-                   @change.native="getFile($event)"
-                   @click:clear="limpiarFoto"
-                   accept="image/*"
-                   v-model="torito"
-                ></v-file-input>
-                <v-img
-                  ref="imgFoto"
-                  :src="imgFoto"
-                ></v-img>
+              </v-col>
+              <v-col md="2" class="py-0 px-2">
+                <v-row>
+                  <v-col cols="12 py-1">
+                    <v-file-input
+                      label="Foto"
+                      prepend-icon="mdi-camera"
+                      @change.native="getFile($event)"
+                      clearable
+                      @click:clear="limpiarFoto"
+                      accept="image/*"
+                      v-model="file"
+                      hide-details
+                      style="cursor: pointer"
+                    ></v-file-input>
+                  </v-col>
+                  <v-col class="py-1">
+                    <v-card elevation="1" tile class="mb-2">
+                      <v-card-text class="py-1 px-1">
+                        <v-img :src="srcImg" class="mb-2"></v-img>
+                      </v-card-text>
+                    </v-card>
+                    <v-chip>
+                      <v-icon left> mdi-attachment </v-icon>
+                      {{ fileSize }}
+                    </v-chip>
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
             <v-row>
-        <v-col md="12" class="pt-0">
-          <div class="text-left">
-
-            <v-btn color="success" class="mr-1" @click="grabar">
-              <v-icon>mdi-content-save</v-icon>
-              Grabar
-            </v-btn>
-            <v-btn
-              class="mr-1"
-              color="error"
-              @click="vista=1"
-            >
-              <v-icon> mdi-cancel </v-icon>
-               Cancelar
-            </v-btn>
-
-          </div>
-        </v-col>
-      </v-row>
+              <v-col md="12" class="pt-0">
+                <div class="text-left">
+                  <v-btn color="success" class="mr-1" @click="grabar">
+                    <v-icon>mdi-content-save</v-icon>
+                    Grabar
+                  </v-btn>
+                  <v-btn class="mr-1" color="error" @click="cancelar">
+                    <v-icon> mdi-cancel </v-icon>
+                    Cancelar
+                  </v-btn>
+                </div>
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
 
@@ -640,11 +653,7 @@
                         <v-btn dense color="primary" @click="consultar()"
                           ><v-icon> mdi-magnify </v-icon> Consultar</v-btn
                         >
-                        <v-btn
-                          class="ml-1"
-                          dense
-                          color="info"
-                          @click="nuevo()"
+                        <v-btn class="ml-1" dense color="info" @click="nuevo()"
                           ><v-icon> mdi-file-plus </v-icon> Nuevo</v-btn
                         >
                         <v-btn
@@ -672,7 +681,7 @@
                 >
                   <template v-slot:body="{ items }">
                     <tbody>
-                      <tr v-for="item in items" :key="item.comprobante" >
+                      <tr v-for="item in items" :key="item.comprobante">
                         <td>{{ item.idArticulo }}</td>
                         <td class="text-caption">{{ item.nomArticulo }}</td>
                         <td class="text-caption">{{ item.nomMarca }}</td>
@@ -695,10 +704,21 @@
                         </td>
 
                         <td class="px-1">
-                          <v-btn color="warning" small title="Editar" @click="obtenerArticuloPorId(item.idArticulo)">
+                          <v-btn
+                            color="warning"
+                            small
+                            title="Editar"
+                            @click="obtenerArticuloPorId(item.idArticulo)"
+                          >
                             <v-icon>mdi-gesture-tap</v-icon>
                           </v-btn>
-                          <v-btn color="error" small class="mx-1" title="Eliminar" @click="eliminar(item.idArticulo, item.correlativo)">
+                          <v-btn
+                            color="error"
+                            small
+                            class="mx-1"
+                            title="Eliminar"
+                            @click="eliminar(item.idArticulo, item.correlativo)"
+                          >
                             <v-icon>mdi-delete</v-icon>
                           </v-btn>
                           <v-btn color="teal" small title="Ver foto">
@@ -719,6 +739,8 @@
     <v-overlay :value="overlay" absolute :opacity="'0.36'">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
+
+    <DlgMarca ref="dlgMarca"></DlgMarca>
   </div>
 </template>
 <script src="@/assets/js/Scripts/articulo.js"></script>

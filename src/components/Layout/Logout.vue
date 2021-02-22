@@ -46,7 +46,7 @@
 
         <v-btn outlined color="blue" tile class="body-2" @click="cambiarSede()"
           >Cambiar <br />
-          sede <v-icon color="red">published_with_changes</v-icon></v-btn
+          sede <v-icon color="success">published_with_changes</v-icon></v-btn
         >
       </v-card-actions>
 
