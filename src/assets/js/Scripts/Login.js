@@ -102,7 +102,7 @@ export default {
             });
         },
         
-        () {
+        botonSecundario() {
             //this.step == 1 => form login
             //this.step == 2 => form seleccionar sede
             //this.step == 3 => form recuperar contraseña
