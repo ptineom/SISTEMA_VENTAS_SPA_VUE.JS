@@ -155,7 +155,7 @@ export default {
           (value) => {
             let monto = this.abono > 0 ? this.abono : this.montoTotal;
             //Si el valor del efectivo ingresado es menor o igual al monto total entonces error.
-            if (value > 0 && value <= this.montoTotal) {
+            if (value > 0 && value < this.montoTotal) {
               return `El monto ingresado debe ser mayor al monto ${
                 this.abono > 0 ? "abonado." : "total."
               }`;

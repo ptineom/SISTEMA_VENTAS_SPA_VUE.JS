@@ -74,9 +74,8 @@
                         label="Sede"
                         outlined
                         required
-                        :items="arrSedesL"
+                        :items="sucursales"
                         v-model="idSucursal"
-                        ref="cboSucursal"
                         :rules="reglas.sucursal"
                       ></v-select>
                       <span class="caption grey--text text--darken-1">

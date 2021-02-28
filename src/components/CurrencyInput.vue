@@ -13,6 +13,7 @@
       :autofocus="!!autofocus"
       :class="!!clase ? clase : ''"
       ref="txtCurrencyInput"
+      :hide-details="!!hideDetails"
     >
     </v-text-field>
   </div>
@@ -34,6 +35,7 @@ export default {
     "clase",
     "rules",
     "sgnMoneda",
+    "hideDetails"
   ],
   computed: {
     displayValue: {

@@ -1,4 +1,3 @@
-import router from '../../router/index'
 const ModLayout = {
     namespaced: true,
     state: {

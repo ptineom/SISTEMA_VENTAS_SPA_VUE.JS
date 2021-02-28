@@ -42,16 +42,14 @@ th {
 }
 td {
   border-right: 1px solid rgba(0, 0, 0, 0.12);
+  padding-left: 4px !important;
+  padding-right: 4px !important;
 }
 
 tbody tr:nth-child(odd) {
   background: #f9fbe7;
 }
 
-.ajuste .v-text-field__details {
-  height: 0px !important;
-  min-height: 5px !important;
-}
 
 
 

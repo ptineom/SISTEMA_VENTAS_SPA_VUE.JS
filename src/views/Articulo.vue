@@ -285,7 +285,7 @@
                                               v-for="(item, i) in items"
                                               :key="i"
                                             >
-                                              <td class="px-1">
+                                              <td >
                                                 <v-select
                                                   hide-details
                                                   v-model="item.idUm"
@@ -299,7 +299,7 @@
                                                 >
                                                 </v-select>
                                               </td>
-                                              <td class="px-1">
+                                              <td >
                                                 <v-text-field
                                                   type="text"
                                                   hide-details
@@ -319,10 +319,10 @@
                                                   "
                                                 ></v-text-field>
                                               </td>
-                                              <td class="px-1 text-right">
+                                              <td class="text-right">
                                                 {{ item.precioVenta }}
                                               </td>
-                                              <td class="px-1 text-center">
+                                              <td class="text-center">
                                                 <v-checkbox
                                                   hide-details
                                                   class="shrink mr-0 mt-0"
@@ -336,7 +336,7 @@
                                                   "
                                                 ></v-checkbox>
                                               </td>
-                                              <td class="px-1">
+                                              <td >
                                                 <v-text-field
                                                   hide-details
                                                   dense
@@ -363,9 +363,10 @@
                                                       item
                                                     )
                                                   "
+                                                  @paste.native="(event) => event.preventDefault()"
                                                 ></v-text-field>
                                               </td>
-                                              <td class="px-1">
+                                              <td >
                                                 <v-text-field
                                                   hide-details
                                                   dense
@@ -387,7 +388,7 @@
                                                   "
                                                 ></v-text-field>
                                               </td>
-                                              <td class="px-1">
+                                              <td >
                                                 <v-menu
                                                   v-model="item.showFecIniPro"
                                                   transition="scale-transition"
@@ -445,7 +446,7 @@
                                                   </v-date-picker>
                                                 </v-menu>
                                               </td>
-                                              <td class="px-1">
+                                              <td >
                                                 <v-menu
                                                   v-model="item.showFecFinPro"
                                                   transition="scale-transition"
@@ -503,7 +504,7 @@
                                                   </v-date-picker>
                                                 </v-menu>
                                               </td>
-                                              <td class="px-1">
+                                              <td >
                                                 <v-btn
                                                   color="info"
                                                   small

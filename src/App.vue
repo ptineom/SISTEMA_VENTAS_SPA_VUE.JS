@@ -1,52 +1,54 @@
 <template>
   <v-app id="app">
     <v-card tile>
-      <v-navigation-drawer
-        v-model="drawer"
-        :absolute="$vuetify.breakpoint.xsOnly"
-        :temporary="$vuetify.breakpoint.xsOnly"
-        :permanent="!$vuetify.breakpoint.xsOnly"
-        :mini-variant.sync="miniVariant"
-        app
-        dark
-        color="#222d32"
-        v-if="showLayout"
-        id="menu"
-      >
-        <v-list-item class="blue-tool-2 text-center">
-          <v-list-item-content>
-            <v-list-item-title> Ferretería san cristobal </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item class="px-2">
-          <v-list-item-avatar>
-            <v-img :src="'data:image/jpg;base64,' + this.avatar"></v-img>
-          </v-list-item-avatar>
+      <vuescroll :ops="ops">
+        <v-navigation-drawer
+          v-model="drawer"
+          :absolute="$vuetify.breakpoint.xsOnly"
+          :temporary="$vuetify.breakpoint.xsOnly"
+          :permanent="!$vuetify.breakpoint.xsOnly"
+          :mini-variant.sync="miniVariant"
+          app
+          dark
+          color="#222d32"
+          v-if="showLayout"
+          id="menu"
+        >
+          <v-list-item class="blue-tool-2 text-center">
+            <v-list-item-content>
+              <v-list-item-title> Ferretería san cristobal </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="px-2">
+            <v-list-item-avatar>
+              <v-img :src="'data:image/jpg;base64,' + this.avatar"></v-img>
+            </v-list-item-avatar>
 
-          <v-list-item-content>
-            <v-list-item-title class="subtitle-1">{{
-              usuario.fullName | capitalize
-            }}</v-list-item-title>
-            <v-list-item-subtitle class="subtitle-2">{{
-              usuario[
-                "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-              ] | capitalize
-            }}</v-list-item-subtitle>
-          </v-list-item-content>
-          <v-btn icon @click.stop="appBarStop">
-            <v-icon>mdi-chevron-left</v-icon>
-          </v-btn>
-        </v-list-item>
-        <v-divider></v-divider>
+            <v-list-item-content>
+              <v-list-item-title class="subtitle-1">{{
+                usuario.fullName | capitalize
+              }}</v-list-item-title>
+              <v-list-item-subtitle class="subtitle-2">{{
+                usuario[
+                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                ] | capitalize
+              }}</v-list-item-subtitle>
+            </v-list-item-content>
+            <v-btn icon @click.stop="appBarStop">
+              <v-icon>mdi-chevron-left</v-icon>
+            </v-btn>
+          </v-list-item>
+          <v-divider></v-divider>
 
-        <v-list dense>
-          <Menu
-            v-for="(elem, idx) in arrMenuItem"
-            :key="idx"
-            :menuItem="elem"
-          ></Menu>
-        </v-list>
-      </v-navigation-drawer>
+          <v-list dense>
+            <Menu
+              v-for="(elem, idx) in arrMenuItem"
+              :key="idx"
+              :menuItem="elem"
+            ></Menu>
+          </v-list>
+        </v-navigation-drawer>
+      </vuescroll>
     </v-card>
 
     <v-app-bar dense app color="blueTool1" v-if="showLayout">
@@ -81,7 +83,7 @@
           <v-img :src="'data:image/jpg;base64,' + this.avatar"></v-img>
         </v-avatar>
         <span
-          class="text-caption ml-2 text-truncate d-none d-sm-flex"
+          class="text-caption ml-2 text-truncate d-none d-sm-block"
           style="width: 140px"
           >{{ usuario.fullName | capitalize }}</span
         >
@@ -92,7 +94,7 @@
     </v-app-bar>
 
     <v-main class="color-fondo">
-      <v-container fluid class="px-1 py-0">
+      <v-container fluid class="px-3 py-0">
         <v-row v-show="showLayout">
           <v-col class="py-1" cols="12" md="6">
             <div class="font-weight-bold pl-2 text-h5">
@@ -128,19 +130,20 @@
 </template>
 
 <script>
-import Menu from "./components/Menu";
+import Menu from "./components/Layout/Menu";
 import Confirm from "./components/Utilitarios/Confirm";
 import AlertSB from "./components/Utilitarios/AlertSB";
 import Logout from "./components/Layout/Logout";
 
 import { mapState, mapActions, mapGetters } from "vuex";
-
+import vuescroll from "vuescroll";
 export default {
   components: {
     Confirm,
     Menu,
     AlertSB,
     Logout,
+    vuescroll,
   },
   data() {
     return {
@@ -148,6 +151,26 @@ export default {
       drawer: false,
       mini: true,
       bShowLogout: false,
+      ops: {
+        // vuescroll: {
+        //   mode: "native",
+        //   sizeStrategy: "percent",
+        //   detectResize: true,
+        //   /** Enable locking to the main axis if user moves only slightly on one of them at start */
+        //   locking: true,
+        // },
+        // scrollPanel: {
+        //   initialScrollY: false,
+        //   initialScrollX: false,
+        //   scrollingX: true,
+        //   scrollingY: true,
+        //   speed: 300,
+        //   easing: undefined,
+        //   verticalNativeBarPos: "right",
+        // },
+        // rail: {},
+        // bar: {},
+      },
     };
   },
   computed: {

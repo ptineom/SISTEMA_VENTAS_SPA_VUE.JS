@@ -1,91 +1,78 @@
 <template>
-<v-snackbar
-    v-model="snackbar"
-    :right="options.right"
-    top
-    :color="options.color"
-    class="mr-0"
-    :absolute="options.absolute"
-    ref="alerta"
-    :multi-line="options.multiLine"
-  >
-    <span :class="options.fontSize">{{ message }}</span> 
-
-    <template v-slot:action="{ attrs }">
-      <v-btn
-        :color="options.colorCerrar"
-        text
-        v-bind="attrs"
-        @click="cerrar"
-        class="pr-0 "
-        title="Cerrar"
-      >
-        <v-icon>mdi-window-close</v-icon>
-        <!-- Cerrar -->
-      </v-btn>
-    </template>
-  </v-snackbar>
-  
+  <div>
+    <v-alert
+      v-model="alert"
+      dark
+      border="left"
+      transition="scale-transition"
+      :type="options.type"
+      dismissible
+      close-text="Close Alert"
+      prominent
+      style="position: absolute; top: 10px; z-index: 555; right: 20px"
+      :style="{ opacity: opacidad }"
+    >
+      <span :class="options.fontSize">{{ message }}</span>
+    </v-alert>
+  </div>
 </template>
+
 <script>
 export default {
   name: "AlertSB",
   data() {
     return {
-      snackbar: false,
-      text: "",
+      alert: false,
       resolve: null,
       message: null,
       options: {
         timeout: 3000, //-1, //indeterminado
-        color: "success",
-        colorCerrar: "yellow",
-        multiLine: true,
-        fontSize:''
+        type: "success",
+        fontSize: "",
       },
       intervalId: 0,
+      opacidad: 1
     };
   },
   watch: {
-    snackbar(value) {
+    alert(value) {
       let _self = this;
-      let alerta = _self.$refs.alerta.$el;
 
-      //Cuando el valor sea true, dependiendo del timeout permanecerá visible el snackbar.
       if (value) {
-        //Se reducirá la opacidad apartir de la propiedad timeout indicado
+        //Despué de cumplir el intervalo indicado en el timeout, desaparecerá lentamente.
         setTimeout(() => {
-          //Por cada 200 milisegundos disminuirá la opacidad hasta llegar a cero y desabilitarse la
-          //propiedad snackbar en false.
-          this.intervalId = setInterval(function () {
-            if (!alerta.style.opacity) alerta.style.opacity = 1;
+          let milisegundos = 200;
 
-            if (alerta.style.opacity > 0) {
-              alerta.style.opacity -= 0.1;
+          //Disminuirá la opacidad del componente hasta desaparecer.
+          _self.intervalId = setInterval(function () {
+            if(!_self.opacidad) _self.opacidad = 1;
+
+            if (_self.opacidad > 0) {
+              _self.opacidad -= 0.1;
             } else {
-              _self.snackbar = false;
-              _self.limpiar(_self.intervalId)
+              _self.alert = false;
+              _self.limpiar(_self.intervalId);
             }
-          }, 200);
+          }, milisegundos);
         }, _self.options.timeout);
       }
     },
   },
   methods: {
     show(mensaje, options) {
-      this.limpiar(this.intervalId)
-      this.snackbar = true;
+      this.limpiar(this.intervalId);
+      this.alert = true;
       this.message = mensaje;
+
       //Object.assign: Añade nuevas propiedades y sobrescribir las existentes.
       this.options = Object.assign(this.options, options);
     },
     cerrar() {
-      this.snackbar = false;
+      this.alert = false;
     },
     limpiar(intervalId) {
       clearInterval(intervalId);
-      this.intervalId = 0;
-      this.$refs.alerta.$el.style.opacity = 1;
+      this.opacidad = 1;
     },
   },
 };

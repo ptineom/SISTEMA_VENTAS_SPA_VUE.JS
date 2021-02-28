@@ -69,14 +69,24 @@
                       <tr
                         v-for="item in items"
                         :key="item.idCliente"
-                        @click="rowClicked(item)"
-                        style="cursor: pointer"
                         :class="
                           selectedRows.indexOf(item.idCliente) >= 0
                             ? 'rowSelected'
                             : ''
                         "
+                        @click="rowMarked(item.idCliente)"
+                        style="cursor: pointer"
                       >
+                        <td class="px-1">
+                          <v-btn
+                            color="warning"
+                            small
+                            style="cursor: pointer"
+                            @click="rowClicked(item)"
+                          >
+                            <v-icon>mdi-gesture-tap</v-icon>
+                          </v-btn>
+                        </td>
                         <td>{{ item.idCliente }}</td>
                         <td>{{ item.nomCliente }}</td>
                         <td>{{ item.nomTipoDocumento }}</td>
@@ -134,6 +144,7 @@ export default {
       tipoFiltro: "descripcion",
       filtro: "",
       headers: [
+        { text: "", value: "", width: "60px" },
         { text: "Código", value: "idCliente" },
         {
           text: "Razón social",
@@ -176,9 +187,7 @@ export default {
 
       if (this.filtro == "") {
         this.$refs.alerta.show("Debe de ingresar el filtro", {
-          absolute: true,
-          color: "warning",
-          right: false,
+          type: "warning",
         });
         return;
       }
@@ -195,13 +204,11 @@ export default {
           let result = response.data;
           if (!result.bResultado) {
             this.$refs.alerta.show(result.sMensaje, {
-              absolute: true,
-              color: "warning",
-              right: false,
+              type: "warning",
             });
             return;
           }
-          
+
           let lista = result.data;
           _self.clientes = lista.map((elem) => {
             return {
@@ -216,9 +223,7 @@ export default {
         })
         .catch((error) => {
           this.$refs.alerta.show(error.response.data.Message, {
-            absolute: true,
-            color: "warning",
-            right: false,
+            type: "warning",
           });
           return;
         })
@@ -232,24 +237,37 @@ export default {
 
     window.addEventListener("keydown", (e) => {
       if (!_self.dialog) return;
+      if (_self.clientes.length == 0) return;
 
-      _self
-        .$direccionarFilasGrilla(e, _self.$refs.tbodyBus, _self.$refs.txtFiltro)
-        .then((value) => {
-          if (e.keyCode == 13) {
-            let modelo = _self.clientes.find((x) => x.idCliente == value);
-            _self.rowClicked(modelo);
-          } else if (e.keyCode == 27) {
-            _self.dialog = false;
-          } else {
-            _self.rowMarked(value);
-          }
-        })
-        .catch((errorMessage) => {
-          if (errorMessage != "") {
-            throw new Error(errorMessage);
-          }
-        });
+      if (
+        e.key == "Enter" ||
+        e.key == "Escape" ||
+        e.key == "ArrowDown" ||
+        e.key == "ArrowUp"
+      ) {
+        //Ayuda del teclado(abajo, arriba, enter, esc)
+        let config = {
+          tbody: _self.$refs.tbodyBus,
+          txtFiltro: _self.$refs.txtFiltro,
+          indexColumn: 1,
+        };
+
+        _self
+          .$direccionarFilasGrilla(e, config)
+          .then((value) => {
+            if (e.key == "Enter") {
+              let modelo = _self.clientes.find((x) => x.idCliente == value);
+              _self.rowClicked(modelo);
+            } else if (e.key == "Escape") {
+              _self.dialog = false;
+            } else {
+              _self.rowMarked(value);
+            }
+          })
+          .catch((errorMessage) => {
+            if (errorMessage != "") throw new Error(errorMessage);
+          });
+      }
     });
   },
 };

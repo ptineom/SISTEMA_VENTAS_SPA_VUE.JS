@@ -8,6 +8,8 @@ import axios from 'axios';
 import moment from 'moment';
 import ModLogin from './store/Modules/ModLogin';
 import pluginsUtilidades from './plugins/utilidades'
+
+
 //import axios from './plugins/axios'
 Vue.config.productionTip = false
 
@@ -47,17 +49,19 @@ axios.interceptors.response.use(function (config) {
   if (!originalRequest._retry) {
     originalRequest._retry = true;
     //Generamos un nuevo accessToken con el refreshToken
-    let usuario = ModLogin.state.usuario;
     let parameters = {
       idRefreshToken: localStorage.getItem("refreshToken")
     }
     axios.post(urlRefreshToken, parameters).then((response) => {
-      store.dispatch("ModLogin/saveAccessToken", response.data.token);
-      store.dispatch("ModLogin/saveRefreshToken", response.data.refreshToken);
+      //Lo almacenamos con vuex al localstorage
+      store.dispatch("ModLogin/guardarTokens", new {
+        token: response.data.token,
+        refreshToken: response.data.refreshToken
+      });
 
       originalRequest.headers['Authorization'] = `Bearer ${response.data.token}`;
       return axios.request(originalRequest);
-      debugger;
+
       //return axios(originalRequest);
 
       //
@@ -71,7 +75,6 @@ axios.interceptors.response.use(function (config) {
       // });
 
     }).catch((error) => {
-      debugger;
       // alert("Su sesión ha terminado. Inicie sesíon nuevamente si desea continuar.");
       Promise.reject(error);
     })

@@ -7,6 +7,7 @@ export default {
     },
     data() {
         return {
+            overlayConsulta:false,
             dialog: false,
             bDialogBuscarCliente:false,
             cliente: {
@@ -24,7 +25,7 @@ export default {
             fechaFinal: "",
             tipoFiltro: "rangoFechas",
             // fechaRango: this.inicializarRango(),
-            fechaRango: ['2019-01-01','2020-11-30'],
+             fechaRango: ['2019-01-01','2020-11-30'],
             showRangoFechas: false,
             idEstado: 0,
             listadoVentas: [],
@@ -88,15 +89,13 @@ export default {
             let cliente = this.cliente;
             if (cliente.idTipoDocumento=="") {
                 this.$refs.alerta.show("Debe de seleccionar el tipo de documento del cliente", {
-                    absolute: true,
-                    color: "warning",
+                    type: "warning",
                 });
                 return;
             }
             if (cliente.nroDocumento == "") {
                 this.$refs.alerta.show("Debe de ingresar el número de documento del cliente", {
-                    absolute: true,
-                    color: "warning",
+                    type: "warning",
                 });
                 return;
             }
@@ -110,7 +109,7 @@ export default {
                     nomCliente: data.nomCliente
                 })
             }).catch((error) => {
-                _self.$refs.alerta.show(error.response.data.Message, { color: "error", absolute: true })
+                _self.$refs.alerta.show(error.response.data.Message, { type: "error" })
             }).finally(() => {
                 _self.overlayCliente = false;
             })
@@ -135,30 +134,26 @@ export default {
             if (_self.tipoFiltro == "cliente") {
                 if (_self.cliente.idTipoDocumento == '') {
                     _self.$refs.alerta.show("Debe de seleccionar el tipo de documento del cliente", {
-                        absolute: true,
-                        color: "warning",
+                        type: "warning",
                     });
                     return;
                 }
                 if (_self.cliente.nroDocumento == '') {
                     _self.$refs.alerta.show("Debe de ingresar el número de documento del cliente", {
-                        absolute: true,
-                        color: "warning",
+                        type: "warning",
                     });
                     return;
                 }
                 if (_self.cliente.idCliente == '') {
                     _self.$refs.alerta.show("No ha seleccionado ningún cliente", {
-                        absolute: true,
-                        color: "warning",
+                        type: "warning",
                     });
                     return;
                 }
             } else if (_self.tipoFiltro == "comprobante") {
                 if(_self.comprobante.idTipoComprobante == '' && _self.comprobante.nroSerie == '' && _self.comprobante.nroDocumento == '' ){
                     _self.$refs.alerta.show("Debe de seleccionar al menos algún parámetro para la búsqueda por comprobante.", {
-                        absolute: true,
-                        color: "warning",
+                        type: "warning",
                     });
                     return;
                 }
@@ -167,12 +162,11 @@ export default {
             let fechaFinal = _self.fechaRango[1];
             if (_self.$moment(fechaInicial).isAfter(fechaFinal)) {
                 _self.$refs.alerta.show("La fecha inicial no puede ser mayor a la fecha final", {
-                    absolute: true,
-                    color: "warning",
+                    type: "warning",
                 });
                 return;
             }
-            _self.overlay = true;
+            _self.overlayConsulta = true;
             _self.listadoVentas = [];
 
             let parameters = {
@@ -192,8 +186,7 @@ export default {
                     let result = response.data;
                     if (!result.bResultado) {
                         _self.$refs.alerta.show(result.sMensaje, {
-                            absolute: true,
-                            color: "warning",
+                            type: "warning",
                         });
                         return;
                     }
@@ -203,12 +196,11 @@ export default {
                 .catch((error) => {
                     let data = error.response.data;
                     _self.$refs.alerta.show(data.Message, {
-                        absolute: true,
-                        color: "warning",
+                        type: "warning",
                     });
                 })
                 .finally(() => {
-                    _self.overlay = false;
+                    _self.overlayConsulta = false;
                 });
         },
         getColorEstado(estDocumento) {

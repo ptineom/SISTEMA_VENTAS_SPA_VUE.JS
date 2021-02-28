@@ -10,7 +10,7 @@
             <v-divider></v-divider>
             <v-card-text class="pt-2 pb-0">
               <v-row>
-                <v-col md="5" class="py-0 px-1">
+                <v-col md="5" class="pt-0 px-1">
                   <v-select
                     dense
                     label="Tipo comprobante"
@@ -20,37 +20,38 @@
                     v-model="modelo.idTipoComprobante"
                     @change="documentosXComprobante"
                     ref="cboTipCom"
-                    class="ajuste"
+                    hide-details
+                    
                   ></v-select>
                 </v-col>
-                <v-col md="3" class="py-0 px-1">
+                <v-col md="3" class="pt-0 px-1">
                   <v-text-field
                     label="Serie"
                     type="text"
                     outlined
                     dense
                     disabled
-                    class="ajuste text-right"
+                    class="text-right"
                     filled
                     v-model="modelo.nroSerie"
-                    
+                    hide-details
                   />
                 </v-col>
-                <v-col md="4" class="py-0 px-1">
+                <v-col md="4" class="pt-0 px-1">
                   <v-text-field
                     label="Número"
                     type="text"
                     outlined
                     dense
                     disabled
-                    class="ajuste"
                     filled
                     v-model="modelo.nroDocumento"
+                    hide-details
                   />
                 </v-col>
               </v-row>
               <v-row>
-                <v-col md="4" class="py-0 px-1">
+                <v-col md="4" class="pt-0 px-1">
                   <v-menu
                     v-model="showFecEmi"
                     transition="scale-transition"
@@ -68,7 +69,7 @@
                         v-on="on"
                         outlined
                         dense
-                        class="ajuste"
+                        hide-details
                       ></v-text-field>
                     </template>
                     <v-date-picker
@@ -86,7 +87,7 @@
                     </v-date-picker>
                   </v-menu>
                 </v-col>
-                <v-col md="4" class="py-0 px-1">
+                <v-col md="4" class="pt-0 px-1">
                   <v-menu
                     ref="txtHorEmi"
                     v-model="showHorEmi"
@@ -116,7 +117,7 @@
                           append-icon="mdi-clock-time-four-outline"
                           :disabled="!chkHorEmi"
                           :filled="!chkHorEmi"
-                          class="ajuste"
+                          hide-details
                         ></v-text-field>
                       </div>
                     </template>
@@ -130,7 +131,7 @@
                     ></v-time-picker>
                   </v-menu>
                 </v-col>
-                <v-col md="4" class="py-0 px-1">
+                <v-col md="4" class="pt-0 px-1">
                   <v-menu
                     ref="txtFecVen"
                     v-model="showFecVen"
@@ -148,7 +149,7 @@
                         v-on="on"
                         outlined
                         dense
-                        class="ajuste"
+                        hide-details
                       ></v-text-field>
                     </template>
                     <v-date-picker
@@ -187,7 +188,7 @@
             <v-divider></v-divider>
             <v-card-text class="pt-2 pb-0">
               <v-row>
-                <v-col md="5" class="py-0 px-1">
+                <v-col md="5" class="pt-0 px-1">
                   <v-select
                     dense
                     label="Tipo documento"
@@ -196,11 +197,13 @@
                     v-model="cliente.idTipoDocumento"
                     :items="arrDocumentos"
                     ref="cboTipDoc"
-                    @change="seleccionarTipoDocumento"
-                    class="ajuste"
+                    @change="seleccionarTipoDocumento($event)"
+                    hide-details
+                    clearable
+       
                   ></v-select>
                 </v-col>
-                <v-col md="7" class="py-0 px-1">
+                <v-col md="7" class="pt-0 px-1">
                   <v-text-field
                     label="N° documento"
                     type="text"
@@ -211,7 +214,8 @@
                     v-model="cliente.nroDocumento"
                     @keyup.enter="obtenerClientePorDocumento"
                     ref="txtNroDoc"
-                    class="ajuste"
+                    hide-details
+                    :maxlength="maxlengthDocumento"
                   >
                     <template slot="prepend">
                       <v-icon
@@ -252,7 +256,7 @@
                 </v-col>
               </v-row>
               <v-row>
-                <v-col md="4" class="py-0 px-1">
+                <v-col md="4" class="pt-0 px-1">
                   <v-text-field
                     label="Código"
                     type="text"
@@ -260,18 +264,18 @@
                     dense
                     disabled
                     filled
-                    class="ajuste"
+                    hide-details
                     v-model="cliente.idCliente"
                   />
                 </v-col>
-                <v-col md="8" class="py-0 px-1">
+                <v-col md="8" class="pt-0 px-1">
                   <v-text-field
                     label="Cliente"
                     type="text"
                     outlined
                     dense
                     disabled
-                    class="ajuste"
+                    hide-details
                     filled
                     v-model="cliente.nomCliente"
                   />
@@ -293,7 +297,7 @@
           <v-card elevation="1" tile :disabled="bSeleccionarComprobante">
             <v-card-text class="pt-2 pb-0">
               <v-row>
-                <v-col md="4" class="py-0 px-1">
+                <v-col md="4" class="pt-0 px-1">
                   <v-text-field
                     label="Búsqueda por código de barra"
                     prepend-inner-icon="mdi-barcode"
@@ -305,7 +309,7 @@
                     :autocomplete="'off'"
                     clearable
                     v-model="fieldSearchBarcode"
-                    class="ajuste"
+                    hide-details
                   >
                     <template slot="append-outer">
                       <v-btn
@@ -323,7 +327,7 @@
                     </template>
                   </v-text-field>
                 </v-col>
-                <v-col md="6" class="py-0">
+                <v-col md="6" class="pt-0">
                   <v-btn
                     color="primary"
                     @click.stop="bDialogBuscarArticulo = true"
@@ -337,7 +341,7 @@
                     @seleccionarRegistro="agregarArticulo($event)"
                   ></DlgBuscarArticulo>
                 </v-col>
-                <v-col md="2" class="py-0">
+                <v-col md="2" class="pt-0">
                   <v-select
                     dense
                     label="Moneda"
@@ -345,7 +349,7 @@
                     v-model="modelo.idMoneda"
                     :items="arrMonedas"
                     readonly
-                    class="ajuste"
+                    hide-details
                   ></v-select>
                 </v-col>
               </v-row>
@@ -371,11 +375,11 @@
                 dense
               >
                 <template v-slot:body="{ items }">
-                  <tbody ref="tbodyDetalle">
+                  <tbody>
                    <tr v-for="(item,i) in items" :key="i">
-                      <td>{{ item.codigo }}</td>
-                      <td>{{ item.descripcion }}</td>
-                      <td>
+                      <td class="">{{ item.codigo }}</td>
+                      <td class="">{{ item.descripcion }}</td>
+                      <td class="">
                         <v-select
                           v-model="item.idUm"
                           single-line
@@ -383,13 +387,13 @@
                           label="Unidad medida"
                           :items="item.unidadMedidas"
                           @change="editColumn(item, 2, i)"
-                          class="ajuste"
+                          hide-details
                         >
                         </v-select>
                       </td>
                       <td class="text-right">{{ item.nroFactor }}</td>
                       <td class="text-right">{{ item.precioUnitario }}</td>
-                      <td>
+                      <td class="">
                         <v-text-field
                           dense
                           v-model="item.cantidad"
@@ -401,13 +405,13 @@
                             }
                           "
                           :autocomplete="'off'"
-                          class="ajuste"
+                          hide-details
                           @keypress.native="$numerosDecimales($event, 2)"
                           @keyup.enter="$refs.descuento1_x[i].focus()"
                           ref="cantidad_x"
                         ></v-text-field>
                       </td>
-                      <td>
+                      <td class="">
                         <v-text-field
                           dense
                           v-model="item.descuento1"
@@ -423,12 +427,12 @@
                           min="0"
                           max="100"
                           step="5"
-                          class="ajuste"
+                          hide-details
                           ref="descuento1_x"
                           @keyup.enter.native="$refs.importe_x[i].$refs.txtCurrencyInput.focus()"
                         ></v-text-field>
                       </td>
-                      <td>
+                      <td class="">
                         <!-- <CurrencyInput v-model="item.importe" :sgnMoneda="getMoneda"></CurrencyInput> -->
                         <CurrencyInput
                           :value="item.importe"
@@ -441,13 +445,13 @@
                           :sgnMoneda="getMoneda()"
                           @keypress.native="$numerosDecimales($event, 2)"
                           :dense="true"
-                          :clase="'ajuste'"
+                          :hideDetails="true"
                           :reverse="true"
                           ref="importe_x"
                         >
                         </CurrencyInput>
                       </td>
-                      <td>
+                      <td class="">
                         <v-btn
                           color="error"
                           small
@@ -472,17 +476,17 @@
               <v-row>
                 <v-col md="4" class="py-0">
                   <v-row>
-                    <v-col md="6" class="pb-0">
+                    <v-col md="6" >
                       <v-select
                         dense
                         label="Tipo de pago"
                         v-model="modelo.idTipoPago"
                         outlined
                         :items="arrTipoPagos"
-                        class="ajuste"
+                        hide-details
                       ></v-select>
                     </v-col>
-                    <v-col md="6" class="pb-0">
+                    <v-col md="6" >
                       <v-select
                         dense
                         label="Forma de pago"
@@ -490,7 +494,7 @@
                         outlined
                         :items="arrFormapagos"
                         @change="seleccionarFormaPago"
-                        class="ajuste"
+                        hide-details
                       ></v-select>
                       <DlgAbonarCredito
                         :sgnMoneda="getMoneda()"
@@ -527,7 +531,7 @@
                         readonly
                         filled
                         dense
-                        class="ajuste"
+                      
                       >
                         <template slot="append">
                           <v-btn
@@ -552,17 +556,17 @@
                         readonly
                         :filled="true"
                         dense
-                        class="ajuste"
+                        hide-details
                       ></v-text-field>
                     </v-card-text>
                   </v-card>
                 </v-col>
                 <v-col md="5" class="py-0">
                   <v-row>
-                    <v-col md="3" class="py-0 height-text">
-                      <v-subheader>Sub total</v-subheader>
-                    </v-col>
-                    <v-col md="6" offset-md="3" class="py-0 height-text">
+                    <v-col md="3" class="pb-0 pt-1">
+                      <span class="font-weight-bold" >Sub total</span>
+                     </v-col>
+                    <v-col md="6" offset-md="3" class="py-0 ">
                       <v-text-field
                         type="text"
                         reverse
@@ -571,13 +575,14 @@
                         class="color-disabled"
                         readonly
                         :value="$formatoMiles(totales.subTotal, 2)"
+                        hide-details
                       />
                     </v-col>
 
-                    <v-col md="3" class="py-0 height-text">
-                      <v-subheader>Dscto %</v-subheader>
+                    <v-col md="3" class="pb-0 pt-1 ">
+                    <span class="font-weight-bold"> Dscto %</span>
                     </v-col>
-                    <v-col md="3" class="py-0 height-text">
+                    <v-col md="3" class="py-0">
                       <v-text-field
                         :autocomplete="'off'"
                         dense
@@ -592,10 +597,12 @@
                         placeholder="tasa %"
                         @keypress.native="$soloNumerosEnteros($event)"
                         @paste.native="(event) => event.preventDefault()"
+
                         :disabled="detalle.length > 0 ? false : true"
+                        hide-details
                       ></v-text-field>
                     </v-col>
-                    <v-col md="6" class="py-0 height-text">
+                    <v-col md="6" class="py-0">
                       <v-text-field
                         type="text"
                         reverse
@@ -604,13 +611,14 @@
                         class="color-disabled"
                         readonly
                         :value="$formatoMiles(totales.totalDescuento, 2)"
+                        hide-details
                       />
                     </v-col>
-                    <v-col md="3" class="py-0 height-text">
-                      <v-subheader>I.G.V.(18%)</v-subheader>
+                    <v-col md="3" class="pb-0 pt-1">
+                     <span class="font-weight-bold"> I.G.V.(18%)</span>
                     </v-col>
 
-                    <v-col md="6" offset-md="3" class="py-0 height-text">
+                    <v-col md="6" offset-md="3" class="py-0 ">
                       <v-text-field
                         type="text"
                         reverse
@@ -619,12 +627,13 @@
                         class="color-disabled"
                         readonly
                         :value="$formatoMiles(totales.totalIgv, 2)"
+                        hide-details
                       />
                     </v-col>
-                    <v-col md="3" class="py-0 height-text">
-                      <v-subheader>Total</v-subheader>
+                    <v-col md="3" class="pb-0 pt-1">
+                     <span class="font-weight-bold"> Total </span>
                     </v-col>
-                    <v-col md="6" offset-md="3" class="py-0 height-text">
+                    <v-col md="6" offset-md="3" class="py-0">
                       <v-text-field
                         type="text"
                         reverse
@@ -633,12 +642,12 @@
                         class="color-disabled"
                         readonly
                         :value="$formatoMiles(totales.total, 2)"
+                            hide-details
                       />
                     </v-col>
-                    <v-col md="3" class="py-0 heighttext">
-                      <v-subheader>Redondeo</v-subheader></v-col
-                    >
-                    <v-col md="3" class="py-0 height-text">
+                    <v-col md="3" class="pb-0 pt-1">
+                     <span class="font-weight-bold"> Redondeo </span></v-col>
+                    <v-col md="3" class="py-0 ">
                       <v-text-field
                         :autocomplete="'off'"
                         dense
@@ -648,9 +657,10 @@
                         readonly
                         placeholder=""
                         :value="parseFloat(totales.redondeo).toFixed(2)"
+                         hide-details
                       ></v-text-field>
                     </v-col>
-                    <v-col md="6" class="py-0 height-text">
+                    <v-col md="6" class="py-0 ">
                       <v-text-field
                         type="text"
                         reverse
@@ -659,6 +669,7 @@
                         class="color-disabled"
                         readonly
                         :value="totalPagarFormateado"
+                          hide-details
                       />
                     </v-col>
                   </v-row>
@@ -710,7 +721,7 @@
 
     <Consulta  
     :arrComprobantes="arrComprobantes"
-    :arrDocumentos="arrDocumentos"
+    :arrDocumentos="arrDocumentosConsulta"
     :arrEstados="arrEstados"
     ref="dlgBuscarVenta"
     ></Consulta>
@@ -722,8 +733,5 @@
 .color-disabled .v-input__slot {
   background: #eeeeee !important;
 }
-.height-text {
-  height: 30px;
-  min-height: 30px;
-}
+
 </style>

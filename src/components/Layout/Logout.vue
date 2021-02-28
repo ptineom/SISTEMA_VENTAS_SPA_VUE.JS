@@ -76,6 +76,7 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import CambiarContrasenia from "./CambiarContrasenia";
+
 export default {
   name: "Logout",
   components: {

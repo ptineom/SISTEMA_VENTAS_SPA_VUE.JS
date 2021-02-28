@@ -9,39 +9,53 @@ const ModLogin = {
         nameToken: 'tokenSPA_SistemaVentas',
         arrMenuItem: [],
         bCambiarSede: false,
-        avatar:'',
+        avatar: '',
         refreshToken: ''
     },
     mutations: {
-        setToken(state, token) {
-            state.token = token;
+        setToken(state, payload) {
+            state.token = payload;
         },
-        setUsuario(state, usuario) {
-            state.usuario = usuario
+        setUsuario(state, payload) {
+            state.usuario = payload
         },
-        setArrMenuItem(state, arr) {
-            state.arrMenuItem = arr;
+        setArrMenuItem(state, payload) {
+            state.arrMenuItem = payload;
         },
         setBCambiarSede(state, payload) {
             state.bCambiarSede = payload;
         },
-        setAvatar(state, payload){
+        setAvatar(state, payload) {
             state.avatar = payload;
         },
-        setRefreshToken(state, payload){
+        setRefreshToken(state, payload) {
             state.refreshToken = payload;
         }
     },
     actions: {
-        guardarToken(store, token) {
+        guardarInfo(store, payload) {
+            let token = payload.token;
+            let avatarB64 = payload.avatarB64;
+            let menuItem = payload.menuItem;
+            let refreshToken = payload.refreshToken;
+
+            //decodificamos el token
             let decodeToken = decode(token);
+
             store.commit('setToken', token);
             store.commit('setUsuario', decodeToken)
-            localStorage.setItem(store.state.nameToken, token)
-
             store.commit("setBCambiarSede", false)
+            store.commit("setAvatar", avatarB64);
+            store.commit("setArrMenuItem", menuItem.children);
+
+            //Guardamos el token, avatar, menu, refreshToken en el localstorage
+            localStorage.setItem(store.state.nameToken, token)
+            localStorage.setItem("avatarB64", avatarB64);
+            localStorage.setItem("arrMenuItem", JSON.stringify(menuItem.children))
+            localStorage.setItem("refreshToken", refreshToken)
+
+            //Nos redijiremos al home despues de loguearnos correctamente.
             router.push({ name: "Home" })
- 
         },
         autoLogin(store) {
             //Si ya tenemos un token, solo recuepramos la información.
@@ -52,13 +66,13 @@ const ModLogin = {
                 store.commit("setUsuario", decodeToken);
 
 
-                if(localStorage.getItem("avatarB64")){
+                if (localStorage.getItem("avatarB64")) {
                     store.commit("setAvatar", localStorage.getItem("avatarB64"));
                 }
-                if(localStorage.getItem("arrMenuItem")){
+                if (localStorage.getItem("arrMenuItem")) {
                     store.commit("setArrMenuItem", JSON.parse(localStorage.getItem("arrMenuItem")));
                 }
-                if(localStorage.getItem("refreshToken")){
+                if (localStorage.getItem("refreshToken")) {
                     store.commit("setRefreshToken", localStorage.getItem("refreshToken"));
                 }
             }
@@ -71,47 +85,43 @@ const ModLogin = {
                 store.commit("setUsuario", null);
                 store.commit("setArrMenuItem", []);
 
-                //Eliminamos el avatar y le menú.
+                //Eliminamos el avatar y el menú.
                 store.commit("setAvatar", null);
                 localStorage.removeItem("avatarB64");
                 store.commit("setArrMenuItem", []);
                 localStorage.removeItem("arrMenuItem");
                 store.commit("setRefreshToken", null);
                 localStorage.removeItem("refreshToken");
+
+                //Redirección al login.
                 router.push({ name: "Login" })
             }
         },
         setBCambiarSede(store, payload) {
             store.commit('setBCambiarSede', payload);
         },
-        saveAvatar(store, payload){
-            store.commit("setAvatar", payload);
-            localStorage.setItem("avatarB64", payload);
-        },
-        saveArrMenuItem(store, payload){
-            //Obtenemos las lista de menu.
-            let menuItem = payload;
-            store.commit("setArrMenuItem", menuItem.children);
-            localStorage.setItem("arrMenuItem", JSON.stringify(menuItem.children))
-        },
-        saveAccessToken(store,payload){
-            let decodeToken = decode(payload);
-            store.commit('setToken', payload);
+        guardarTokens(store, payload){
+            let token = payload.token;
+            let refreshToken = payload.refreshToken;
+
+            //AccessToken
+            let decodeToken = decode(token);
+            store.commit('setToken', token);
             store.commit('setUsuario', decodeToken)
-            localStorage.setItem(store.state.nameToken, payload)
-        },
-        saveRefreshToken(store, payload){
-            localStorage.setItem("refreshToken", payload)
+            localStorage.setItem(store.state.nameToken, token);
+
+            //RefreshToken
+            localStorage.setItem("refreshToken", refreshToken)
         }
     },
     getters: {
         isAuthenticated(state) {
             return !!state.token
         },
-        showLayout(state){
+        showLayout(state) {
             //Se mostrará el layout siempre que exista un token y no se haya seleccionado cambiar sede del componente logout.
             //Porque cuando es seleccionado la opción cambiar sede se redijirá al route: login
-            if(!!state.token && !state.bCambiarSede){
+            if (!!state.token && !state.bCambiarSede) {
                 return true;
             }
             return false;

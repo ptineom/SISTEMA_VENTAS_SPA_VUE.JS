@@ -19,6 +19,7 @@ export default {
     },
     data() {
         return {
+            maxlengthDocumento: 25,
             fieldSearchBarcode: '',
             bDialogBuscarCliente: false,
             bDialogBuscarArticulo: false,
@@ -47,6 +48,7 @@ export default {
             arrTipoPagos: [],
             arrFormapagos: [],
             arrEstados: [],
+            arrDocumentosConsulta: [],
             fecEmiFormatted: this.$moment(this.fechaEmision).format("DD/MM/YYYY"),
             fecVenFormatted: this.$moment(this.fechaVencimiento).format("DD/MM/YYYY"),
             showFecEmi: false,
@@ -105,16 +107,14 @@ export default {
         "totales.tasaDscto"() {
             this.calcularTotales();
         },
-        "totales.subTotal"(val) {
-            if (val == 0) {
+        "totales.total"(val) {
+            if (val == 0) 
                 this.totales.tasaDscto = 0;
-                //Si esta marcado como credito, se limpiará el panel de crédito.
-                if (this.modelo.idTipoCondicionPago != "") {
-                    if (this.evaluaCredito()) {
-                        this.modelo.idTipoCondicionPago = "";
-                        this.showPanelCredito = false;
-                    }
-                }
+
+            //Si esta marcado como credito, se limpiará el panel de crédito.
+            if (this.modelo.idTipoCondicionPago != "" && this.evaluaCredito()) {
+                this.modelo.idTipoCondicionPago = this.inicializarFormapago();
+                this.showPanelCredito = false;
             }
         },
         showPanelCredito(val) {
@@ -135,7 +135,6 @@ export default {
             return this.$moment(new Date()).format("YYYY-MM-DD");
         },
         getHoraActual() {
-            debugger;
             return this.$moment(new Date()).format("HH:mm");
         },
         getIgv: function () {
@@ -164,11 +163,12 @@ export default {
             return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
         },
         documentosXComprobante() {
-            let cboTipDoc = this.$refs.cboTipDoc;
+            let _self = this;
+            let cboTipDoc = _self.$refs.cboTipDoc;
 
             if (this.modelo.idTipoComprobante == "") return;
 
-            let nomTipoComprobante = this.arrComprobantes.find(x => x.value == this.modelo.idTipoComprobante).text;
+            let nomTipoComprobante = _self.arrComprobantes.find(x => x.value == _self.modelo.idTipoComprobante).text;
 
             //Si selecciona FACTURA y el cliente es natural, limpiamos datos del cliente.
             if (nomTipoComprobante.slice(0, 3).toUpperCase() == "FAC" && this.cliente.idTipoDocumento != "") {
@@ -186,7 +186,7 @@ export default {
                 if (nomTipoComprobante.slice(0, 3).toUpperCase() == "FAC") {
                     if (elem.flgNoNatural) {
                         elem.disabled = false;
-                        this.cliente.idTipoDocumento = elem.value;
+                        _self.cliente.idTipoDocumento = elem.value;
                     }
                 } else {
                     elem.disabled = false;
@@ -203,23 +203,29 @@ export default {
                 nroDocumento: ''
             })
         },
-        seleccionarTipoDocumento() {
+        seleccionarTipoDocumento(idTipoDocumento) {
             this.cliente = Object.assign(this.cliente, {
                 idCliente: '',
                 nomCliente: '',
                 nroDocumento: ''
-            })
+            });
+
+            let maxDigitos = 25;
+            if (!!idTipoDocumento)
+                maxDigitos = this.arrDocumentos.find(x => x.value == idTipoDocumento).maxDigitos;
+
+            this.maxlengthDocumento = maxDigitos;
             this.$refs.txtNroDoc.focus();
         },
         obtenerClientePorDocumento() {
             let cliente = this.cliente;
             if (!(!!cliente.idTipoDocumento)) {
-                this.$root.$alertSB(`Debe de seleccionar un tipo de documento`, { color: "warning" });
+                this.$root.$alertSB(`Debe de seleccionar un tipo de documento`, { type: "warning" });
                 return;
             }
             if (!(!!cliente.nroDocumento)) {
                 let nomTipoDocumento = this.arrDocumentos.find(x => x.value == cliente.idTipoDocumento).text;
-                this.$root.$alertSB(`Debe de ingresar el ${nomTipoDocumento}`, { color: "warning" });
+                this.$root.$alertSB(`Debe de ingresar el ${nomTipoDocumento}`, { type: "warning" });
                 return;
             }
             let _self = this;
@@ -232,23 +238,27 @@ export default {
                     nomCliente: data.nomCliente
                 })
             }).catch((error) => {
-                _self.$root.$alertSB(error.response.data.Message, { color: "warning" })
+                _self.$root.$alertSB(error.response.data.Message, { type: "warning" })
             }).finally(() => {
                 _self.overlayCliente = false;
             })
         },
-        validarIngreso(value) {
-            if (isNaN(value)) {
-                this.totales.tasaDscto = 0;
-                return;
+        validarIngreso(_dscto) {
+            let dscto = 0;
+            if (!!_dscto) {
+                //Esto es solo porque a veces estando el numero 100 y apretamos una tecla numerica
+                if (_dscto.length == 4) {
+                    _dscto = _dscto.slice(0, 3);
+                } else {
+                    if (_dscto > 100)
+                        _dscto = _dscto.slice(0, 2);
+                }
+                dscto = _dscto;
             }
-
-            if (value > 100) {
-                this.totales.tasaDscto = parseInt(value.slice(0, 2));
-            }
-            else {
-                this.totales.tasaDscto = value;
-            }
+            //Cuando se va actualizar al mismo control que estas editando deberas hacer un nextTick
+            this.$nextTick(function () {
+                this.totales.tasaDscto = dscto == 0 ? '' : dscto;
+            })
         },
         calcularTotales() {
             let subTotal = 0, cuotaDscto = 0, cuotaIgv = 0, total = 0, totalPagar = 0, decimalRestara = 0, bruto = 0;
@@ -340,8 +350,7 @@ export default {
             let value = this.fieldSearchBarcode;
             if (!(!!value)) {
                 this.$root.$alertSB("Debe de ingresar el código de barra", {
-                    color: "warning",
-                    right: false,
+                    type: "warning",
                 });
                 return;
             }
@@ -355,8 +364,7 @@ export default {
 
                 if (index != -1) {
                     this.$root.$alertSB("Código de barra ya ingresado", {
-                        color: "warning",
-                        right: false,
+                        type: "warning",
                         timeout: 3000,
                     });
                     return;
@@ -374,8 +382,7 @@ export default {
                 let result = response.data;
                 if (!result.bResultado) {
                     _self.$refs.alerta.show(result.sMensaje, {
-                        absolute: true,
-                        color: "warning",
+                        type: "warning",
                     });
                     return;
                 }
@@ -383,7 +390,7 @@ export default {
                 _self.agregarArticulo(result.data.lista[0]);
                 _self.fieldSearchBarcode = "";
             }).catch((error) => {
-                _self.$root.$alertSB(error.response.data.Message, { color: "error", colorCerrar: "black" })
+                _self.$root.$alertSB(error.response.data.Message, { type: "warning" })
             }).finally(() => {
                 _self.overlayCliente = false;
             })
@@ -442,8 +449,7 @@ export default {
                     }
                     if (error) {
                         this.$root.$alertSB(mensaje, {
-                            color: "warning",
-                            right: false,
+                            type: "warning",
                             timeout: 5000,
                         });
                         return;
@@ -484,6 +490,9 @@ export default {
                 totalPagar: 0
             };
             this.bSeleccionarComprobante = false;
+
+            //Desabilitamos los documentos.
+            this.arrDocumentos.forEach(x => x.disabled = true);
         },
         validForm() {
             let _self = this;
@@ -562,13 +571,12 @@ export default {
                 let resultado = reponse.data;
                 if (!resultado.bResultado) {
                     _self.$root.$alertSB(resultado.sMensaje, {
-                        color: "warning",
-                        right: false,
+                        type: "warning",
                     });
                 }
                 let mensaje = `Se generó el/la ${_self.nombreComprobante()}: ${resultado.data.nroSerie}-${resultado.data.nroDocumento}`
                 _self.$root.$alertSB(mensaje, {
-                    color: "success",
+                    type: "success",
                     timeout: 5000,
                     fontSize: 'text-h6'
                 });
@@ -576,7 +584,7 @@ export default {
                 _self.modelo.nroDocumento = resultado.data.nroDocumento;
                 _self.bSeleccionarComprobante = true;
             }).catch((error) => {
-                _self.$root.$alertSB(error.response.data.Message, { color: "error" })
+                _self.$root.$alertSB(error.response.data.Message, { type: "warning" })
             }).finally(() => {
                 _self.overlay = false;
             })
@@ -599,17 +607,16 @@ export default {
                     }).catch(() => {
 
                     })
-                }else{
+                } else {
                     this.$root.$confirm("Facturación", "¿Desea emitir el comprobante?").then(() => {
                         _self.grabar();
-                      }).catch(() => {
+                    }).catch(() => {
                         //Si selecciona "no" en el dialogo de confirmación, no hace nada.
-                      });
+                    });
                 }
             }).catch((error) => {
                 _self.$root.$alertSB(error.mensaje, {
-                    color: "warning",
-                    right: false,
+                    type: "warning",
                 });
                 return;
             });
@@ -653,15 +660,16 @@ export default {
                     cantidad: elem.cantidad,
                     descuento1: elem.tasDescuento,
                     importe: elem.importe,
-                    unidadMedidas: [{ value: elem.idUm, text: elem.nomUm }]
+                    unidadMedidas: [{ value: elem.idUm, text: elem.nomUm }],
+                    codigo: elem.codigo
                 });
             });
             this.bSeleccionarComprobante = true;
         },
         buscarVenta() {
-            this.$refs.dlgBuscarVenta.show().then((response) => {
-                let _self = this;
-                _self.overlayCliente;
+            let _self = this;
+            _self.$refs.dlgBuscarVenta.show().then((response) => {
+                _self.overlay = true;
                 let parameters = {
                     params: {
                         idTipoComprobante: response.idTipoComprobante,
@@ -669,12 +677,11 @@ export default {
                         nroDocumento: response.nroDocumento
                     }
                 }
-                this.$axios.get("/api/Venta/ventaPorCodigoAsync", parameters).then((response) => {
+                _self.$axios.get("/api/Venta/ventaPorCodigoAsync", parameters).then((response) => {
                     let result = response.data;
                     if (!result.bResultado) {
                         _self.$root.$alertSB(result.sMensaje, {
-                            absolute: true,
-                            color: "warning",
+                            type: "warning",
                         });
                         return;
                     }
@@ -682,10 +689,10 @@ export default {
                     _self.bindingVenta(result.data);
                 }).catch((error) => {
                     _self.$root.$alertSB(error.response.data.Message, {
-                        color: "warning"
+                        type: "warning"
                     });
                 }).finally(() => {
-                    _self.overlayCliente = false;
+                    _self.overlay = false;
                 })
             }).catch((error) => { })
         }
@@ -715,9 +722,14 @@ export default {
                 _self.arrDocumentos.push({
                     text: elem.abreviatura,
                     value: elem.idTipoDocumento,
-                    disabled: false,
+                    disabled: true,
                     flgNoNatural: elem.flgNoNatural,
-                    maxDigitos: elem.maxDigitos
+                    maxDigitos: elem.maxDigitos,
+                });
+                _self.arrDocumentosConsulta.push({
+                    text: elem.abreviatura,
+                    value: elem.idTipoDocumento,
+                    maxDigitos: elem.maxDigitos,
                 });
             });
 
@@ -768,24 +780,26 @@ export default {
             //Mientras no haya un modal abierto.
             let dialogosAbiertos = document.querySelectorAll('.v-dialog.v-dialog--active');
             if (dialogosAbiertos.length > 0) return;
-            
+
             if (e.defaultPrevented) {
                 return;
             }
- 
+
             var handled = false;
             if (e.key != undefined) {
                 if (e.key == 'F6') {
                     handled = true;
-                    this.nuevo();
+                    _self.nuevo();
                 } else if (e.key == 'F7') {
                     handled = true;
-                    this.pagar();
+                    _self.pagar();
+                } else if (e.key == 'F9') {
+                    _self.buscarVenta();
                 } else if (e.key == "+") {
                     handled = true;
-                    this.bDialogBuscarArticulo = true;
+                    _self.bDialogBuscarArticulo = true;
                 }
-            } 
+            }
 
             if (handled) {
                 // Suppress "double action" if event handled

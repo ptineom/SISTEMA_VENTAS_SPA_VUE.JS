@@ -161,7 +161,7 @@ export default {
 
       if (_self.filtro.trim().length == 0) {
         _self.$refs.alerta.show("Debe de ingresar al menos un caracter", {
-          color: "warning",
+          type: "warning",
         });
         return;
       }

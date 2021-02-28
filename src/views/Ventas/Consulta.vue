@@ -38,19 +38,20 @@
               <v-col md="9" class="pb-0">
                 <template v-if="tipoFiltro == 'cliente'">
                   <v-row>
-                    <v-col md="2" class="py-0 pr-0">
+                    <v-col md="3" class="pt-0 pr-0">
                       <v-select
                         dense
                         label="Tipo documento"
                         outlined
                         required
                         :items="arrDocumentos"
-                        class="ajuste"
+                        hide-details
                         v-model="cliente.idTipoDocumento"
                         @change="seleccionarDocumento"
+                        clearable
                       ></v-select>
                     </v-col>
-                    <v-col md="3" class="py-0 px-1">
+                    <v-col md="3" class="pt-0 px-1">
                       <v-text-field
                         label="N° documento"
                         type="text"
@@ -58,11 +59,11 @@
                         dense
                         :autocomplete="'off'"
                         @keypress="$soloNumerosEnteros($event)"
-                        class="ajuste"
                         :maxlength="getMaxDigitos()"
                         ref="txtNroDocumento"
                         v-model="cliente.nroDocumento"
                         @keyup.enter="obtenerClientePorDocumento()"
+                        hide-details
                       >
                         <template slot="append">
                           <v-btn
@@ -93,14 +94,14 @@
                         @seleccionarRegistro="obtenerCliente($event)"
                       ></DlgBuscarCliente>
                     </v-col>
-                    <v-col md="7" class="py-0 px-0">
+                    <v-col md="6" class="pt-0 px-0">
                       <v-text-field
                         label="Cliente"
                         type="text"
                         outlined
                         dense
                         disabled
-                        class="ajuste"
+                        hide-details
                         filled
                         v-model="cliente.nomCliente"
                       />
@@ -109,37 +110,37 @@
                 </template>
                 <template v-else-if="tipoFiltro == 'comprobante'">
                   <v-row>
-                    <v-col md="3" class="py-0 pr-0">
+                    <v-col md="3" class="pt-0 pr-0">
                       <v-select
                         dense
                         label="Tipo comprobante"
                         outlined
                         ref="cboTipCom"
-                        class="ajuste"
+                        hide-details
                         :items="arrComprobantes"
                         v-model="comprobante.idTipoComprobante"
                         @change="$refs.txtSerie.focus()"
                       ></v-select>
                     </v-col>
-                    <v-col md="2" class="py-0 px-1">
+                    <v-col md="2" class="pt-0 px-1">
                       <v-text-field
                         label="Serie"
                         type="text"
                         outlined
                         dense
-                        class="ajuste"
+                        hide-details
                         v-model="comprobante.nroSerie"
                         ref="txtSerie"
                         @keyup.enter="$refs.txtNroComprobante.focus()"
                       />
                     </v-col>
-                    <v-col md="2" class="py-0 px-0">
+                    <v-col md="2" class="pt-0 px-0">
                       <v-text-field
                         label="Número"
                         type="text"
                         outlined
                         dense
-                        class="ajuste"
+                        hide-details
                         v-model="comprobante.nroDocumento"
                         @keypress="$soloNumerosEnteros($event)"
                         ref="txtNroComprobante"
@@ -148,7 +149,7 @@
                   </v-row>
                 </template>
                 <v-row>
-                  <v-col md="4" class="py-0 pr-0">
+                  <v-col md="4" class="pt-0 pr-0">
                     <v-menu
                       ref="menuRangoFechas"
                       v-model="showRangoFechas"
@@ -167,7 +168,7 @@
                           v-on="on"
                           outlined
                           dense
-                          class="ajuste"
+                          hide-details
                           v-model="dateRangeText"
                         ></v-text-field>
                       </template>
@@ -192,17 +193,17 @@
                       </v-date-picker>
                     </v-menu>
                   </v-col>
-                  <v-col md="3" class="py-0 px-1">
+                  <v-col md="3" class="pt-0 px-1">
                     <v-select
                       dense
                       label="Estado"
                       outlined
-                      class="ajuste"
+                      hide-details
                       :items="arrEstados"
                       v-model="idEstado"
                     ></v-select>
                   </v-col>
-                  <v-col md="3" class="py-0 px-0">
+                  <v-col md="3" class="pt-0 px-0">
                     <v-btn dense color="info" @click="consultarVentas()"
                       ><v-icon> mdi-magnify </v-icon> Consultar</v-btn
                     >
@@ -245,10 +246,7 @@
                     <td class="text-caption">{{ item.nomCliente }}</td>
                     <td class="text-right text-caption">
                       {{
-                        `${item.sgnMoneda} ${$formatoMiles(
-                          item.totVenta,
-                          2
-                        )}`
+                        `${item.sgnMoneda} ${$formatoMiles(item.totVenta, 2)}`
                       }}
                     </td>
                     <td class="text-caption">{{ item.fecDocumento }}</td>
@@ -283,6 +281,9 @@
           </v-card-text>
         </v-card>
       </v-card-text>
+      <v-overlay :value="overlayConsulta" absolute :opacity="'0.36'">
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
       <AlertSB ref="alerta"></AlertSB>
     </v-card>
   </v-dialog>

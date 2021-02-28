@@ -18,11 +18,11 @@ export default {
                 { text: "Unidad de medida", value: "", align: "center", sortable: false },
                 { text: "Factor", value: "", align: "center", sortable: false, width: "90px" },
                 { text: "Precio venta(Inc. IGV)", value: "", align: "center", sortable: false, width: "120px" },
-                { text: "Dscto", value: "", align: "center", sortable: false, class: "px-0" },
+                { text: "Dscto", value: "", align: "center", sortable: false},
                 { text: "%", value: "", align: "center", sortable: false, width: "65px" },
                 { text: "Precio \n venta final", value: "", align: "center", sortable: false, width: "120px" },
-                { text: "Fecha inicio", value: "", align: "center", sortable: false, class: "px-0" },
-                { text: "Fecha final", value: "", align: "center", sortable: false, class: "px-0" },
+                { text: "Fecha inicio", value: "", align: "center", sortable: false },
+                { text: "Fecha final", value: "", align: "center", sortable: false },
                 { text: "", value: "opciones", align: "center", sortable: false, width: "110px" },
             ],
             detalleUmDscto: [],
@@ -117,7 +117,7 @@ export default {
                     });
                 });
                 _self.modelo.idFamilia = "";
-            }).catch((error) => _self.$root.$alertSB(error.response.data.Message, { color: "error" }))
+            }).catch((error) => _self.$root.$alertSB(error.response.data.Message, { type: "error" }))
                 .finally(() => _self.overlay = false);
         },
         llenarCboUm() {
@@ -138,7 +138,7 @@ export default {
                 });
                 //Agregamos una fila para la tabla Um_dscto.
                 _self.agregarUmDscto();
-            }).catch((error) => _self.$root.$alertSB(error.response.data.Message, { color: "error" }))
+            }).catch((error) => _self.$root.$alertSB(error.response.data.Message, { type: "error" }))
                 .finally(() => _self.overlay = false);
         },
         agregarUmDscto(idx) {
@@ -199,8 +199,7 @@ export default {
                     if (this.modelo.precioBase == 0) {
                         item.flgPromocion = false;
                         this.$root.$alertSB('Debe de ingresar previamente el precio de venta', {
-                            color: "warning",
-                            right: false,
+                            type: "warning",
                         });
                         this.$refs.txtPreVen.focus();
                         return;
@@ -209,8 +208,7 @@ export default {
                     if (item.nroFactor == 0) {
                         item.flgPromocion = false;
                         this.$root.$alertSB('Debe de ingresar el factor mayor a cero', {
-                            color: "warning",
-                            right: false,
+                            type: "warning",
                         });
                         this.$refs.txtNroFactor_x[idx].focus();
                         return;
@@ -291,6 +289,7 @@ export default {
             //actualizamos el valor
             item.precioVentaFinal = precioFinalConDscto.toFixed(2);
 
+            //Cuando se va actualizar al mismo control que estas editando deberas hacer un nextTick
             this.$nextTick(function () {
                 item.descuento = dscto == 0 ? '' : dscto;
             })
@@ -348,8 +347,7 @@ export default {
                 item.descuento = porc;
             } else {
                 this.$root.$alertSB('No debe de exceder del precio de venta', {
-                    color: "warning",
-                    right: false,
+                    type: "warning",
                 });
                 item.descuento = 100;
                 item.precioVentaFinal = '';
@@ -357,7 +355,7 @@ export default {
         },
         consultar() {
             if (this.filtro == "") {
-                this.$root.$alertSB("¡Debe de ingresar al menos un caracter!", { color: "warning" })
+                this.$root.$alertSB("¡Debe de ingresar al menos un caracter!", { type: "warning" })
                 return;
             }
             let _self = this;
@@ -391,7 +389,7 @@ export default {
                     });
                 }
             }).catch((error) => {
-                _self.$root.$alertSB(error.response.data.Message, { color: "warning" })
+                _self.$root.$alertSB(error.response.data.Message, { type: "warning" })
             }).finally(() => {
                 _self.overlay = false;
                 _self.$refs.txtNomArt.focus();
@@ -544,19 +542,19 @@ export default {
                         let resultado = reponse.data;
 
                         if (resultado.bResultado) {
-                            _self.$root.$alertSB(resultado.sMensaje, { color: "success" });
+                            _self.$root.$alertSB(resultado.sMensaje, { type: "success" });
                             _self.nuevo();
                         }
                     }).catch((error) => {
-                        _self.$root.$alertSB(error.response.data.Message, { color: "warning" })
+                        _self.$root.$alertSB(error.response.data.Message, { type: "warning" })
                     }).finally(() => {
                         _self.overlay = false;
                     })
                 }).catch((mensajeError) => {
-                    _self.$root.$alertSB(mensajeError, { color: "warning" });
+                    _self.$root.$alertSB(mensajeError, { type: "warning" });
                 });
             }).catch((mensajeError) => {
-                _self.$root.$alertSB(mensajeError, { color: "warning" });
+                _self.$root.$alertSB(mensajeError, { type: "warning" });
             })
         },
         obtenerArticuloPorId(idArticulo) {
@@ -646,7 +644,7 @@ export default {
 
                 this.accion = "UPD";
             }).catch((error) => {
-                _self.$root.$alertSB(error.response.data.Message, { color: "warning" })
+                _self.$root.$alertSB(error.response.data.Message, { type: "warning" })
             }).finally(() => {
                 _self.overlay = false;
                 _self.$refs.txtNomArt.focus();
@@ -664,15 +662,15 @@ export default {
                     if (resultado.bResultado) {
                         let idx = _self.detalleConsulta.findIndex(x => x.correlativo == correlativo);
                         _self.detalleConsulta.splice(idx, 1);
-                        _self.$root.$alertSB(resultado.sMensaje, { color: "success" });
+                        _self.$root.$alertSB(resultado.sMensaje, { type: "success" });
                     }
                 }).catch((error) => {
-                    _self.$root.$alertSB(error.response.data.Message, { color: "warning" })
+                    _self.$root.$alertSB(error.response.data.Message, { type: "warning" })
                 }).finally(() => {
                     _self.overlay = false;
                 })
             }).catch((error) => {
-                _self.$root.$alertSB(error, { color: "warning" })
+                _self.$root.$alertSB(error, { type: "warning" })
             })
         },
         getFile(e) {
@@ -767,7 +765,7 @@ export default {
             _self.monedaLocal = data.monedaLocal;
 
         }).catch((error) => {
-            _self.$root.$alertSB(error.response.data.Message, { color: "warning" })
+            _self.$root.$alertSB(error.response.data.Message, { type: "warning" })
         }).finally(() => {
             _self.overlay = false;
             _self.$refs.txtNomArt.focus();

@@ -37,11 +37,8 @@ export default {
     },
     methods: {
         ...mapActions("ModLogin", [
-            "guardarToken",
+            "guardarInfo",
             "setBCambiarSede",
-            "saveAvatar",
-            "saveArrMenuItem",
-            "saveRefreshToken"
         ]),
         ingresar() {
             let validate = this.$refs.form.validate();
@@ -52,7 +49,7 @@ export default {
 
                 let parameters = {
                     idUsuario: _self.login.usuario,
-                    password: _self.login.password,
+                    password: _self.login.password
                 };
 
                 _self.overlay = true;
@@ -69,11 +66,15 @@ export default {
 
                         //Si tiene una sola sede configurada, se generará el token e irá al home
                         if (!resultado.data.bVariasSedes) {
-                            //Guardamos el token, avatar y el menu en el localstorage y en una variable global.
-                            _self.guardarToken(resultado.data.token);
-                            _self.saveAvatar(resultado.data.avatarB64);
-                            _self.saveArrMenuItem(resultado.data.menuItem);
-                            _self.saveRefreshToken(resultado.data.refreshToken);
+                            //Guardamos información en el storage de vuex y localstorage: 
+                            //token, refreshToken, avatar y menu.
+                            _self.guardarInfo({
+                                token: resultado.data.token,
+                                avatarB64: resultado.data.avatarB64,
+                                menuItem: resultado.data.menuItem,
+                                refreshToken: resultado.data.refreshToken
+                            });
+
                             _self.limpiar();
                         } else {
                             //Si tiene más de una sucursal irá al paso 2 para seleccionar la sucursal.
@@ -91,16 +92,17 @@ export default {
         },
         llenarSucursales(lista) {
             //Construímos el array de sucursales.
-            this.arrSedesL = [];
+            this.sucursales = [];
             this.idSucursal = "";
             lista.forEach((elem) => {
-                this.arrSedesL.push({
+                this.sucursales.push({
                     value: elem.ID_SUCURSAL,
                     text: elem.NOM_SUCURSAL,
                 });
             });
         },
-        botonSecundario() {
+        
+        () {
             //this.step == 1 => form login
             //this.step == 2 => form seleccionar sede
             //this.step == 3 => form recuperar contraseña
@@ -137,15 +139,16 @@ export default {
             //Pestaña del login
             if (this.step == 1) {
                 this.step++;
+
             } else if (this.step == 2) {
                 //Pestaña de seleccionar sucursal
                 let validate = this.$refs.formSuc.validate();
                 if (!validate) return;
 
-                let cbo = this.$refs["cboSucursal"];
+                let nomSucursal = this.sucursales.find(x => x.value == this.idSucursal).text;
                 let parameters = {
                     idSucursal: this.idSucursal,
-                    nomSucursal: cbo.selectedItems[0].text,
+                    nomSucursal: nomSucursal,
                     idUsuario: this.login.usuario,
                     password: this.login.password
                 };
@@ -162,11 +165,15 @@ export default {
                             _self.errors.push(resultado.sMensaje);
                             return;
                         }
-                        //Guardamos el token, avatar y el menu en el localstorage y en una variable global.
-                        _self.guardarToken(resultado.data.token);
-                        _self.saveAvatar(resultado.data.avatarB64);
-                        _self.saveArrMenuItem(resultado.data.menuItem);
-                        _self.saveRefreshToken(resultado.data.refreshToken);
+
+                        //Guardamos información en el storage de vuex y localstorage: 
+                        //token, refreshToken, avatar y menu.
+                        _self.guardarInfo({
+                            token: resultado.data.token,
+                            avatarB64: resultado.data.avatarB64,
+                            menuItem: resultado.data.menuItem,
+                            refreshToken: resultado.data.refreshToken
+                        });
 
                         _self.limpiar();
                         _self.step = 1;
@@ -177,6 +184,7 @@ export default {
                     .finally(() => {
                         _self.overlay = false;
                     });
+
             } else if (this.step == 3) {
                 //Pestaña de recuperar contraseña
                 let validate = this.$refs.formRec.validate();
@@ -223,7 +231,7 @@ export default {
             validSuc: false,
             validRec: false,
             overlay: false,
-            arrSedesL: [],
+            sucursales: [],
             idSucursal: "",
             email: "",
             login: {
