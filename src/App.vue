@@ -1,8 +1,9 @@
 <template>
   <v-app id="app">
     <v-card tile>
-      <vuescroll :ops="ops">
-        <v-navigation-drawer
+      <!-- <vuescroll :ops="ops">
+      </vuescroll> -->
+              <v-navigation-drawer
           v-model="drawer"
           :absolute="$vuetify.breakpoint.xsOnly"
           :temporary="$vuetify.breakpoint.xsOnly"
@@ -26,7 +27,7 @@
 
             <v-list-item-content>
               <v-list-item-title class="subtitle-1">{{
-                usuario.fullName | capitalize
+                usuario.FullName | capitalize
               }}</v-list-item-title>
               <v-list-item-subtitle class="subtitle-2">{{
                 usuario[
@@ -48,7 +49,6 @@
             ></Menu>
           </v-list>
         </v-navigation-drawer>
-      </vuescroll>
     </v-card>
 
     <v-app-bar dense app color="blueTool1" v-if="showLayout">
@@ -85,7 +85,7 @@
         <span
           class="text-caption ml-2 text-truncate d-none d-sm-block"
           style="width: 140px"
-          >{{ usuario.fullName | capitalize }}</span
+          >{{ usuario.FullName | capitalize }}</span
         >
       </v-btn>
       <!-- Estamos emitiendo un valor desde el hijo al padre  -->
@@ -94,23 +94,24 @@
     </v-app-bar>
 
     <v-main class="color-fondo">
-      <v-container fluid class="px-3 py-0">
+      <v-container fluid class="px-2 py-0">
         <v-row v-show="showLayout">
           <v-col class="py-1" cols="12" md="6">
             <div class="font-weight-bold pl-2 text-h5">
               <v-icon style="vertical-align: text-top">
-                {{ headerForm.iconForm }}
+                {{ headerForm.IconForm }}
               </v-icon>
-              {{ !!headerForm.titleForm ? headerForm.titleForm : "Home" }}
+              {{ !!headerForm.TitleForm ? headerForm.TitleForm : "Home" }}
               <span class="font-italic text-body-2 text--disabled">{{
-                headerForm.subtitleForm
+                headerForm.SubtitleForm
               }}</span>
             </div>
           </v-col>
-          <v-col class="py-0 text-right" cols="12" md="6">
+
+          <v-col class="py-0 text-right d-none d-md-inline-block " cols="12" md="6">
             <v-breadcrumbs
               :items="headerForm.breadcrumbs"
-              class="d-flex justify-end pa-2"
+              class="pa-2 d-inline-block"
             >
               <template v-slot:divider>
                 <v-icon>mdi-chevron-right</v-icon>
@@ -147,7 +148,6 @@ export default {
   },
   data() {
     return {
-      arrMenu: [],
       drawer: false,
       mini: true,
       bShowLogout: false,
@@ -175,9 +175,9 @@ export default {
   },
   computed: {
     miniVariant() {
-      if (this.$vuetify.breakpoint.xsOnly) {
+      if (this.$vuetify.breakpoint.xsOnly) 
         this.mini = false;
-      }
+
       return this.mini;
     },
     ...mapState("ModLogin", ["arrMenuItem", "usuario", "avatar"]),
@@ -187,11 +187,13 @@ export default {
   methods: {
     ...mapActions("ModLogin", ["autoLogin"]),
     appBarStop() {
+
       this.drawer = !this.drawer;
       if (this.$vuetify.breakpoint.name != "xs") {
         this.mini = !this.mini;
       }
     },
+  
   },
   mounted() {
     this.$root.$confirm = this.$refs.confirm.open;

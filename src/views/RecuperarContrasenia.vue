@@ -149,19 +149,23 @@ export default {
         RepetirNuevaContrasenia: this.modelo.repetirContrasenia,
         TokenRecuperacionPassword: this.$route.params.id,
       };
+
       this.errors = [];
+
       _self.$root
         .$confirm(_self.titulo, "¿Desea guardar los cambios?")
         .then(() => {
           this.overlay = true;
+
           axios
-            .post("api/Usuario/restablecerContrasenia", parameters)
+            .post("api/Usuario/RestorePassword", parameters)
             .then((response) => {
               let resultado = response.data;
-              if (!resultado.bResultado) {
-                _self.errors.push(resultado.sMensaje);
+              if (!resultado.Resultado) {
+                _self.errors.push(resultado.Mensaje);
                 return;
               }
+              
               _self.$router.push({ name: "Login" });
               this.$root.$alertSB("Se restableció su contraseña.")
             })

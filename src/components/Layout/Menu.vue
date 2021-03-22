@@ -1,42 +1,42 @@
 <template>
   <div>
-    <template v-if="menuItem.children == null">
+    <template v-if="menuItem.Children == null">
       <v-list-item
-        :class="menuItem.flgRaiz ? 'border-menu' : 'fondo-sub-item'"
+        :class="menuItem.FlgRaiz ? 'border-menu' : 'fondo-sub-item'"
         link
         exact
         @click="
-          menuItem.route == null
+          menuItem.Route == null
             ? undefined
             : abrirVista({
-                breadcrumbs: menuItem.breadcrumbs,
-                titleForm: menuItem.label,
-                iconForm: menuItem.icon,
-                route: menuItem.route,
-                flgHome: menuItem.flgHome
+                breadcrumbs: menuItem.Breadcrumbs,
+                titleForm: menuItem.Label,
+                iconForm: menuItem.Icon,
+                route: menuItem.Route,
+                flgHome: menuItem.FlgHome
               })
         "
       >
         <v-list-item-icon>
-          <v-icon v-show="menuItem.flgRaiz">{{ menuItem.flgRaiz ? menuItem.icon : undefined }}</v-icon>
+          <v-icon v-show="menuItem.FlgRaiz">{{ menuItem.FlgRaiz ? menuItem.Icon : undefined }}</v-icon>
         </v-list-item-icon>
-        <v-list-item-title v-text="menuItem.label"></v-list-item-title>
+        <v-list-item-title v-text="menuItem.Label"></v-list-item-title>
       </v-list-item>
     </template>
 
     <template v-else>
       <v-list-group 
-        :prepend-icon="menuItem.flgRaiz ? menuItem.icon : undefined"
-        :class="menuItem.flgRaiz ? 'border-menu' : 'fondo-sub-item'"
+        :prepend-icon="menuItem.FlgRaiz ? menuItem.Icon : undefined"
+        :class="menuItem.FlgRaiz ? 'border-menu' : 'fondo-sub-item'"
         color="blueTool1"
-        :sub-group="!menuItem.flgRaiz"
-        :no-action="!menuItem.flgRaiz"
+        :sub-group="!menuItem.FlgRaiz"
+        :no-action="!menuItem.FlgRaiz"
       >
         <template v-slot:activator exact>
-          <v-list-item-title v-text="menuItem.label"></v-list-item-title>
+          <v-list-item-title v-text="menuItem.Label"></v-list-item-title>
         </template>
         <Menu
-          v-for="(elem, idx) in menuItem.children"
+          v-for="(elem, idx) in menuItem.Children"
           :key="idx"
           :menuItem="elem"
         ></Menu>
@@ -58,10 +58,10 @@ export default {
       //Agregamos el titulo, icono y breadcrums al formulario abierto.
       //Se reflejará en app.vue
       this.setHeaderForm({
-        breadcrumbs: obj.breadcrumbs,
-        titleForm: obj.titleForm,
-        iconForm: obj.iconForm,
-        flgHome: obj.flgHome
+        breadcrumbs: obj.Breadcrumbs,
+        titleForm: obj.TitleForm,
+        iconForm: obj.IconForm,
+        flgHome: obj.FlgHome
       });
     },
   },

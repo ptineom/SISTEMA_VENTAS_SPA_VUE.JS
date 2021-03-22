@@ -6,18 +6,17 @@
         class="d-flex align-center justify-center"
         style="height: 100vh"
       >
-        <v-card
-          class="elevation-12 __b-20 rounded-lg"
-          :width="370"
-         
-        >
+        <v-card class="elevation-12 __b-20 rounded-lg" :width="370">
           <v-img v-show="step == 1" src="../assets/imagenes/images.png"></v-img>
           <v-card-title
             class="title font-weight-regular"
             :class="{ 'py-0': step == 1 }"
           >
             <span v-show="step == 2 || step == 3">{{ getTitulo }}</span>
-            <h4 v-show="step == 1" class="body-2 mb-0 text--disabled font-italic">
+            <h4
+              v-show="step == 1"
+              class="body-2 mb-0 text--disabled font-italic"
+            >
               Por favor ingrese sus credenciales.
             </h4>
           </v-card-title>
@@ -118,13 +117,25 @@
             <v-btn
               text
               color="primary"
-              class="text-none px-2 __btn-login-text"
-              @click="botonSecundario()"
+              class="text-none px-2"
+              @click="recuperarContrasenia()"
+              v-show="step == 1"
             >
-              <span v-show="step == 1">¿Has olvidado tu contraseña?</span>
-              <v-icon v-show="step == 2 || step == 3">mdi-backburger</v-icon>
+              <span>¿Has olvidado tu contraseña?</span>
             </v-btn>
+
+            <v-btn
+              text
+              color="primary"
+              class="text-none px-2 "
+              @click="retroceder()"
+              v-show="step == 2 || step == 3"
+            >
+              <v-icon>mdi-backburger</v-icon>
+            </v-btn>
+
             <v-spacer />
+
             <v-btn
               color="success"
               depressed
@@ -143,7 +154,6 @@
         </v-card>
       </v-col>
     </v-row>
-
   </v-container>
 </template>
 <script src="../assets/js/Scripts/Login.js"></script>

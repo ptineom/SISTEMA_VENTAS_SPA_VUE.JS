@@ -1,4 +1,5 @@
 import DlgBuscarCliente from '@/components/Dialogos/DlgBuscarCliente'
+import DlgRegistrarCliente from '@/components/Dialogos/DlgCliente'
 import DlgBuscarArticulo from '@/components/Dialogos/DlgBuscarArticulo'
 import CurrencyInput from '@/components/CurrencyInput'
 import Registro from '@/views/Compras/Registro'
@@ -10,6 +11,7 @@ export default {
     name: "Facturacion",
     components: {
         DlgBuscarCliente,
+        DlgRegistrarCliente,
         DlgBuscarArticulo,
         CurrencyInput,
         Registro,
@@ -49,8 +51,9 @@ export default {
             arrFormapagos: [],
             arrEstados: [],
             arrDocumentosConsulta: [],
-            fecEmiFormatted: this.$moment(this.fechaEmision).format("DD/MM/YYYY"),
-            fecVenFormatted: this.$moment(this.fechaVencimiento).format("DD/MM/YYYY"),
+            arrDepartamentos:[],
+            fecEmiFormatted: this.$moment(this.getFechaActual()).format("DD/MM/YYYY"),
+            fecVenFormatted: this.$moment(this.getFechaActual()).format("DD/MM/YYYY"),
             showFecEmi: false,
             showHorEmi: false,
             showFecVen: false,
@@ -98,8 +101,11 @@ export default {
             }
         },
         "modelo.fechaEmision"(val) {
-            this.fecEmiFormatted = this.$moment(val).format("DD/MM/YYYY")
-            this.modelo.fechaVencimiento = this.modelo.fechaEmision;
+            this.fecEmiFormatted = this.$moment(val).format("DD/MM/YYYY");
+
+            if(this.$moment(this.modelo.fechaVencimiento).isBefore(this.modelo.fechaEmision)){
+                this.modelo.fechaVencimiento = this.modelo.fechaEmision;
+            }
         },
         "modelo.fechaVencimiento"(val) {
             this.fecVenFormatted = this.$moment(val).format("DD/MM/YYYY")
@@ -108,7 +114,7 @@ export default {
             this.calcularTotales();
         },
         "totales.total"(val) {
-            if (val == 0) 
+            if (val == 0)
                 this.totales.tasaDscto = 0;
 
             //Si esta marcado como credito, se limpiará el panel de crédito.
@@ -121,7 +127,7 @@ export default {
             if (!val) {
                 this.modelo.abono = 0;
                 this.modelo.saldo = 0;
-                this.fechaVencimiento = this.$moment(new Date()).format("YYYY-MM-DD");
+                this.modelo.fechaVencimiento = this.$moment(new Date()).format("YYYY-MM-DD");
             }
         }
     },
@@ -129,8 +135,37 @@ export default {
         totalPagarFormateado() {
             return `${this.getMoneda()} ${this.$formatoMiles(this.totales.totalPagar, 2)}`
         },
+        getMaxDigitos() {
+            let obj = this.arrDocumentos.find((x) => x.value == this.cliente.idTipoDocumento);
+            return obj != undefined ? obj.maxDigitos : 25
+        }
     },
     methods: {
+        abrirDlgRegistrarCliente(){
+            let _self = this;
+
+            _self.$refs.dlgRegistrarCliente.show().then((response)=>{
+                _self.obtenerCliente(response);
+            }).catch((error)=>{
+                
+            })
+        },
+        obtenerCliente(item) {
+            this.cliente = {
+                idCliente: item.idCliente,
+                nomCliente: this.$capitalize(item.nomCliente),
+                idTipoDocumento: item.idTipoDocumento,
+                nroDocumento: item.nroDocumento
+            };
+
+            //Si el el tipo doc. del ciente(consulta, registro) seleccionado esta desabilitado en el combo tipo doc.
+            // de ventas, habilitamos todos los documento y limpiamos el comprobante.
+            let disabled = this.arrDocumentos.find(x => x.value == item.idTipoDocumento).disabled;
+            if(disabled){
+                this.arrDocumentos.forEach(y=> y.disabled=false);
+                this.modelo.idTipoComprobante = "";
+            }
+        },
         getFechaActual: function () {
             return this.$moment(new Date()).format("YYYY-MM-DD");
         },
@@ -138,7 +173,7 @@ export default {
             return this.$moment(new Date()).format("HH:mm");
         },
         getIgv: function () {
-            return (this.empresa.igv / 100);
+            return (this.empresa.Igv / 100);
         },
         getMoneda: function () {
             return this.arrMonedas.length > 0 ? this.arrMonedas.find(x => x.flgLocal).sgnMoneda : '';
@@ -170,21 +205,20 @@ export default {
 
             let nomTipoComprobante = _self.arrComprobantes.find(x => x.value == _self.modelo.idTipoComprobante).text;
 
-            //Si selecciona FACTURA y el cliente es natural, limpiamos datos del cliente.
-            if (nomTipoComprobante.slice(0, 3).toUpperCase() == "FAC" && this.cliente.idTipoDocumento != "") {
-                let flgNatural = !this.arrDocumentos.find(x => x.value == this.cliente.idTipoDocumento).flgNoNatural;
-                if (flgNatural) {
-                    this.limpiarCliente();
-                }
+            //Si selecciona FACTURA y el documento no es ruc
+            if (nomTipoComprobante.slice(0, 3).toUpperCase() == "FAC" && !!_self.cliente.idTipoDocumento) {
+                let flgRuc = _self.arrDocumentos.find(x => x.value == _self.cliente.idTipoDocumento).flgRuc;
+                if (!flgRuc)
+                    _self.limpiarCliente();
             }
 
             //Habilitamos solo los documentos según el comprobante seleccionado.
-            this.arrDocumentos.forEach((elem) => {
+            _self.arrDocumentos.forEach((elem) => {
+
                 elem.disabled = true;
-                //Si es factura entonces se habilitaran solo los documento no natural.
-                //Si no es factura no importa el tipo de persona del documento.
+                //Si es factura entonces se habilitaran solo los documento con el flagRuc.
                 if (nomTipoComprobante.slice(0, 3).toUpperCase() == "FAC") {
-                    if (elem.flgNoNatural) {
+                    if (elem.flgRuc) {
                         elem.disabled = false;
                         _self.cliente.idTipoDocumento = elem.value;
                     }
@@ -201,7 +235,7 @@ export default {
                 idCliente: '',
                 nomCliente: '',
                 nroDocumento: ''
-            })
+            });
         },
         seleccionarTipoDocumento(idTipoDocumento) {
             this.cliente = Object.assign(this.cliente, {
@@ -210,11 +244,6 @@ export default {
                 nroDocumento: ''
             });
 
-            let maxDigitos = 25;
-            if (!!idTipoDocumento)
-                maxDigitos = this.arrDocumentos.find(x => x.value == idTipoDocumento).maxDigitos;
-
-            this.maxlengthDocumento = maxDigitos;
             this.$refs.txtNroDoc.focus();
         },
         obtenerClientePorDocumento() {
@@ -231,11 +260,12 @@ export default {
             let _self = this;
             this.overlayCliente = true;
             let parameteres = `${_self.cliente.idTipoDocumento}/${_self.cliente.nroDocumento}`;
-            this.$axios.get("/api/Cliente/obtenerClientePorDocumentoAsync/" + parameteres).then((response) => {
-                let data = response.data.data;
+            this.$axios.get("/api/Cliente/GetByDocument/" + parameteres).then((response) => {
+                let data = response.data.Data;
+
                 Object.assign(_self.cliente, {
-                    idCliente: data.idCliente,
-                    nomCliente: data.nomCliente
+                    idCliente: data.IdCliente,
+                    nomCliente: data.NomCliente
                 })
             }).catch((error) => {
                 _self.$root.$alertSB(error.response.data.Message, { type: "warning" })
@@ -294,6 +324,7 @@ export default {
                 redondeo: decimalRestara > 0 ? (decimalRestara * (-1)) : 0,
                 totalPagar: totalPagar
             }
+
         },
         editColumn: function (item, indexColumn, indexRow) {
             //let importe = parseFloat(item.importe.toString().replace(/,/g, ''));
@@ -311,7 +342,7 @@ export default {
             } else {
                 //Seleccionar UM.
                 if (indexColumn == 2) {
-                    let modeloUm = item.unidadMedidas.find((x) => (x.value == item.idUm));
+                    let modeloUm = item.listaUm.find((x) => (x.value == item.idUm));
                     item.nroFactor = modeloUm.nroFactor;
                     item.descuento1 = modeloUm.descuento1;
                     item.cantidad = 1;
@@ -326,25 +357,34 @@ export default {
             //Calcular totales
             this.calcularTotales();
         },
-        agregarArticulo(item) {
+        getArticuloModal(item){
             let modelo = {
-                idArticulo: item.idArticulo, descripcion: item.nomArticulo,
-                idUm: item.idUm, nroFactor: item.nroFactor, precioUnitario: this.$formatoMiles(item.precioVenta, 2),
-                cantidad: 1, descuento1: item.descuento1, importe: item.precioVentaFinal,
-                unidadMedidas: item.unidadMedidas,
+                idArticulo: item.idArticulo,
+                descripcion: item.nomArticulo,
+                idUm: item.idUm,
+                nroFactor: item.nroFactor,
+                precioUnitario: this.$formatoMiles(item.precioVenta, 2),
+                cantidad: 1,
+                descuento1: item.descuento1,
+                importe: item.precioVentaFinal,
+                listaUm: item.listaUm.map((x) => {
+                    return {
+                        text: x.nomUm,
+                        value: x.idUm,
+                        descuento1: x.descuento1,
+                        nroFactor: x.nroFactor,
+                        precioVenta: x.precioVenta,
+                        precioVentaFinal: x.precioVentaFinal
+                    }
+                }),
                 precioBase: item.precioBase,
                 codigo: item.codigo
             }
-            this.detalle.push(modelo);
-            this.calcularTotales();
+            this.agregarArticulo(modelo);
         },
-        obtenerCliente(item) {
-            this.cliente = {
-                idCliente: item.idCliente,
-                nomCliente: item.nomCliente,
-                idTipoDocumento: item.idTipoDocumento,
-                nroDocumento: item.nroDocumento
-            }
+        agregarArticulo(item) {
+            this.detalle.push(item);
+            this.calcularTotales();
         },
         buscarXcodigoBarra() {
             let value = this.fieldSearchBarcode;
@@ -378,16 +418,39 @@ export default {
                     accion: 'Bar'
                 }
             }
-            this.$axios.get("/api/Articulo/listaArticulosGeneral", parameters).then((response) => {
+            this.$axios.get("/api/Articulo/GetAllByFiltersHelper", parameters).then((response) => {
                 let result = response.data;
-                if (!result.bResultado) {
-                    _self.$refs.alerta.show(result.sMensaje, {
+                if (!result.Resultado) {
+                    _self.$refs.alerta.show(result.Mensaje, {
                         type: "warning",
                     });
                     return;
                 }
                 //Agregamos el artículo encontrado al detalle.
-                _self.agregarArticulo(result.data.lista[0]);
+                let item = result.Data[0];
+                let modelo = {
+                    idArticulo: item.IdArticulo,
+                    descripcion: item.NomArticulo,
+                    idUm: item.IdUm,
+                    nroFactor: item.NroFactor,
+                    precioUnitario: this.$formatoMiles(item.PrecioVenta, 2),
+                    cantidad: 1,
+                    descuento1: item.Descuento1,
+                    importe: item.PrecioVentaFinal,
+                    listaUm: item.ListaUm.map((x) => {
+                        return {
+                            text: x.NomUm,
+                            value: x.IdUm,
+                            descuento1: x.Descuento1,
+                            nroFactor: x.NroFactor,
+                            precioVenta: x.PrecioVenta,
+                            precioVentaFinal: x.PrecioVentaFinal
+                        }
+                    }),
+                    precioBase: item.PrecioBase,
+                    codigo: item.Codigo
+                }
+                _self.agregarArticulo(modelo);
                 _self.fieldSearchBarcode = "";
             }).catch((error) => {
                 _self.$root.$alertSB(error.response.data.Message, { type: "warning" })
@@ -399,12 +462,12 @@ export default {
             this.$refs.dlgAbonarCredito.show({
                 abono: this.modelo.abono,
                 totalPagar: this.totales.totalPagar,
-                fechaVencimiento: this.fechaVencimiento,
+                fechaVencimiento: this.modelo.fechaVencimiento,
                 editar: bEditar
             }).then((modelo) => {
                 this.modelo.abono = modelo.abono;
                 this.modelo.saldo = modelo.saldo;
-                this.fechaVencimiento = modelo.fechaVencimiento;
+                this.modelo.fechaVencimiento = modelo.fechaVencimiento;
                 //Si no es edición
                 if (!bEditar) {
                     this.showPanelCredito = true;
@@ -417,11 +480,14 @@ export default {
             })
         },
         evaluaCredito() {
-            return !this.arrFormapagos.find(x => x.value == this.modelo.idTipoCondicionPago).flgNoEvaluaCredito;
+            return this.arrFormapagos.find(x => x.value == this.modelo.idTipoCondicionPago).flgEvaluaCredito;
         },
         inicializarFormapago() {
-            if (this.arrFormapagos == undefined) return '';
-            return this.arrFormapagos.find(x => x.flgNoEvaluaCredito == true).value;
+            if (this.arrFormapagos == undefined)
+                return '';
+
+            //Forma de pago al contado
+            return this.arrFormapagos.find(x => x.flgEvaluaCredito == false).value;
         },
         nombreFormaPago() {
             let obj = this.arrFormapagos.find(x => x.value == this.modelo.idTipoCondicionPago);
@@ -492,7 +558,7 @@ export default {
             this.bSeleccionarComprobante = false;
 
             //Desabilitamos los documentos.
-            this.arrDocumentos.forEach(x => x.disabled = true);
+            this.arrDocumentos.forEach(x => x.disabled = false);
         },
         validForm() {
             let _self = this;
@@ -535,53 +601,58 @@ export default {
         },
         grabar() {
             let _self = this;
+
+            //Detalle de la venta
             let detalle = _self.detalle.map(x => {
                 return {
-                    idArticulo: x.idArticulo, precioBase: x.precioBase, idUm: x.idUm, cantidad: x.cantidad,
-                    tasDescuento: x.descuento1, tasIgv: _self.empresa.igv, nroFactor: x.nroFactor, importe: x.importe
+                    IdArticulo: x.idArticulo, PrecioBase: x.precioBase, IdUm: x.idUm, Cantidad: x.cantidad,
+                    TasDescuento: x.descuento1, TasIgv: _self.empresa.Igv, NroFactor: x.nroFactor, Importe: x.importe
                 }
             })
 
             let parameters = {
-                ACCION: "INS",
-                idTipoComprobante: _self.modelo.idTipoComprobante,
-                idCliente: _self.cliente.idCliente,
-                idMoneda: _self.modelo.idMoneda,
-                fecDocumento: _self.fecEmiFormatted,
-                horDocumento: _self.modelo.horaEmision,
-                fecVencimiento: _self.fecVenFormatted,
+                Accion: "INS",
+                IdTipoComprobante: _self.modelo.idTipoComprobante,
+                IdCliente: _self.cliente.idCliente,
+                IdMoneda: _self.modelo.idMoneda,
+                FecDocumento: _self.fecEmiFormatted,
+                HorDocumento: _self.modelo.horaEmision,
+                FecVencimiento: _self.fecVenFormatted,
 
-                totBruto: _self.totales.subTotal,
-                tasDescuento: _self.totales.tasaDscto == '' ? 0 : _self.totales.tasaDscto,
-                totDescuento: _self.totales.totalDescuento == '' ? 0 : _self.totales.totalDescuento,
-                totImpuesto: _self.totales.totalIgv,
-                totVenta: _self.totales.total,
+                TotBruto: _self.totales.subTotal,
+                TasDescuento: _self.totales.tasaDscto == '' ? 0 : _self.totales.tasaDscto,
+                TotDescuento: _self.totales.totalDescuento == '' ? 0 : _self.totales.totalDescuento,
+                TotImpuesto: _self.totales.totalIgv,
+                TotVenta: _self.totales.total,
 
-                idTipoPago: _self.modelo.idTipoPago,
-                idTipoCondicionPago: _self.modelo.idTipoCondicionPago,
-                obsVenta: _self.modelo.observacion,
-                abono: _self.modelo.abono,
-                saldo: _self.modelo.saldo,
-                idCajaCa: "01",
-                correlativoCa: 134,
-                detalleVenta: detalle
+                IdTipoPago: _self.modelo.idTipoPago,
+                IdTipoCondicionPago: _self.modelo.idTipoCondicionPago,
+                ObsVenta: _self.modelo.observacion,
+                Abono: _self.modelo.abono,
+                Saldo: _self.modelo.saldo,
+                IdCajaCa: "01",
+                CorrelativoCa: 134,
+                DetalleVenta: detalle
             }
+
             _self.overlay = true;
-            _self.$axios.post("api/Venta/grabarVentaAsync", parameters).then((reponse) => {
+
+            _self.$axios.post("api/Venta/Register", parameters).then((reponse) => {
+
                 let resultado = reponse.data;
-                if (!resultado.bResultado) {
-                    _self.$root.$alertSB(resultado.sMensaje, {
+                if (!resultado.Resultado) {
+                    _self.$root.$alertSB(resultado.Mensaje, {
                         type: "warning",
                     });
                 }
-                let mensaje = `Se generó el/la ${_self.nombreComprobante()}: ${resultado.data.nroSerie}-${resultado.data.nroDocumento}`
+                let mensaje = `Se generó el/la ${_self.nombreComprobante()}: ${resultado.Data.serie}-${resultado.Data.documento}`
                 _self.$root.$alertSB(mensaje, {
                     type: "success",
                     timeout: 5000,
                     fontSize: 'text-h6'
                 });
-                _self.modelo.nroSerie = resultado.data.nroSerie;
-                _self.modelo.nroDocumento = resultado.data.nroDocumento;
+                _self.modelo.nroSerie = resultado.Data.serie;
+                _self.modelo.nroDocumento = resultado.Data.documento;
                 _self.bSeleccionarComprobante = true;
             }).catch((error) => {
                 _self.$root.$alertSB(error.response.data.Message, { type: "warning" })
@@ -622,46 +693,46 @@ export default {
             });
         },
         bindingVenta(item) {
-            let cabecera = item.cabecera;
-            let detalle = item.detalle;
+            let cabecera = item.Cabecera;
+            let detalle = item.Detalle;
 
-            this.modelo.idTipoComprobante = cabecera.idTipoComprobante;
-            this.modelo.nroSerie = cabecera.nroSerie;
-            this.modelo.nroDocumento = cabecera.nroDocumento;
-            this.modelo.fechaEmision = this.$moment(cabecera.fecDocumento, 'DD/MM/YYYY').format('YYYY-MM-DD');
-            this.modelo.fechaVencimiento = this.$moment(cabecera.fecVencimiento, 'DD/MM/YYYY').format('YYYY-MM-DD');
-            this.modelo.idMoneda = cabecera.idMoneda;
-            this.modelo.idTipoPago = cabecera.idTipoPago;
-            this.modelo.idTipoCondicion = cabecera.idTipoCondicion;
-            this.modelo.observacion = cabecera.obsVenta;
+            this.modelo.idTipoComprobante = cabecera.IdTipoComprobante;
+            this.modelo.nroSerie = cabecera.NroSerie;
+            this.modelo.nroDocumento = cabecera.NroDocumento;
+            this.modelo.fechaEmision = this.$moment(cabecera.FecDocumento, 'DD/MM/YYYY').format('YYYY-MM-DD');
+            this.modelo.fechaVencimiento = this.$moment(cabecera.FecVencimiento, 'DD/MM/YYYY').format('YYYY-MM-DD');
+            this.modelo.idMoneda = cabecera.IdMoneda;
+            this.modelo.idTipoPago = cabecera.IdTipoPago;
+            this.modelo.idTipoCondicion = cabecera.IdTipoCondicion;
+            this.modelo.observacion = cabecera.ObsVenta;
 
-            this.cliente.idCliente = cabecera.idCliente;
-            this.cliente.nomCliente = cabecera.nomCliente;
-            this.cliente.idTipoDocumento = cabecera.idTipoDocumento;
-            this.cliente.nroDocumento = cabecera.nroDocumentoCliente;
+            this.cliente.idCliente = cabecera.ICliente;
+            this.cliente.nomCliente = cabecera.NomCliente;
+            this.cliente.idTipoDocumento = cabecera.IdTipoDocumento;
+            this.cliente.nroDocumento = cabecera.NroDocumentoCliente;
 
-            this.totales.subTotal = cabecera.totBruto;
-            this.totales.tasaDscto = cabecera.tasDescuento;
-            this.totales.totalDescuento = cabecera.totDescuento;
-            this.totales.totalIgv = cabecera.totImpuesto;
-            this.totales.total = cabecera.totVenta;
-            let redondeo = (cabecera.totVenta - cabecera.totVentaRedondeo);
-            this.totales.totalPagar = cabecera.totVentaRedondeo;
+            this.totales.subTotal = cabecera.TotBruto;
+            this.totales.tasaDscto = cabecera.TasDescuento;
+            this.totales.totalDescuento = cabecera.TotDescuento;
+            this.totales.totalIgv = cabecera.TotImpuesto;
+            this.totales.total = cabecera.TotVenta;
+            let redondeo = (cabecera.TotVenta - cabecera.TotVentaRedondeo);
+            this.totales.totalPagar = cabecera.TotVentaRedondeo;
             this.totales.redondeo = redondeo > 0 ? (redondeo * (-1)) : 0;
 
             this.detalle = [];
             detalle.forEach((elem) => {
                 this.detalle.push({
-                    idArticulo: elem.idArticulo,
-                    descripcion: elem.nomArticulo,
-                    idUm: elem.idUm,
-                    nroFactor: elem.nroFactor,
-                    precioUnitario: this.$formatoMiles(elem.precioUnitario, 2),
-                    cantidad: elem.cantidad,
-                    descuento1: elem.tasDescuento,
-                    importe: elem.importe,
-                    unidadMedidas: [{ value: elem.idUm, text: elem.nomUm }],
-                    codigo: elem.codigo
+                    idArticulo: elem.IdArticulo,
+                    descripcion: elem.NomArticulo,
+                    idUm: elem.IdUm,
+                    nroFactor: elem.NroFactor,
+                    precioUnitario: this.$formatoMiles(elem.PrecioUnitario, 2),
+                    cantidad: elem.Cantidad,
+                    descuento1: elem.TasDescuento,
+                    importe: elem.Importe,
+                    listaUm: [{ value: elem.IdUm, text: elem.NomUm }],
+                    codigo: elem.Codigo
                 });
             });
             this.bSeleccionarComprobante = true;
@@ -676,17 +747,18 @@ export default {
                         nroSerie: response.nroSerie,
                         nroDocumento: response.nroDocumento
                     }
-                }
-                _self.$axios.get("/api/Venta/ventaPorCodigoAsync", parameters).then((response) => {
+                };
+
+                _self.$axios.get("/api/Venta/GetById", parameters).then((response) => {
                     let result = response.data;
-                    if (!result.bResultado) {
-                        _self.$root.$alertSB(result.sMensaje, {
+                    if (!result.Resultado) {
+                        _self.$root.$alertSB(result.Mensaje, {
                             type: "warning",
                         });
                         return;
                     }
                     //Agregamos el artículo encontrado al detalle.
-                    _self.bindingVenta(result.data);
+                    _self.bindingVenta(result.Data);
                 }).catch((error) => {
                     _self.$root.$alertSB(error.response.data.Message, {
                         type: "warning"
@@ -700,73 +772,84 @@ export default {
     mounted() {
         let _self = this;
         _self.overlay = true;
-        _self.$axios.get('/api/Venta/getDataAsync').then((response) => {
-            let data = response.data.data.listas;
-            let listaComprobantes = data.listaComprobantes;
-            let listaDocumentos = data.listaDocumentos;
-            let listaMonedas = data.listaMonedas;
-            let listaTipPag = data.listaTipPag;
-            let listaTipCon = data.listaTipCon;
-            let listaEstados = data.listaEstados;
+        _self.$axios.get('/api/Venta/GetData').then((response) => {
+            let data = response.data.Data.Listas;
+            let listaTipoDocumento = data.ListaTipoDocumento;
+            let listaTipoComprobante = data.ListaTipoComprobante;
+            let listaMoneda = data.ListaMoneda;
+            let listaTipoPago = data.ListaTipoPago;
+            let listaTipoCondicion = data.ListaTipoCondicion;
+            let listaEstado = data.ListaEstado;
+            let listaDepartamento = data.ListaDepartamento;
 
-            _self.empresa = response.data.data.empresa;
-            listaComprobantes.forEach((elem) => {
+            _self.empresa = response.data.Data.Empresa;
+
+            listaTipoComprobante.forEach((elem) => {
                 _self.arrComprobantes.push({
-                    text: elem.nomTipoComprobante,
-                    value: elem.idTipoComprobante,
+                    text: elem.NomTipoComprobante,
+                    value: elem.IdTipoComprobante,
                 });
 
             });
 
-            listaDocumentos.forEach((elem) => {
+            listaDepartamento.forEach((elem) => {
+                _self.arrDepartamentos.push({
+                    text: elem.NomDepartamento,
+                    value: elem.IdDepartamento,
+                });
+            });
+
+            listaTipoDocumento.forEach((elem) => {
                 _self.arrDocumentos.push({
-                    text: elem.abreviatura,
-                    value: elem.idTipoDocumento,
-                    disabled: true,
-                    flgNoNatural: elem.flgNoNatural,
-                    maxDigitos: elem.maxDigitos,
+                    text: elem.Abreviatura,
+                    value: elem.IdTipoDocumento,
+                    disabled: false,
+                    maxDigitos: elem.MaxDigitos,
+                    flgRuc: elem.FlgRuc
                 });
                 _self.arrDocumentosConsulta.push({
-                    text: elem.abreviatura,
-                    value: elem.idTipoDocumento,
-                    maxDigitos: elem.maxDigitos,
+                    text: elem.Abreviatura,
+                    value: elem.IdTipoDocumento,
+                    maxDigitos: elem.MaxDigitos,
+                    flgRuc: elem.FlgRuc
                 });
             });
 
-            listaMonedas.forEach((elem) => {
+            listaMoneda.forEach((elem) => {
                 _self.arrMonedas.push({
-                    text: elem.nomMoneda,
-                    value: elem.idMoneda,
-                    flgLocal: elem.flgLocal,
-                    sgnMoneda: elem.sgnMoneda
+                    text: elem.NomMoneda,
+                    value: elem.IdMoneda,
+                    flgLocal: elem.FlgLocal,
+                    sgnMoneda: elem.SgnMoneda
                 });
-                if (elem.flgLocal) {
-                    _self.modelo.idMoneda = elem.idMoneda;
+                if (elem.FlgLocal) {
+                    _self.modelo.idMoneda = elem.IdMoneda;
                 }
             });
 
-            listaTipPag.forEach((elem) => {
+            listaTipoPago.forEach((elem) => {
                 _self.arrTipoPagos.push({
-                    text: elem.nomTipoPago,
-                    value: elem.idTipoPago,
+                    text: elem.NomTipoPago,
+                    value: elem.IdTipoPago,
                 });
             });
             _self.modelo.idTipoPago = "EFE";
 
-            listaTipCon.forEach((elem) => {
+            listaTipoCondicion.forEach((elem) => {
                 _self.arrFormapagos.push({
-                    text: elem.nomTipoCondicionPago,
-                    value: elem.idTipoCondicionPago,
-                    flgNoEvaluaCredito: elem.flgNoEvaluaCredito
+                    text: elem.NomTipoCondicionPago,
+                    value: elem.IdTipoCondicionPago,
+                    flgEvaluaCredito: elem.FlgEvaluaCredito
                 });
-                if (!!elem.flgNoEvaluaCredito) _self.modelo.idTipoCondicionPago = elem.idTipoCondicionPago;
+                if (!elem.FlgEvaluaCredito)
+                    _self.modelo.idTipoCondicionPago = elem.IdTipoCondicionPago;
             });
 
             _self.arrEstados.push({ text: 'TODOS', value: 0 });
-            listaEstados.forEach((elem) => {
+            listaEstado.forEach((elem) => {
                 _self.arrEstados.push({
-                    text: elem.nomEstado,
-                    value: elem.idEstado
+                    text: elem.NomEstado,
+                    value: elem.IdEstado
                 });
             })
 

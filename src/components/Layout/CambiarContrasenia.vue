@@ -115,15 +115,17 @@ export default {
     ...mapActions("ModLayout", ["abrirDialogoCambiarContrasenia"]),
     cambiarContrasenia() {
       let _self = this;
-
       _self.errors = [];
+
       let validate = this.$refs.formCamCon.validate();
-      if (!validate) return;
+      if (!validate) 
+        return;
+        
       let parameters = {
-        ID_USUARIO: _self.usuario.idUsuario,
-        CONTRASENIA_ACTUAL: _self.modelo.contraseniaAnterior,
-        CONTRASENIA_NUEVA: _self.modelo.contraseniaNueva,
-        REPETIR_CONTRASENIA_NUEVA: _self.modelo.repetirContrasenia,
+        IdUsuario: _self.usuario.IdUsuario,
+        ContraseniaActual: _self.modelo.contraseniaAnterior,
+        ContraseniaNueva: _self.modelo.contraseniaNueva,
+        RepetirContraseniaNueva: _self.modelo.repetirContrasenia,
       };
 
       this.$root
@@ -131,15 +133,17 @@ export default {
         .then(() => {
           //Encendemos el modo de espera.
           _self.overlay = true;
+
           axios
-            .post("api/Usuario/cambiarContraseniaAsync", parameters)
+            .post("api/Usuario/ChangePassword", parameters)
             .then((response) => {
               let resultado = response.data;
 
-              if (!resultado.bResultado) {
-                _self.errors.push(resultado.sMensaje);
+              if (!resultado.Resultado) {
+                _self.errors.push(resultado.Mensaje);
                 return;
               }
+
               _self.limpiar();
               _self.abrirDialogoCambiarContrasenia(false);
               _self.$root.$alertSB("Se grabaron los datos.");

@@ -7,9 +7,12 @@ export default {
     },
     data() {
         return {
-            overlayConsulta:false,
+            separacionBorde:{
+                borderRight:"1px solid rgba(0, 0, 0, 0.12)"
+            },
+            overlayConsulta: false,
             dialog: false,
-            bDialogBuscarCliente:false,
+            bDialogBuscarCliente: false,
             cliente: {
                 idTipoDocumento: "",
                 nroDocumento: "",
@@ -25,7 +28,7 @@ export default {
             fechaFinal: "",
             tipoFiltro: "rangoFechas",
             // fechaRango: this.inicializarRango(),
-             fechaRango: ['2019-01-01','2020-11-30'],
+            fechaRango: ['2019-01-01', '2021-03-12'],
             showRangoFechas: false,
             idEstado: 0,
             listadoVentas: [],
@@ -62,18 +65,22 @@ export default {
         },
     },
     methods: {
-        show(){
+        show() {
             this.dialog = true;
-            return new Promise((resolve, reject)=>{
+            return new Promise((resolve, reject) => {
                 this.resolve = resolve;
                 this.reject = reject;
             })
         },
-        obtenerVentaPorCodigo(item){
-            this.resolve(item);
+        obtenerVentaPorCodigo(item) {
+            this.resolve({
+                idTipoComprobante: item.idTipoComprobante,
+                nroSerie: item.nroSerie,
+                nroDocumento: item.nroDocumento
+            });
             this.dialog = false;
         },
-        salir(){
+        salir() {
             this.dialog = false;
             this.reject();
         },
@@ -87,7 +94,7 @@ export default {
         },
         obtenerClientePorDocumento() {
             let cliente = this.cliente;
-            if (cliente.idTipoDocumento=="") {
+            if (cliente.idTipoDocumento == "") {
                 this.$refs.alerta.show("Debe de seleccionar el tipo de documento del cliente", {
                     type: "warning",
                 });
@@ -109,7 +116,7 @@ export default {
                     nomCliente: data.nomCliente
                 })
             }).catch((error) => {
-                _self.$refs.alerta.show(error.response.data.Message, { type: "error" })
+                _self.$refs.alerta.show(error.response.data.Message, { type: "warning" })
             }).finally(() => {
                 _self.overlayCliente = false;
             })
@@ -118,10 +125,6 @@ export default {
             let fecha1 = this.$moment(new Date()).format("YYYY-MM-DD");
             let fecha2 = this.$moment(new Date()).subtract(7, 'days').format("YYYY-MM-DD");
             return [fecha2, fecha1];
-        },
-        getMaxDigitos() {
-            let obj = this.arrDocumentos.find((x) => x.value == this.cliente.idTipoDocumento);
-            return obj != undefined ? obj.maxDigitos : 25
         },
         seleccionarDocumento() {
             this.cliente.nroDocumento = "";
@@ -151,7 +154,7 @@ export default {
                     return;
                 }
             } else if (_self.tipoFiltro == "comprobante") {
-                if(_self.comprobante.idTipoComprobante == '' && _self.comprobante.nroSerie == '' && _self.comprobante.nroDocumento == '' ){
+                if (_self.comprobante.idTipoComprobante == '' && _self.comprobante.nroSerie == '' && _self.comprobante.nroDocumento == '') {
                     _self.$refs.alerta.show("Debe de seleccionar al menos algún parámetro para la búsqueda por comprobante.", {
                         type: "warning",
                     });
@@ -181,17 +184,33 @@ export default {
                 },
             };
             _self.$axios
-                .get("/api/Venta/listaVentasAsync", parameters)
+                .get("/api/Venta/GetAllByFilters", parameters)
                 .then((response) => {
                     let result = response.data;
-                    if (!result.bResultado) {
-                        _self.$refs.alerta.show(result.sMensaje, {
+                    if (!result.Resultado) {
+                        _self.$refs.alerta.show(result.Mensaje, {
                             type: "warning",
                         });
                         return;
                     }
 
-                    _self.listadoVentas = result.data;
+                    _self.listadoVentas = result.Data.map((x) => {
+                        return {
+                            comprobante: x.Comprobante,
+                            docCliente: x.DocCliente,
+                            nomCliente: x.NomCliente,
+                            totVenta: x.TotVenta,
+                            fecDocumento: x.FecDocumento,
+                            flgEvaluaCredito: x.FlgEvaluaCredito,
+                            nomTipoCondicionPago: x.NomTipoCondicionPago,
+                            estDocumento: x.EstDocumento,
+                            nomEstado: x.NomEstado,
+                            sgnMoneda: x.SgnMoneda,
+                            idTipoComprobante: x.IdTipoComprobante,
+                            nroSerie: x.NroSerie,
+                            nroDocumento: x.NroDocumento
+                        };
+                    });
                 })
                 .catch((error) => {
                     let data = error.response.data;
@@ -217,20 +236,24 @@ export default {
         dateRangeText() {
             //convertirá el array de fechas en una cadena separadas por ' ~ ', con formato "DD/MM/YYYY"
             return `${this.$moment(this.fechaRango[0]).format("DD/MM/YYYY")} - ${this.$moment(this.fechaRango[1]).format("DD/MM/YYYY")}`
+        },
+        getMaxDigitos() {
+            let obj = this.arrDocumentos.find((x) => x.value == this.cliente.idTipoDocumento);
+            return obj != undefined ? obj.maxDigitos : 25
         }
     },
     mounted() {
         this.idEstado = 1;
         let _self = this;
-        window.addEventListener('keydown', (e)=>{
-            if(!_self.dialog)return;
+        window.addEventListener('keydown', (e) => {
+            if (!_self.dialog) return;
 
-            if (e.defaultPrevented)return;
+            if (e.defaultPrevented) return;
 
             var handled = false;
 
-            if(e.key!=undefined){
-                if(e.key=='Escape'){
+            if (e.key != undefined) {
+                if (e.key == 'Escape') {
                     _self.salir();
                 }
             }

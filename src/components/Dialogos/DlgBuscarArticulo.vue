@@ -1,8 +1,8 @@
 <template>
   <div>
     <v-dialog v-model="dialog" max-width="1100px">
-      <v-card >
-         <AlertSB ref="alerta"></AlertSB>
+      <v-card>
+        <AlertSB ref="alerta"></AlertSB>
         <v-card-title class="py-1">
           <span class="headline text-button">
             <v-icon>mdi-binoculars</v-icon>
@@ -26,7 +26,7 @@
                 <v-radio label="Por descripción" value="descripcion"></v-radio>
               </v-radio-group>
             </v-col>
-            <v-col cols="8" class="py-0">
+            <v-col cols="12" md="8" class="py-0">
               <v-text-field
                 label="Búsqueda por filtros"
                 prepend-inner-icon="mdi-filter"
@@ -42,12 +42,12 @@
                 <template slot="append-outer" class="my-0">
                   <v-btn depressed color="primary" small @click="consultar">
                     <v-icon>mdi-magnify</v-icon>
-                    Buscar
+                    <span class="d-none d-sm-block">Buscar</span>
                   </v-btn>
                 </template>
               </v-text-field>
             </v-col>
-            <v-col cols="4" class="py-0">
+            <v-col cols="12" md="4" class="py-0 d-none d-lg-block">
               <LeyendaAyudaTeclaTabla></LeyendaAyudaTeclaTabla>
             </v-col>
           </v-row>
@@ -71,7 +71,7 @@
                       <v-card-text class="py-1 px-1">
                         <v-data-table
                           :headers="headersUm"
-                          :items="unidadesMedidas"
+                          :items="listaUm"
                           dense
                           class="elevation-1"
                           tile
@@ -101,8 +101,9 @@
                     :headers="headers"
                     class="elevation-1"
                     dense
-                    :items="articulos"
+                    :items="listaArticulo"
                     tile
+                    :mobile-breakpoint="0"
                   >
                     <template v-slot:body="{ items }">
                       <tbody ref="tbodyBus">
@@ -147,7 +148,7 @@
                           <td class="text-right">
                             {{
                               $formatoMoneda(
-                                moneda.sgnMoneda,
+                                sgnMoneda(),
                                 item.precioVentaFinal,
                                 2
                               )
@@ -170,7 +171,6 @@
         <v-overlay :value="overlay" absolute :opacity="'0.36'">
           <v-progress-circular indeterminate size="64"></v-progress-circular>
         </v-overlay>
-
       </v-card>
     </v-dialog>
   </div>
@@ -209,7 +209,7 @@ export default {
         { text: "Dscto%", value: "descuento1" },
         { text: "Precio venta final", value: "precioVentaFinal" },
       ],
-      articulos: [],
+      listaArticulo: [],
       headersUm: [
         {
           text: "Unidad medida",
@@ -242,8 +242,7 @@ export default {
           sortable: false,
         },
       ],
-      unidadesMedidas: [],
-      moneda: {},
+      listaUm: [],
     };
   },
   watch: {
@@ -258,7 +257,7 @@ export default {
     },
     dialogUm(val) {
       if (!val) {
-        this.unidadesMedidas = [];
+        this.listaUm = [];
       }
     },
   },
@@ -266,21 +265,23 @@ export default {
     limpiar() {
       this.filtro = "";
       this.tipoFiltro = "descripcion";
-      this.articulos = [];
+      this.listaArticulo = [];
       this.selectedRows = [];
+      this.bMasUm = false;
     },
     paintRow(item) {
       let _self = this;
       //Marcamos la fila
       _self.rowMarked(item.codigo);
 
-      let articulo = _self.articulos.find(
+      let articulo = _self.listaArticulo.find(
         (x) => x.idArticulo == item.idArticulo
       );
       _self.bMasUm = false;
 
       //Verificamos si tiene mas de una UM y que este seleccionado
-      if (articulo.unidadMedidas.length > 1 &&
+      if (
+        articulo.listaUm.length > 1 &&
         _self.selectedRows.indexOf(item.codigo) >= 0
       ) {
         _self.bMasUm = true;
@@ -288,14 +289,14 @@ export default {
     },
     abrirDialogoUm() {
       let _self = this;
-      _self.unidadesMedidas = [];
+      _self.listaUm = [];
 
       //Si existe fila marcada.
       if (_self.selectedRows.length > 0) {
-        let articulo = _self.articulos.find(
-          (x) => x.codigo == _self.selectedRows[0]
+        let articulo = _self.listaArticulo.find(
+          (x) => x.Codigo == _self.selectedRows[0]
         );
-        let um = articulo.unidadMedidas;
+        let um = articulo.listaUm;
         let idUm = articulo.idUm;
 
         //Verificamos si tiene mas de una UM
@@ -303,16 +304,16 @@ export default {
           _self.dialogUm = true;
           um.forEach((x) => {
             if (x.value != idUm) {
-              _self.unidadesMedidas.push({
+              _self.ListaUm.push({
                 nomUm: x.text,
                 precioVenta: _self.$formatoMoneda(
-                  _self.moneda.sgnMoneda,
+                  _self.sgnMoneda,
                   x.precioVenta,
                   2
                 ),
                 descuento1: x.descuento1,
                 precioVentaFinal: _self.$formatoMoneda(
-                  _self.moneda.sgnMoneda,
+                  _self.sgnMoneda,
                   x.precioVentaFinal,
                   2
                 ),
@@ -331,6 +332,7 @@ export default {
         });
         return;
       }
+
       //Validar que aún no se haya seleccionado.
       if (this.detalle.length > 0) {
         let articulo = this.detalle.find(
@@ -351,6 +353,7 @@ export default {
         type: "success",
         timeout: 2000,
       });
+
       //Enviamos el item seleccionado al formulario padre.
       this.$emit("seleccionarRegistro", item);
     },
@@ -368,7 +371,7 @@ export default {
       let _self = this;
       _self.overlay = true;
       _self.selectedRows = [];
-      _self.articulos = [];
+      _self.listaArticulo = [];
 
       let parameters = {
         params: {
@@ -378,17 +381,43 @@ export default {
         },
       };
       _self.$axios
-        .get("/api/Articulo/listaArticulosGeneral", parameters)
+        .get("/api/Articulo/GetAllByFiltersHelper", parameters)
         .then((response) => {
           let result = response.data;
-          if (!result.bResultado) {
-            this.$refs.alerta.show(result.sMensaje, {
+          if (!result.Resultado) {
+            this.$refs.alerta.show(result.Mensaje, {
               type: "warning",
             });
             return;
           }
-          _self.articulos = result.data.lista;
-          this.moneda = result.data.moneda;
+
+          _self.listaArticulo = result.Data.map((x) => {
+            return {
+              idArticulo: x.IdArticulo,
+              codigo: x.Codigo,
+              nomArticulo: x.NomArticulo,
+              nomMarca: x.NomMarca,
+              nomUm: x.NomUm,
+              stockActual: x.StockActual,
+              precioVentaFinal: x.PrecioVentaFinal,
+              descuento1: x.Descuento1,
+              idUm: x.IdUm,
+              nroFactor: x.NroFactor,
+              precioBase: x.PrecioBase,
+              precioVenta: x.PrecioVenta,
+              stockMinimo: x.StockMinimo,
+              listaUm: x.ListaUm.map(y =>{
+                return {
+                  idUm: y.IdUm,
+                  nomUm: y.NomUm,
+                  nroFactor: y.NroFactor,
+                  descuento1: y.Descuento1,
+                  precioVenta: y.PrecioVenta,
+                  precioVentaFinal: y.PrecioVentaFinal
+                }
+              })
+            };
+          });
         })
         .catch((error) => {
           let data = error.response.data;
@@ -411,13 +440,15 @@ export default {
       },
     },
   },
-  props: ["value", "detalle"],
+  props: ["value", "detalle", "sgnMoneda"],
   mounted() {
     //selectedRows[], rowMarked[] vienen de un archivo js utlidades.
     let _self = this;
     window.addEventListener("keydown", (e) => {
       if (!_self.dialog) return;
-      if (_self.articulos.length == 0) return;
+
+      if (_self.listaArticulo.length == 0) return;
+
       let modelo = null;
 
       if (
@@ -427,30 +458,28 @@ export default {
         e.key == "ArrowUp"
       ) {
         //Ayuda del teclado(abajo, arriba, enter, esc)
-        let obj = {
+        let config = {
           tbody: _self.$refs.tbodyBus,
           txtFiltro: _self.$refs.txtFiltro,
           indexColumn: 1,
         };
 
         _self
-          .$direccionarFilasGrilla(e, obj)
+          .$direccionarFilasGrilla(e, config)
           .then((value) => {
             if (e.key == "Enter") {
               //Retornará el articulo seleccionado al componente padre.
-              modelo = _self.articulos.find((x) => x.codigo == value);
+              modelo = _self.listaArticulo.find((x) => x.codigo == value);
               _self.rowClicked(modelo, e);
             } else if (e.key == "Escape") {
               if (_self.dialog) {
-                if (_self.dialogUm) 
-                  _self.dialogUm = false;
-                else 
-                  _self.dialog = false;
+                if (_self.dialogUm) _self.dialogUm = false;
+                else _self.dialog = false;
               }
             } else {
-              //Flecha arriba, abajo
+                //Flecha arriba, abajo
               //Maracará la fila
-              modelo = _self.articulos.find((x) => x.codigo == value);
+              modelo = _self.listaArticulo.find((x) => x.codigo == value);
               if (modelo != undefined) {
                 _self.paintRow(modelo);
               }

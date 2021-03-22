@@ -50,7 +50,13 @@ tbody tr:nth-child(odd) {
   background: #f9fbe7;
 }
 
+.v-data-table .v-data-table__mobile-row{
+  min-height: 18px !important;
+}
 
+.upper-case input {
+  text-transform: uppercase;
+}
 
 
 

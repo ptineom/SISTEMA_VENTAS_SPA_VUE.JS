@@ -64,15 +64,12 @@
                         :headers="headers"
                         class="elevation-1"
                         dense
-                        :items="marcas"
+                        :items="listaMarca"
                         tile
                       >
                         <template v-slot:body="{ items }">
                           <tbody ref="tbodyBus">
-                            <tr
-                              v-for="item in items"
-                              :key="item.idMarca"
-                            >
+                            <tr v-for="item in items" :key="item.idMarca">
                               <td>
                                 <v-btn
                                   color="warning"
@@ -132,11 +129,11 @@ export default {
         ],
       },
       vista: 1,
-      marcas: [],
+      listaMarca: [],
       filtro: "",
       headers: [
-        { text: "", value: "seleccionar", align: "center", width:"80px" },
-        { text: "Código", value: "idMarca", width:"90px" },
+        { text: "", value: "seleccionar", align: "center", width: "80px" },
+        { text: "Código", value: "idMarca", width: "90px" },
         { text: "descripción", value: "nomMarca" },
       ],
     };
@@ -167,9 +164,11 @@ export default {
       }
 
       _self.$root.$axios
-        .get(`api/Marca/listaMarca/${_self.filtro}`)
+        .get(`api/Marca/GetAllByDescription/${_self.filtro}`)
         .then((response) => {
-          _self.marcas = response.data.data;
+          _self.listaMarca = response.data.Data.map((x) => {
+            return { idMarca: x.IdMarca, nomMarca: x.NomMarca };
+          });
         })
         .catch((error) => {
           _self.$root.$alertSB(error.response.data.Message);
@@ -183,12 +182,12 @@ export default {
           .$confirm(_self.getTitulo, "¿Desea guardar los datos?")
           .then(() => {
             _self.$axios
-              .post("api/Marca/grabarMarca", { nomMarca: _self.nomMarca })
+              .post("api/Marca/Register", { NomMarca: _self.nomMarca })
               .then((response) => {
                 let data = response.data;
-                if (data.bResultado) {
+                if (data.Resultado) {
                   _self.resolve({
-                    idMarca: data.data,
+                    idMarca: data.Data,
                     nomMarca: _self.nomMarca,
                   });
                   _self.limpiar();
@@ -207,7 +206,7 @@ export default {
     salir() {
       if (this.vista == 1) {
         this.filtro = "";
-        this.marcas = [];
+        this.listaMarca = [];
       } else {
         this.$refs.form.resetValidation();
         this.limpiar();
@@ -221,7 +220,7 @@ export default {
         nomMarca: item.nomMarca,
       });
       this.filtro = "";
-      this.marcas = [];
+      this.listaMarca = [];
       this.dialog = false;
     },
   },

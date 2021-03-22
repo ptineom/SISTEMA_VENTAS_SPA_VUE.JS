@@ -9,7 +9,8 @@
       <v-card-title class="py-1 white">
         <span class="headline text-button">
           <v-icon>mdi-monitor-multiple</v-icon>
-          Consultar ventas [ESC = Salir]
+          Consultar ventas
+          <span class="d-none d-lg-inline-block"> [ESC = Salir] </span>
         </span>
         <v-spacer></v-spacer>
         <v-icon style="cursor: pointer" @click="salir()"
@@ -21,8 +22,18 @@
         <v-card class="my-1" tile>
           <v-card-text class="py-0">
             <v-row>
-              <v-col md="2" class="py-0">
-                <v-radio-group v-model="tipoFiltro" column>
+              <v-col
+                cols="12"
+                sm="4"
+                md="3"
+                class="py-0"
+                :style="!$vuetify.breakpoint.xsOnly ? separacionBorde : ''"
+              >
+                <v-radio-group
+                  v-model="tipoFiltro"
+                  column
+                  :hide-details="$vuetify.breakpoint.xsOnly"
+                >
                   <v-radio label="Por cliente" value="cliente"></v-radio>
                   <v-radio
                     label="Por comprobante"
@@ -34,16 +45,15 @@
                   ></v-radio>
                 </v-radio-group>
               </v-col>
-              <v-divider vertical></v-divider>
-              <v-col md="9" class="pb-0">
+ 
+              <v-col cols="12" sm="8" md="9" class="pb-0">
                 <template v-if="tipoFiltro == 'cliente'">
                   <v-row>
-                    <v-col md="3" class="pt-0 pr-0">
+                    <v-col cols="12" md="3" class="pt-0">
                       <v-select
                         dense
                         label="Tipo documento"
                         outlined
-                        required
                         :items="arrDocumentos"
                         hide-details
                         v-model="cliente.idTipoDocumento"
@@ -51,7 +61,7 @@
                         clearable
                       ></v-select>
                     </v-col>
-                    <v-col md="3" class="pt-0 px-1">
+                    <v-col cols="12" md="3" class="pt-0">
                       <v-text-field
                         label="N° documento"
                         type="text"
@@ -59,7 +69,7 @@
                         dense
                         :autocomplete="'off'"
                         @keypress="$soloNumerosEnteros($event)"
-                        :maxlength="getMaxDigitos()"
+                        :maxlength="getMaxDigitos"
                         ref="txtNroDocumento"
                         v-model="cliente.nroDocumento"
                         @keyup.enter="obtenerClientePorDocumento()"
@@ -94,7 +104,7 @@
                         @seleccionarRegistro="obtenerCliente($event)"
                       ></DlgBuscarCliente>
                     </v-col>
-                    <v-col md="6" class="pt-0 px-0">
+                    <v-col cols="12" md="6" class="pt-0">
                       <v-text-field
                         label="Cliente"
                         type="text"
@@ -110,7 +120,7 @@
                 </template>
                 <template v-else-if="tipoFiltro == 'comprobante'">
                   <v-row>
-                    <v-col md="3" class="pt-0 pr-0">
+                    <v-col cols="12" md="3" class="pt-0">
                       <v-select
                         dense
                         label="Tipo comprobante"
@@ -122,7 +132,7 @@
                         @change="$refs.txtSerie.focus()"
                       ></v-select>
                     </v-col>
-                    <v-col md="2" class="pt-0 px-1">
+                    <v-col cols="12" md="2" class="pt-0">
                       <v-text-field
                         label="Serie"
                         type="text"
@@ -134,7 +144,7 @@
                         @keyup.enter="$refs.txtNroComprobante.focus()"
                       />
                     </v-col>
-                    <v-col md="2" class="pt-0 px-0">
+                    <v-col cols="12" md="2" class="pt-0">
                       <v-text-field
                         label="Número"
                         type="text"
@@ -149,7 +159,7 @@
                   </v-row>
                 </template>
                 <v-row>
-                  <v-col md="4" class="pt-0 pr-0">
+                  <v-col cols="12" md="4" class="pt-0">
                     <v-menu
                       ref="menuRangoFechas"
                       v-model="showRangoFechas"
@@ -193,7 +203,7 @@
                       </v-date-picker>
                     </v-menu>
                   </v-col>
-                  <v-col md="3" class="pt-0 px-1">
+                  <v-col cols="6" md="3" class="pt-0">
                     <v-select
                       dense
                       label="Estado"
@@ -203,7 +213,7 @@
                       v-model="idEstado"
                     ></v-select>
                   </v-col>
-                  <v-col md="3" class="pt-0 px-0">
+                  <v-col cols="6" md="3" class="pt-0 px-0">
                     <v-btn dense color="info" @click="consultarVentas()"
                       ><v-icon> mdi-magnify </v-icon> Consultar</v-btn
                     >
@@ -214,8 +224,8 @@
           </v-card-text>
         </v-card>
         <v-card tile>
-          <v-card-title class="py-0">
-            <span class="headline text-button">
+          <v-card-title class="py-1 pl-1">
+            <span class="headline text-body-1">
               <v-icon>mdi-clipboard-text</v-icon>
               Listado de comprobantes de ventas
             </span>
@@ -227,6 +237,8 @@
               class="elevation-1"
               dense
               tile
+              :mobile-breakpoint="0"
+              :items-per-page="($vuetify.breakpoint.xsOnly || $vuetify.breakpoint.smOnly) ? 5 : 10"
             >
               <template v-slot:body="{ items }">
                 <tbody>

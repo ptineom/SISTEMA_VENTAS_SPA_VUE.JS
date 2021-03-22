@@ -2,7 +2,7 @@ import { mapState } from "vuex";
 import DlgMarca from '@/components/Dialogos/DlgMarca'
 export default {
     name: "Articulo",
-    components:{
+    components: {
         DlgMarca
     },
     data() {
@@ -18,12 +18,12 @@ export default {
                 { text: "Unidad de medida", value: "", align: "center", sortable: false },
                 { text: "Factor", value: "", align: "center", sortable: false, width: "90px" },
                 { text: "Precio venta(Inc. IGV)", value: "", align: "center", sortable: false, width: "120px" },
-                { text: "Dscto", value: "", align: "center", sortable: false},
+                { text: "Dscto", value: "", align: "center", sortable: false },
                 { text: "%", value: "", align: "center", sortable: false, width: "65px" },
                 { text: "Precio \n venta final", value: "", align: "center", sortable: false, width: "120px" },
-                { text: "Fecha inicio", value: "", align: "center", sortable: false },
-                { text: "Fecha final", value: "", align: "center", sortable: false },
-                { text: "", value: "opciones", align: "center", sortable: false, width: "110px" },
+                { text: "Fecha inicio", value: "", align: "center", sortable: false, width: "130px" },
+                { text: "Fecha final", value: "", align: "center", sortable: false, width: "130px" },
+                { text: "", value: "opciones", align: "center", sortable: false, width: "110px" }
             ],
             detalleUmDscto: [],
             headersSedes: [
@@ -50,10 +50,10 @@ export default {
                     sortable: false,
                 },
             ],
-            sucursales: [],
-            grupos: [],
-            familias: [],
-            unidadMedidas: [],
+            listaSucursal: [],
+            listaGrupo: [],
+            listaFamilia: [],
+            listaUm: [],
             igv: 0,
             modelo: {
                 idArticulo: "",
@@ -69,7 +69,7 @@ export default {
                 precioBase: '',
                 codigoBarra: ''
             },
-            nomMarca:'',
+            nomMarca: '',
             precioVenta: '',
             precioIgv: '',
             porPrecio: 'venta',
@@ -104,16 +104,16 @@ export default {
         llenarCboFamilia() {
             let _self = this;
             _self.overlay = true;
-            _self.familias = [];
+            _self.listaFamilia = [];
             _self.detalleUmDscto = [];
 
-            _self.$axios.get("/api/Familia/cboFamilias/" + _self.modelo.idGrupo).then((response) => {
-                let familias = response.data.data;
+            _self.$axios.get("/api/Familia/GetAllByGroupIdHelper/" + _self.modelo.idGrupo).then((response) => {
+                let familias = response.data.Data;
 
                 familias.forEach((elem) => {
-                    _self.familias.push({
-                        text: elem.nomFamilia,
-                        value: elem.idFamilia,
+                    _self.listaFamilia.push({
+                        text: elem.NomFamilia,
+                        value: elem.IdFamilia,
                     });
                 });
                 _self.modelo.idFamilia = "";
@@ -123,25 +123,28 @@ export default {
         llenarCboUm() {
             let _self = this;
             _self.overlay = true;
-            _self.unidadMedidas = [];
+            _self.listaUm = [];
             _self.detalleUmDscto = [];
 
-            let uri = `/api/UnidadMedida/listaUmPorFamilia/${_self.modelo.idGrupo}/${_self.modelo.idFamilia}`;
+            let uri = `/api/UnidadMedida/GetAllByFamilyId/${_self.modelo.idGrupo}/${_self.modelo.idFamilia}`;
             _self.$axios.get(uri).then((response) => {
-                let unidadMedidas = response.data.data;
+                let unidadMedidas = response.data.Data;
                 //Cargamos el arrar de UM.
                 unidadMedidas.forEach((elem) => {
-                    _self.unidadMedidas.push({
-                        text: elem.nomUm,
-                        value: elem.idUm,
+                    _self.listaUm.push({
+                        text: elem.NomUm,
+                        value: elem.IdUm,
                     });
                 });
                 //Agregamos una fila para la tabla Um_dscto.
                 _self.agregarUmDscto();
-            }).catch((error) => _self.$root.$alertSB(error.response.data.Message, { type: "error" }))
+            }).catch((error) => {
+                _self.$root.$alertSB(error.response.data.Message, { type: "error" })
+            })
                 .finally(() => _self.overlay = false);
         },
         agregarUmDscto(idx) {
+            //Hallar correlativo
             let newCorrelativo = 0;
             if (this.detalleUmDscto.length > 0) {
                 let correlativos = this.detalleUmDscto.map(x => x.correlativo);
@@ -150,7 +153,7 @@ export default {
             newCorrelativo = (newCorrelativo + 1);
 
             this.detalleUmDscto.push({
-                idUm: this.unidadMedidas.length > 0 ? this.unidadMedidas[0].value : '',
+                idUm: this.listaUm.length > 0 ? this.listaUm[0].value : '',
                 nroFactor: "",
                 precioVenta: "",
                 flgPromocion: false,
@@ -158,7 +161,7 @@ export default {
                 precioVentaFinal: "",
                 fecInicioPromocion: "",
                 fecFinalPromocion: "",
-                unidadMedidas: this.unidadMedidas,
+                listaUm: this.listaUm,
                 correlativo: newCorrelativo,
                 fecIniProFormatted: '',
                 fecFinProFormatted: '',
@@ -369,22 +372,22 @@ export default {
                 }
             }
             _self.detalleConsulta = [];
-            _self.$axios.get("/api/Articulo/listaArticulos", parameters).then((response) => {
-                let articulos = response.data.data;
+            _self.$axios.get("/api/Articulo/GetAllByFilters", parameters).then((response) => {
+                let articulos = response.data.Data;
                 if (articulos != null) {
                     articulos.forEach(x => {
                         _self.detalleConsulta.push({
-                            idArticulo: x.idArticulo,
-                            nomArticulo: x.nomArticulo,
-                            nomMarca: x.nomMarca,
-                            nomGrupo: x.nomGrupo,
-                            nomFamilia: x.nomFamilia,
-                            codigoBarra: x.codigoBarra,
-                            stockActual: x.stockActual,
-                            precioVentaFinal: x.precioVentaFinal,
-                            flgInactivo: x.flgInactivo,
-                            foto1: x.foto1,
-                            foto2: x.foto2
+                            idArticulo: x.IdArticulo,
+                            nomArticulo: x.NomArticulo,
+                            nomMarca: x.NomMarca,
+                            nomGrupo: x.NomGrupo,
+                            nomFamilia: x.NomFamilia,
+                            codigoBarra: x.CodigoBarra,
+                            stockActual: x.StockActual,
+                            precioVentaFinal: x.PrecioVentaFinal,
+                            flgInactivo: x.FlgInactivo,
+                            foto1: x.Foto1,
+                            foto2: x.Foto2
                         })
                     });
                 }
@@ -413,7 +416,7 @@ export default {
             this.precioIgv = "";
             this.precioVenta = "";
             this.detalleUmDscto = [];
-            this.sucursalesSeleccionados = this.sucursales.map(x => { return { idSucursal: x.idSucursal } });
+            this.sucursalesSeleccionados = this.listaSucursal.map(x => { return { idSucursal: x.idSucursal } });
             //foto
             this.limpiarFoto();
         },
@@ -467,7 +470,7 @@ export default {
 
                 //Validar la lista UmDscto.
                 for (let i = 0; i < detUmDscto.length; i++) {
-                    let nomUm = detUmDscto[i].unidadMedidas.find(x => x.value == detUmDscto[i].idUm).text;
+                    let nomUm = detUmDscto[i].listaUm.find(x => x.value == detUmDscto[i].idUm).text;
 
                     if (detUmDscto[i].nroFactor == 0) {
                         mensajeError = `Debe de ingresar el factor mayor a cero en la UM: ${nomUm}`;
@@ -505,8 +508,8 @@ export default {
 
                     let UmDscto = _self.detalleUmDscto.map(x => {
                         return {
-                            idUm: x.idUm, nroFactor: x.nroFactor, descuento: x.descuento, flgPromocion: x.flgPromocion,
-                            fecInicioPromocion: x.fecIniProFormatted, fecFinalPromocion: x.fecFinProFormatted
+                            IdUm: x.idUm, NroFactor: x.nroFactor, Descuento: x.descuento, FlgPromocion: x.flgPromocion,
+                            FecInicioPromocion: x.fecIniProFormatted, FecFinalPromocion: x.fecFinProFormatted
                         }
                     })
 
@@ -516,33 +519,33 @@ export default {
                     })
 
                     const formData = new FormData();
-                    formData.append("accion", _self.accion);
-                    formData.append("idArticulo", _self.modelo.idArticulo);
-                    formData.append("nomArticulo", _self.modelo.nomArticulo);
-                    formData.append("nomVenta", _self.modelo.nomVenta == null ? '' : _self.modelo.nomVenta);
-                    formData.append("codigoBarra", _self.modelo.codigoBarra == null ? '' : _self.modelo.codigoBarra);
-                    formData.append("idGrupo", _self.modelo.idGrupo);
-                    formData.append("idFamilia", _self.modelo.idFamilia);
-                    formData.append("idMarca", _self.modelo.idMarca);
-                    formData.append("stockMinimo", _self.modelo.stockMinimo == "" ? 0 : _self.modelo.stockMinimo);
-                    formData.append("precioCompra", _self.modelo.precioCompra == "" ? 0 : _self.modelo.precioCompra);
-                    formData.append("flgImportado", _self.modelo.flgImportado);
-                    formData.append("flgInactivo", _self.modelo.flgInactivo);
-                    formData.append("precioBase", _self.modelo.precioBase);
-                    formData.append("articulosUm", JSON.stringify(UmDscto));
-                    formData.append("sucursales", JSON.stringify(sucursales));
-                    formData.append("fileBinary", _self.file)
+                    formData.append("Accion", _self.accion);
+                    formData.append("IdArticulo", _self.modelo.idArticulo);
+                    formData.append("NomArticulo", _self.modelo.nomArticulo);
+                    formData.append("NomVenta", _self.modelo.nomVenta == null ? '' : _self.modelo.nomVenta);
+                    formData.append("CodigoBarra", _self.modelo.codigoBarra == null ? '' : _self.modelo.codigoBarra);
+                    formData.append("IdGrupo", _self.modelo.idGrupo);
+                    formData.append("IdFamilia", _self.modelo.idFamilia);
+                    formData.append("IdMarca", _self.modelo.idMarca);
+                    formData.append("StockMinimo", _self.modelo.stockMinimo == "" ? 0 : _self.modelo.stockMinimo);
+                    formData.append("PrecioCompra", _self.modelo.precioCompra == "" ? 0 : _self.modelo.precioCompra);
+                    formData.append("FlgImportado", _self.modelo.flgImportado);
+                    formData.append("FlgInactivo", _self.modelo.flgInactivo);
+                    formData.append("PrecioBase", _self.modelo.precioBase);
+                    formData.append("ArticulosUm", JSON.stringify(UmDscto));
+                    formData.append("Sucursales", JSON.stringify(sucursales));
+                    formData.append("FileBinary", _self.file)
 
                     _self.overlay = true;
-                    _self.$axios.post("api/Articulo/grabarArticulo", formData, {
+                    _self.$axios.post("api/Articulo/Register", formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
                     }).then((reponse) => {
                         let resultado = reponse.data;
 
-                        if (resultado.bResultado) {
-                            _self.$root.$alertSB(resultado.sMensaje, { type: "success" });
+                        if (resultado.Resultado) {
+                            _self.$root.$alertSB(resultado.Mensaje, { type: "success" });
                             _self.nuevo();
                         }
                     }).catch((error) => {
@@ -561,77 +564,77 @@ export default {
             let _self = this;
             _self.overlay = true;
 
-            _self.$axios.get(`/api/Articulo/obtenerArticuloPorCodigo/${idArticulo}`).then((response) => {
-                let data = response.data.data;
-                let modelo = data.modelo;
+            _self.$axios.get(`/api/Articulo/GetById/${idArticulo}`).then((response) => {
+                let data = response.data.Data;
+                let modelo = data.Modelo;
 
                 if (modelo == null)
                     return;
 
                 _self.limpiar();
-                let listaFamilia = data.listaFamilia;
-                let listaUm = data.listaUm;
-                let listaUmDscto = data.listaArticuloUm;
+                let listaFamilia = data.ListaFamilia;
+                let listaUm = data.ListaUm;
+                let listaUmDscto = data.ListaArticuloUm;
 
-                _self.modelo.idArticulo = modelo.idArticulo;
-                _self.modelo.nomArticulo = modelo.nomArticulo;
-                _self.modelo.nomVenta = modelo.nomVenta;
-                _self.modelo.codigoBarra = modelo.codigoBarra;
-                _self.modelo.idMarca = modelo.idMarca;
-                _self.nomMarca = modelo.nomMarca;
-                _self.modelo.idGrupo = modelo.idGrupo;
-                _self.modelo.precioCompra = modelo.precioCompra;
-                _self.modelo.stockMinimo = modelo.stockMinimo;
-                _self.modelo.precioBase = modelo.precioVenta;
-                _self.calcularPrecioVenta(modelo.precioVenta);
+                _self.modelo.idArticulo = modelo.IdArticulo;
+                _self.modelo.nomArticulo = modelo.NomArticulo;
+                _self.modelo.nomVenta = modelo.NomVenta;
+                _self.modelo.codigoBarra = modelo.CodigoBarra;
+                _self.modelo.idMarca = modelo.IdMarca;
+                _self.nomMarca = modelo.NomMarca;
+                _self.modelo.idGrupo = modelo.IdGrupo;
+                _self.modelo.precioCompra = modelo.PrecioCompra;
+                _self.modelo.stockMinimo = modelo.StockMinimo;
+                _self.modelo.precioBase = modelo.PrecioVenta;
+                _self.calcularPrecioVenta(modelo.PrecioVenta);
 
                 //Combo familia
                 listaFamilia.forEach((elem) => {
-                    _self.familias.push({
-                        text: elem.nomFamilia,
-                        value: elem.idFamilia,
+                    _self.listaFamilia.push({
+                        text: elem.NomFamilia,
+                        value: elem.IdFamilia,
                     });
                 });
-                _self.modelo.idFamilia = modelo.idFamilia;
+                _self.modelo.idFamilia = modelo.IdFamilia;
 
                 //Combo Um de la grilla
                 listaUm.forEach((elem) => {
-                    _self.unidadMedidas.push({
-                        text: elem.nomUm,
-                        value: elem.idUm,
+                    _self.listaUm.push({
+                        text: elem.NomUm,
+                        value: elem.IdUm,
                     });
                 });
 
                 //Grilla Um/Descuento
                 listaUmDscto.forEach(x => {
                     _self.detalleUmDscto.push({
-                        idUm: x.idUm,
-                        nroFactor: x.nroFactor,
-                        precioVenta: _self.$formatoMiles(x.precioVenta, 2),
-                        flgPromocion: x.flgPromocion,
-                        descuento: x.descuento == 0 ? '' : x.descuento,
-                        precioVentaFinal: x.flgPromocion ? _self.$formatoMiles(x.precioVentaFinal, 2) : '',
-                        fecInicioPromocion: x.flgPromocion ? _self.$moment(x.fecInicioPromocion, "DD/MM/YYYY").format("YYYY-MM-DD") : '',
-                        fecFinalPromocion: (x.flgPromocion && x.fecFinalPromocion != "") ? _self.$moment(x.fecFinalPromocion, "DD/MM/YYYY").format("YYYY-MM-DD") : '',
-                        unidadMedidas: _self.unidadMedidas,
+                        idUm: x.IdUm,
+                        nroFactor: x.NroFactor,
+                        precioVenta: _self.$formatoMiles(x.PrecioVenta, 2),
+                        flgPromocion: x.FlgPromocion,
+                        descuento: x.Descuento == 0 ? '' : x.Descuento,
+                        precioVentaFinal: x.FlgPromocion ? _self.$formatoMiles(x.PrecioVentaFinal, 2) : '',
+                        fecInicioPromocion: x.FlgPromocion ? _self.$moment(x.FecInicioPromocion, "DD/MM/YYYY").format("YYYY-MM-DD") : '',
+                        fecFinalPromocion: (x.FlgPromocion && x.FecFinalPromocion != "") ? _self.$moment(x.FecFinalPromocion, "DD/MM/YYYY").format("YYYY-MM-DD") : '',
+                        listaUm: _self.listaUm,
                         correlativo: (_self.detalleUmDscto.length + 1),
-                        fecIniProFormatted: x.flgPromocion ? x.fecInicioPromocion : "",
-                        fecFinProFormatted: x.flgPromocion ? x.fecFinalPromocion : "",
+                        fecIniProFormatted: x.FlgPromocion ? x.FecInicioPromocion : "",
+                        fecFinProFormatted: x.FlgPromocion ? x.FecFinalPromocion : "",
                         showFecIniPro: false,
                         showFecFinPro: false
                     });
                 });
 
-                //Grillña sucursales
-                _self.sucursalesSeleccionados = data.listaSucursal.filter(x => x.flgEnUso).map(y => {
-                    return { idSucursal: y.idSucursal }
+                //Grilla sucursales
+                _self.sucursalesSeleccionados = data.ListaSucursal.filter(x => x.FlgEnUso).map(y => {
+                    return { idSucursal: y.IdSucursal }
                 });
 
                 //Cargar imagen
-                if (!!modelo.foto1) {
-                    let filename = modelo.foto1.slice(modelo.foto1.lastIndexOf("\\") + 1);
-                    let fotoB64 = `${"data:image/jpg;base64,"}${modelo.fotoB64}`
-                    let file = _self.dataURLtoFile(fotoB64, filename);
+                if (!!modelo.Foto1) {
+                    let filename = modelo.Foto1.slice(modelo.Foto1.lastIndexOf("\\") + 1);
+                    let fotoB64 = `${"data:image/jpg;base64,"}${modelo.FotoB64}`
+                    let file = _self.$dataURLtoFile(fotoB64, filename);
                     _self.srcImg = fotoB64;
                     _self.fileSize = (file.size / 1024).toFixed(2) + " Kb";
                     _self.file = file;
@@ -656,13 +659,13 @@ export default {
             _self.$root.$confirm(_self.titulo, "¿Desea anular el registro?").then((response) => {
                 _self.overlay = true;
 
-                _self.$axios.post(`/api/Articulo/anularArticulo/${idArticulo}`).then((reponse) => {
-                    let resultado = reponse.data;
+                _self.$axios.post(`/api/Articulo/Delete/${idArticulo}`).then((reponse) => {
+                    let resultado = reponse.Data;
 
-                    if (resultado.bResultado) {
+                    if (resultado.Resultado) {
                         let idx = _self.detalleConsulta.findIndex(x => x.correlativo == correlativo);
                         _self.detalleConsulta.splice(idx, 1);
-                        _self.$root.$alertSB(resultado.sMensaje, { type: "success" });
+                        _self.$root.$alertSB(resultado.Mensaje, { type: "success" });
                     }
                 }).catch((error) => {
                     _self.$root.$alertSB(error.response.data.Message, { type: "warning" })
@@ -676,7 +679,8 @@ export default {
         getFile(e) {
             let input = e.target;
             let _self = this;
-            if (input.files != undefined) {
+
+            if (input.files.length > 0) {
                 let foto = input.files[0];
                 let fr = new FileReader();
                 fr.onload = (function () {
@@ -692,19 +696,19 @@ export default {
             this.file = null;
             this.fileSize = "0 Kb";
         },
-        cancelar(){
+        cancelar() {
             this.vista = 1;
             this.filtro = "";
             this.detalleConsulta = [];
             this.$refs.txtFiltro.focus();
             this.porTipoFiltro = "descripcion";
         },
-        abrirDlgMarca(vista){
+        abrirDlgMarca(vista) {
             let _self = this;
-            this.$refs.dlgMarca.show(vista).then((marca)=>{
+            this.$refs.dlgMarca.show(vista).then((marca) => {
                 _self.modelo.idMarca = marca.idMarca;
                 _self.nomMarca = marca.nomMarca;
-            }).catch(()=>{});
+            }).catch(() => { });
         }
     },
     watch: {
@@ -738,31 +742,35 @@ export default {
         this.headerForm.subtitleForm = this.getSubtitulo(this.vista);
         let _self = this;
         _self.overlay = true;
-        _self.$axios.get("/api/Articulo/getData").then((response) => {
-            let data = response.data.data;
+        _self.$axios.get("/api/Articulo/GetData").then((response) => {
+            let data = response.data.Data;
 
-            _self.igv = (parseFloat(data.igv) / 100);
+            _self.igv = (parseFloat(data.Igv) / 100);
 
-            data.grupos.forEach((elem) => {
-                _self.grupos.push({
-                    text: elem.nomGrupo,
-                    value: elem.idGrupo,
+            data.ListaGrupo.forEach((elem) => {
+                _self.listaGrupo.push({
+                    text: elem.NomGrupo,
+                    value: elem.IdGrupo,
                 });
             });
 
-            data.sucursales.forEach((elem) => {
-                _self.sucursales.push({
-                    flgEnUso: elem.flgEnUso,
-                    idSucursal: elem.idSucursal,
-                    nomSucursal: elem.nomSucursal,
-                    nomAlmacen: elem.nomAlmacen,
-                    stockActual: elem.stockActual,
-                    direccion: elem.direccion
+            data.ListaSucursal.forEach((elem) => {
+                _self.listaSucursal.push({
+                    flgEnUso: elem.FlgEnUso,
+                    idSucursal: elem.IdSucursal,
+                    nomSucursal: elem.NomSucursal,
+                    nomAlmacen: elem.NomAlmacen,
+                    stockActual: elem.StockActual,
+                    direccion: elem.Direccion
                 });
-                _self.sucursalesSeleccionados.push({ idSucursal: elem.idSucursal });
+                _self.sucursalesSeleccionados.push({ idSucursal: elem.IdSucursal });
             });
 
-            _self.monedaLocal = data.monedaLocal;
+            _self.monedaLocal = {
+                idMoneda: data.MonedaLocal.IdMoneda,
+                nomMoneda: data.MonedaLocal.NomMoneda,
+                sgnMoneda: data.MonedaLocal.SgnMoneda
+            };
 
         }).catch((error) => {
             _self.$root.$alertSB(error.response.data.Message, { type: "warning" })

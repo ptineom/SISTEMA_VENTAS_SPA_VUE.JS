@@ -16,7 +16,7 @@
       <v-list-item class="blue-tool-1">
         <v-list-item-content class="text-center pt-0">
           <div class="overline mb-1 white--text">
-            Sede: {{ usuario.nomSucursal | capitalize }}
+            Sede: {{ usuario.NomSucursal | capitalize }}
           </div>
           <v-list-item-title class="headline mb-1 white--text">{{
             usuario[
@@ -24,7 +24,7 @@
             ] | capitalize
           }}</v-list-item-title>
           <v-list-item-subtitle class="white--text">{{
-            usuario.fullName | capitalize
+            usuario.FullName | capitalize
           }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>

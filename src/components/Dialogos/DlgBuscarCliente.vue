@@ -198,26 +198,29 @@ export default {
       _self.clientes = [];
 
       let parameters = `${tipoFiltro}/${_self.filtro}/${false}`;
+
       _self.$axios
-        .get(`/api/Cliente/listaClientes/${parameters}`)
+        .get(`/api/Cliente/GetAllByFilters/${parameters}`)
         .then((response) => {
           let result = response.data;
-          if (!result.bResultado) {
-            this.$refs.alerta.show(result.sMensaje, {
+
+          if (!result.Resultado) {
+            this.$refs.alerta.show(result.Mensaje, {
               type: "warning",
             });
             return;
           }
 
-          let lista = result.data;
+          let lista = result.Data;
+          
           _self.clientes = lista.map((elem) => {
             return {
-              idCliente: elem.idCliente,
-              nomCliente: elem.nomCliente,
-              nomTipoDocumento: elem.nomTipoDocumento,
-              nroDocumento: elem.nroDocumento,
-              dirCliente: elem.dirCliente,
-              idTipoDocumento: elem.idTipoDocumento,
+              idCliente: elem.IdCliente,
+              nomCliente: elem.NomCliente,
+              nomTipoDocumento: elem.NomTipoDocumento,
+              nroDocumento: elem.NroDocumento,
+              dirCliente: elem.DirCliente,
+              idTipoDocumento: elem.IdTipoDocumento,
             };
           });
         })
@@ -236,8 +239,10 @@ export default {
     let _self = this;
 
     window.addEventListener("keydown", (e) => {
-      if (!_self.dialog) return;
-      if (_self.clientes.length == 0) return;
+      if (!_self.dialog) 
+        return;
+      if (_self.clientes.length == 0) 
+        return;
 
       if (
         e.key == "Enter" ||

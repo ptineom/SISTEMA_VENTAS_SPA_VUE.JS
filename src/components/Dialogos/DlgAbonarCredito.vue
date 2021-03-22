@@ -130,10 +130,17 @@ export default {
           },
         ],
         fechaVencimiento: [
-          (value) =>
-            this.$moment(value, "DD/MM/YYYY").isAfter(
-              this.$moment(new Date(), "DD/MM/YYYY")
-            ) || "La fecha de vencimiento debe ser mayor a la fecha actual",
+          (value) => {
+            let fechaActual = this.$moment(new Date()).format("DD/MM/YYYY");
+            if (
+              this.$moment(value, "DD/MM/YYYY").isBefore(
+                this.$moment(fechaActual, "DD/MM/YYYY")
+              )
+            )
+              return "La fecha de vencimiento no puede ser menor a la fecha actual";
+
+            return true;
+          },
         ],
       },
       valid: false,
@@ -164,6 +171,7 @@ export default {
       }
       this.total = item.totalPagar;
       this.abono = item.abono;
+      debugger;
       this.fechaVencimiento = item.fechaVencimiento;
       this.dialog = true;
       return new Promise((resolve, reject) => {

@@ -6,7 +6,6 @@ import vuetify from './plugins/vuetify';
 
 import axios from 'axios';
 import moment from 'moment';
-import ModLogin from './store/Modules/ModLogin';
 import pluginsUtilidades from './plugins/utilidades'
 
 
@@ -53,7 +52,7 @@ axios.interceptors.response.use(function (config) {
       idRefreshToken: localStorage.getItem("refreshToken")
     }
     axios.post(urlRefreshToken, parameters).then((response) => {
-      //Lo almacenamos con vuex al localstorage
+      //Lo almacenamos con vuex y localstorage
       store.dispatch("ModLogin/guardarTokens", new {
         token: response.data.token,
         refreshToken: response.data.refreshToken

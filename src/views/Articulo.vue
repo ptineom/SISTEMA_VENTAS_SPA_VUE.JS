@@ -5,9 +5,9 @@
         <v-card elevation="1" tile v-show="vista == 2">
           <v-card-text class="pt-2 pb-0">
             <v-row>
-              <v-col md="10" class="py-0 px-2">
+              <v-col cols="12" lg="10" class="py-0 px-2">
                 <v-row>
-                  <v-col cols="12" md="2" class="py-0 px-1">
+                  <v-col cols="12" md="2" class="py-1 px-1">
                     <v-text-field
                       label="Código"
                       type="text"
@@ -20,7 +20,7 @@
                       v-model="modelo.idArticulo"
                     />
                   </v-col>
-                  <v-col cols="12" md="10" class="py-0 px-1">
+                  <v-col cols="12" md="10" class="py-1 px-1">
                     <v-text-field
                       label="Nombre artículo"
                       type="text"
@@ -33,7 +33,7 @@
                       @keyup.enter="$refs['txtNomVen'].focus()"
                     />
                   </v-col>
-                  <v-col cols="12" md="9" class="pb-1 pt-2 px-1">
+                  <v-col cols="12" md="9" class="py-1 px-1">
                     <v-text-field
                       label="Nombre comercial"
                       type="text"
@@ -46,7 +46,7 @@
                       @keyup.enter="$refs.txtCodBar.focus()"
                     />
                   </v-col>
-                  <v-col cols="12" md="3" class="pb-1 pt-2 px-1">
+                  <v-col cols="12" sm="5" md="3" class="py-1 px-1">
                     <v-text-field
                       label="Código de barra"
                       prepend-inner-icon="mdi-barcode"
@@ -61,7 +61,7 @@
                     >
                     </v-text-field>
                   </v-col>
-                  <v-col cols="12" md="6" class="py-1 px-1">
+                  <v-col cols="12" sm="7" md="6" class="py-1 px-1">
                     <v-text-field
                       label="Marca"
                       type="text"
@@ -96,29 +96,29 @@
                       </template>
                     </v-text-field>
                   </v-col>
-                  <v-col cols="12" md="3" class="py-1 px-1">
+                  <v-col cols="12" sm="6" md="3" class="py-1 px-1">
                     <v-select
                       dense
                       label="Grupo"
                       outlined
                       hide-details
-                      :items="grupos"
+                      :items="listaGrupo"
                       v-model="modelo.idGrupo"
                       @change="llenarCboFamilia()"
                     ></v-select>
                   </v-col>
-                  <v-col cols="12" md="3" class="py-1 px-1">
+                  <v-col cols="12" sm="6" md="3" class="py-1 px-1">
                     <v-select
                       dense
                       label="Familia"
                       outlined
                       hide-details
-                      :items="familias"
+                      :items="listaFamilia"
                       v-model="modelo.idFamilia"
                       @change="llenarCboUm()"
                     ></v-select>
                   </v-col>
-                  <v-col cols="12" md="2" class="py-1 px-1">
+                  <v-col cols="12" sm="6" md="2" class="py-1 px-1">
                     <v-text-field
                       label="Precio compra"
                       type="text"
@@ -132,7 +132,7 @@
                       :autocomplete="'off'"
                     />
                   </v-col>
-                  <v-col cols="12" md="2" class="py-1 px-1">
+                  <v-col cols="12" sm="6" md="2" class="py-1 px-1">
                     <v-text-field
                       label="Stock mín."
                       type="text"
@@ -147,7 +147,7 @@
                     />
                   </v-col>
 
-                  <v-col cols="12" md="2" class="py-1 px-1">
+                  <v-col cols="6" sm="4" md="2" class="py-1 px-1">
                     <v-checkbox
                       label="Importado"
                       hide-details
@@ -155,7 +155,7 @@
                       v-model="modelo.flgImportado"
                     ></v-checkbox>
                   </v-col>
-                  <v-col cols="12" md="2" class="py-1 px-1">
+                  <v-col cols="6" sm="4" md="2" class="py-1 px-1">
                     <v-checkbox
                       label="Inactivo"
                       hide-details
@@ -163,7 +163,7 @@
                       v-model="modelo.flgInactivo"
                     ></v-checkbox>
                   </v-col>
-                  <v-col cols="12" md="2" offset-md="2" class="py-1 px-1">
+                  <v-col cols="12" sm="4" md="2" offset-md="2" class="py-1 px-1">
                     <v-text-field
                       label="Moneda"
                       type="text"
@@ -178,7 +178,7 @@
                 </v-row>
 
                 <v-row>
-                  <v-col class="px-1 pt-1">
+                  <v-col cols="12" class="px-1 pt-1">
                     <v-card color="light-green lighten-5" elevation="4">
                       <v-tabs
                         v-model="tab"
@@ -278,6 +278,7 @@
                                         :items="detalleUmDscto"
                                         class="elevation-1"
                                         dense
+                                        :mobile-breakpoint="0"
                                       >
                                         <template v-slot:body="{ items }">
                                           <tbody ref="tbodyUmDscto">
@@ -292,7 +293,7 @@
                                                   single-line
                                                   dense
                                                   label="Unidad medida"
-                                                  :items="item.unidadMedidas"
+                                                  :items="item.listaUm"
                                                   @change="
                                                     seleccionarUM(item, i)
                                                   "
@@ -540,19 +541,26 @@
                         <v-tab-item>
                           <v-card color="grey lighten-5" flat>
                             <v-card-text>
+                              <v-row>
+                                <v-col cols="12">
                               <v-data-table
                                 hide-default-footer
                                 disable-pagination
                                 :headers="headersSedes"
-                                :items="sucursales"
+                                :items="listaSucursal"
                                 class="elevation-1"
                                 dense
                                 v-model="sucursalesSeleccionados"
                                 show-select
                                 item-key="idSucursal"
                                 :single-select="singleSelect"
+      
                               >
+                              
                               </v-data-table>
+                                </v-col>
+                              </v-row>
+                              
                             </v-card-text>
                           </v-card>
                         </v-tab-item>
@@ -561,9 +569,9 @@
                   </v-col>
                 </v-row>
               </v-col>
-              <v-col md="2" class="py-0 px-2">
+              <v-col cols="12" lg="2" class="py-0 px-2">
                 <v-row>
-                  <v-col cols="12 py-1">
+                  <v-col cols="12" sm="6" md="4" lg="12" class="py-1">
                     <v-file-input
                       label="Foto"
                       prepend-icon="mdi-camera"
@@ -576,7 +584,7 @@
                       style="cursor: pointer"
                     ></v-file-input>
                   </v-col>
-                  <v-col class="py-1">
+                  <v-col cols="12" sm="6" md="4" lg="12" class="py-1">
                     <v-card elevation="1" tile class="mb-2">
                       <v-card-text class="py-1 px-1">
                         <v-img :src="srcImg" class="mb-2"></v-img>
@@ -634,7 +642,7 @@
                       </v-col>
                     </v-row>
                     <v-row>
-                      <v-col cols="4" md="6" class="py-1 px-0">
+                      <v-col cols="12" md="6" class="py-1 px-0">
                         <v-text-field
                           label="Filtro"
                           type="text"
@@ -651,14 +659,14 @@
                         />
                       </v-col>
                       <v-col class="pt-1">
-                        <v-btn dense color="primary" @click="consultar()"
+                        <v-btn dense color="primary" @click="consultar()" class="mb-1"
                           ><v-icon> mdi-magnify </v-icon> Consultar</v-btn
                         >
-                        <v-btn class="ml-1" dense color="info" @click="nuevo()"
+                        <v-btn class="ml-1 mb-1" dense color="info" @click="nuevo()" 
                           ><v-icon> mdi-file-plus </v-icon> Nuevo</v-btn
                         >
                         <v-btn
-                          class="ml-1"
+                          class="ml-1  mb-1"
                           dense
                           color="default"
                           @click="consultarVentas()"
@@ -679,6 +687,7 @@
                   class="elevation-1"
                   dense
                   tile
+                           :mobile-breakpoint="0"
                 >
                   <template v-slot:body="{ items }">
                     <tbody>

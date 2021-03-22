@@ -257,7 +257,7 @@ const MyPlugin = {
         Vue.filter('formatNumber', function (value) {
             return _self.$formatoMiles(value, 2);
         });
-        Vue.prototype.dataURLtoFile = (dataurl, filename) => {
+        Vue.prototype.$dataURLtoFile = (dataurl, filename) => {
             //Usage example:
             //var file = dataURLtoFile('data:text/plain;base64,aGVsbG8gd29ybGQ=','hello.txt');
             var arr = dataurl.split(','),
@@ -272,7 +272,7 @@ const MyPlugin = {
 
             return new File([u8arr], filename, { type: mime });
         };
-        Vue.prototype.urltoFile = (url, filename, mimeType) => {
+        Vue.prototype.$urltoFile = (url, filename, mimeType) => {
             //Usage example:
             // let file = urltoFile('data:text/plain;base64,aGVsbG8gd29ybGQ=', 'hello.txt','text/plain')
             // .then(function(file){ console.log(file);});
@@ -280,6 +280,24 @@ const MyPlugin = {
                 .then(function (res) { return res.arrayBuffer(); })
                 .then(function (buf) { return new File([buf], filename, { type: mimeType }); })
             );
+        };
+
+        Vue.prototype.$isValidEmail = (email) =>{    
+            return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/.test(email);
+        };
+
+        Vue.prototype.$capitalize =(frase)=>{
+            if (!frase) return ''
+
+            let arr = frase.split(' ');
+            let count = arr.length;
+            
+            for (var i = 0; i < count; i++) {
+                let palabra = arr[i].toLowerCase();
+                let capitalize = (palabra.substring(0, 1).toUpperCase() + palabra.substring(1, palabra.length));
+                arr[i] = capitalize;
+            }
+            return arr.join(' ');
         }
 
     }

@@ -4,7 +4,6 @@ import router from '../../router/index';
 const ModLogin = {
     namespaced: true,
     state: {
-        token: null,
         usuario: null,
         nameToken: 'tokenSPA_SistemaVentas',
         arrMenuItem: [],
@@ -13,9 +12,6 @@ const ModLogin = {
         refreshToken: ''
     },
     mutations: {
-        setToken(state, payload) {
-            state.token = payload;
-        },
         setUsuario(state, payload) {
             state.usuario = payload
         },
@@ -42,46 +38,42 @@ const ModLogin = {
             //decodificamos el token
             let decodeToken = decode(token);
 
-            store.commit('setToken', token);
             store.commit('setUsuario', decodeToken)
             store.commit("setBCambiarSede", false)
             store.commit("setAvatar", avatarB64);
-            store.commit("setArrMenuItem", menuItem.children);
+            store.commit("setArrMenuItem", menuItem.Children);
 
             //Guardamos el token, avatar, menu, refreshToken en el localstorage
             localStorage.setItem(store.state.nameToken, token)
             localStorage.setItem("avatarB64", avatarB64);
-            localStorage.setItem("arrMenuItem", JSON.stringify(menuItem.children))
+            localStorage.setItem("arrMenuItem", JSON.stringify(menuItem.Children))
             localStorage.setItem("refreshToken", refreshToken)
 
             //Nos redijiremos al home despues de loguearnos correctamente.
             router.push({ name: "Home" })
         },
         autoLogin(store) {
-            //Si ya tenemos un token, solo recuepramos la información.
+            //Si ya tenemos un token, solo recuperamos la información.
             let token = localStorage.getItem(store.state.nameToken);
             if (token) {
                 let decodeToken = decode(token);
-                store.commit("setToken", token);
                 store.commit("setUsuario", decodeToken);
 
-
-                if (localStorage.getItem("avatarB64")) {
+                if (localStorage.getItem("avatarB64"))
                     store.commit("setAvatar", localStorage.getItem("avatarB64"));
-                }
-                if (localStorage.getItem("arrMenuItem")) {
+
+                if (localStorage.getItem("arrMenuItem"))
                     store.commit("setArrMenuItem", JSON.parse(localStorage.getItem("arrMenuItem")));
-                }
-                if (localStorage.getItem("refreshToken")) {
+
+                if (localStorage.getItem("refreshToken"))
                     store.commit("setRefreshToken", localStorage.getItem("refreshToken"));
-                }
+
             }
         },
         cerrarSesion(store) {
             let token = localStorage.getItem(store.state.nameToken);
             if (token) {
                 localStorage.removeItem(store.state.nameToken);
-                store.commit("setToken", null);
                 store.commit("setUsuario", null);
                 store.commit("setArrMenuItem", []);
 
@@ -100,13 +92,12 @@ const ModLogin = {
         setBCambiarSede(store, payload) {
             store.commit('setBCambiarSede', payload);
         },
-        guardarTokens(store, payload){
+        guardarTokens(store, payload) {
             let token = payload.token;
             let refreshToken = payload.refreshToken;
 
             //AccessToken
             let decodeToken = decode(token);
-            store.commit('setToken', token);
             store.commit('setUsuario', decodeToken)
             localStorage.setItem(store.state.nameToken, token);
 
@@ -116,14 +107,17 @@ const ModLogin = {
     },
     getters: {
         isAuthenticated(state) {
-            return !!state.token
+            if (!!state.usuario)
+                return true
+            else
+                return false
         },
         showLayout(state) {
             //Se mostrará el layout siempre que exista un token y no se haya seleccionado cambiar sede del componente logout.
             //Porque cuando es seleccionado la opción cambiar sede se redijirá al route: login
-            if (!!state.token && !state.bCambiarSede) {
+            if (!!state.usuario && !state.bCambiarSede)
                 return true;
-            }
+
             return false;
         }
     }
