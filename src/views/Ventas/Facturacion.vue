@@ -161,15 +161,9 @@
                     :allowed-dates="allowedDatesFechaVencimiento"
                   >
                     <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="showFecVen = false">
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="$refs.txtFecVen.save(fechaVencimiento)"
-                    >
-                      OK
+             
+                    <v-btn color="error" @click="showFecVen = false">
+                      Cancelar
                     </v-btn>
                   </v-date-picker>
                 </v-menu>
@@ -217,15 +211,14 @@
                   :maxlength="getMaxDigitos"
                 >
                   <template slot="prepend">
-                    <v-btn title="Nuevo" 
+                    <v-btn
+                      title="Nuevo"
                       icon
                       small
                       style="cursor: pointer; color: #82b1ff"
                       @click="abrirDlgRegistrarCliente"
-                      >
-                      <v-icon
-                        >mdi-file-outline
-                      </v-icon>
+                    >
+                      <v-icon>mdi-file-outline </v-icon>
                     </v-btn>
                   </template>
                   <template slot="append">

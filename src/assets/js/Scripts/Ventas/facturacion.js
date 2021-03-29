@@ -158,8 +158,8 @@ export default {
                 nroDocumento: item.nroDocumento
             };
 
-            //Si el el tipo doc. del ciente(consulta, registro) seleccionado esta desabilitado en el combo tipo doc.
-            // de ventas, habilitamos todos los documento y limpiamos el comprobante.
+            //Si el el tipo doc. del cliente(consulta, registro) seleccionado esta desabilitado en el combo tipo doc.
+            //de ventas, habilitamos todos los documento y limpiamos el comprobante.
             let disabled = this.arrDocumentos.find(x => x.value == item.idTipoDocumento).disabled;
             if(disabled){
                 this.arrDocumentos.forEach(y=> y.disabled=false);
@@ -854,7 +854,9 @@ export default {
             })
 
         }).catch((error) => {
-            alert(error.response);
+            _self.$root.$alertSB(error.response.data.Message, {
+                type: "warning"
+            });
         }).finally(() => {
             _self.overlay = false;
         })

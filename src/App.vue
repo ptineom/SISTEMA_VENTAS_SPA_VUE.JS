@@ -65,7 +65,7 @@
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
-      <v-btn icon dark>
+      <v-btn icon dark @click="abrirAperturarCaja()">
         <v-icon>mdi-apps</v-icon>
       </v-btn>
       <v-btn icon dark>
@@ -127,6 +127,7 @@
     <!-- Componentes que se utilizará en todas las vistas -->
     <Confirm ref="confirm"></Confirm>
     <AlertSB ref="alertSB"></AlertSB>
+    <DlgAperturarCaja ref="dlgAperturarCaja"></DlgAperturarCaja>
   </v-app>
 </template>
 
@@ -138,6 +139,7 @@ import Logout from "./components/Layout/Logout";
 
 import { mapState, mapActions, mapGetters } from "vuex";
 import vuescroll from "vuescroll";
+import DlgAperturarCaja from "@/components/Dialogos/DlgAperturarCaja"
 export default {
   components: {
     Confirm,
@@ -145,6 +147,7 @@ export default {
     AlertSB,
     Logout,
     vuescroll,
+    DlgAperturarCaja
   },
   data() {
     return {
@@ -193,7 +196,9 @@ export default {
         this.mini = !this.mini;
       }
     },
-  
+    abrirAperturarCaja(){
+      this.$refs.dlgAperturarCaja.show();
+    }
   },
   mounted() {
     this.$root.$confirm = this.$refs.confirm.open;

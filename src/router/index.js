@@ -50,7 +50,8 @@ const routes = [
   {
     path: '/facturacion',
     name: 'Facturacion',
-    component: () => import('../views/Ventas/Facturacion.vue')
+    component: () => import('../views/Ventas/Facturacion.vue'),
+   
   },
 ]
 
@@ -64,6 +65,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   let token = localStorage.getItem('tokenSPA_SistemaVentas');
 
+  //Evalua si es que no necesita autenticacion
   if (to.matched.some((record) => record.meta.bLibre)) {
     //Si se elige la opción cambiar sede del componente logout.
     if (ModLogin.state.bCambiarSede) {
@@ -77,7 +79,7 @@ router.beforeEach((to, from, next) => {
     }
   } else {
     if (token) {
-      next()
+      next();
     } else {
       next({ name: "Login" })
     }
