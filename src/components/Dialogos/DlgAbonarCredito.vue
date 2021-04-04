@@ -101,7 +101,7 @@
   </v-dialog>
 </template>
 <script>
-import CurrencyInput from "@/components/CurrencyInput";
+import CurrencyInput from "@/components/Utilitarios/CurrencyInput";
 
 export default {
   name: "DlgAbonoCredito",
@@ -161,7 +161,7 @@ export default {
     },
   },
   components: {
-    CurrencyInput,
+    CurrencyInput
   },
   props: ["sgnMoneda", "allowedDatesFechaVencimiento"],
   methods: {
@@ -169,11 +169,12 @@ export default {
       if (!!item.editar) {
         this.editar = item.editar;
       }
+      
       this.total = item.totalPagar;
       this.abono = item.abono;
-      debugger;
       this.fechaVencimiento = item.fechaVencimiento;
       this.dialog = true;
+
       return new Promise((resolve, reject) => {
         this.resolve = resolve;
         this.reject = reject;

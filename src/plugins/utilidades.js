@@ -24,7 +24,7 @@ const MyPlugin = {
         };
 
         Vue.prototype.$formatoMiles = (numero, decimales, siEsCeroEsvacio) => {
-            if (isNaN(numero)) {
+            if (isNaN(numero) || numero == "") {
                 numero = 0;
             }
             if ((decimales != undefined && isNaN(decimales)) || (decimales == undefined)) {
@@ -35,6 +35,8 @@ const MyPlugin = {
                 if (siEsCeroEsvacio && numero == 0)
                     return '';
             }
+            numero = parseFloat(numero);
+
             //return numero.toFixed(decimales).replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, "$1,")
             return numero.toFixed(decimales).replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
         };

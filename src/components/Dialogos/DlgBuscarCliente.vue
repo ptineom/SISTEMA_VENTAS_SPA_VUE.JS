@@ -109,7 +109,6 @@
       <v-overlay :value="overlay" absolute :opacity="'0.36'">
         <v-progress-circular indeterminate size="64"></v-progress-circular>
       </v-overlay>
-
       <AlertSB ref="alerta"></AlertSB>
     </v-card>
   </v-dialog>
@@ -212,7 +211,7 @@ export default {
           }
 
           let lista = result.Data;
-          
+
           _self.clientes = lista.map((elem) => {
             return {
               idCliente: elem.IdCliente,
@@ -239,10 +238,8 @@ export default {
     let _self = this;
 
     window.addEventListener("keydown", (e) => {
-      if (!_self.dialog) 
-        return;
-      if (_self.clientes.length == 0) 
-        return;
+      if (!_self.dialog) return;
+      if (_self.clientes.length == 0) return;
 
       if (
         e.key == "Enter" ||

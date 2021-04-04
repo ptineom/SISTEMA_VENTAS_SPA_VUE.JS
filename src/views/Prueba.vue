@@ -77,7 +77,7 @@ import ComPrueba4 from "../components/Pruebas/ComPrueba4";
 import ComButton from "../components/Pruebas/ComButton";
 import ComInputName from "../components/Pruebas/ComInputName";
 
-import CurrencyInput from "@/components/CurrencyInput";
+import CurrencyInput from "@/components/Utilitarios/CurrencyInput";
 import ModalPrueba from "@/components/Pruebas/ModalPrueba";
 export default {
   name: "Prueba",

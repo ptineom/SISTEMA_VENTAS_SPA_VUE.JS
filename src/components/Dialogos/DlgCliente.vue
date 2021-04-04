@@ -1,6 +1,5 @@
 <template>
-  <v-row justify="center">
-    <v-dialog v-model="dialog" max-width="700px" scrollable persistent>
+     <v-dialog v-model="dialog" max-width="700px" persistent>
       <v-card>
         <v-card-title>
           <span class="headline text-button">
@@ -228,7 +227,6 @@
         <alerta ref="alerta"></alerta>
       </v-card>
     </v-dialog>
-  </v-row>
 </template>
 
 <script>

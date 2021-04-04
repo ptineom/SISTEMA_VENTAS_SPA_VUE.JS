@@ -10,7 +10,7 @@ export default {
         ShowError,
     },
     computed: {
-        ...mapState("ModLogin", ["usuario", "arrSedes", "bCambiarSede"]),
+        ...mapState("ModLogin", ["usuario", "bCambiarSede"]),
         getTitulo() {
             if (this.step == 2) {
                 return "Seleccione la sede";
@@ -41,6 +41,7 @@ export default {
             "guardarTokens",
             "setBCambiarSede"
         ]),
+        ...mapActions("ModCajaApertura", ["verificarEstadoCaja"]),
         ingresar() {
             let validate = this.$refs.form.validate();
             this.errors = [];
@@ -75,6 +76,9 @@ export default {
                                 menuItem: resultado.Data.MenuItem,
                                 refreshToken: resultado.Data.RefreshToken
                             });
+
+                            //Verificamos el estado de la caja y guardamos lo estados con vuex.
+                            _self.verificarEstadoCaja();
 
                             _self.limpiar();
                         } else {
@@ -136,31 +140,31 @@ export default {
             this.errors = [];
 
             //Pestaña de seleccionar sucursal
-            if (this.step == 2) {
-                let validate = this.$refs.formSuc.validate();
+            if (_self.step == 2) {
+                let validate = _self.$refs.formSuc.validate();
                 if (!validate) return;
 
                 let parameters = {};
                 let uri = "";
-                let nomSucursal = this.sucursales.find(x => x.value == this.idSucursal).text;
+                let nomSucursal = _self.sucursales.find(x => x.value == _self.idSucursal).text;
 
-                if (this.bCambiarSede) {
+                if (_self.bCambiarSede) {
                     parameters = {
-                        idSucursal: this.idSucursal,
+                        idSucursal: _self.idSucursal,
                         nomSucursal: nomSucursal
                     };
                     uri="api/SucursalUsuario/ChangeSucursal";
                 }else{
                     parameters = {
-                        idSucursal: this.idSucursal,
+                        idSucursal: _self.idSucursal,
                         nomSucursal: nomSucursal,
-                        idUsuario: this.login.usuario,
-                        password: this.login.password
+                        idUsuario: _self.login.usuario,
+                        password: _self.login.password
                     };
                     uri="api/Login/GenerateToken";
                 }
 
-                this.overlay = true;
+                _self.overlay = true;
 
                 //Generamos el token
                 axios
@@ -174,7 +178,7 @@ export default {
                         }
 
                         //Guardamos la informacion en el área local.
-                        if (this.bCambiarSede) {
+                        if (_self.bCambiarSede) {
                             _self.guardarTokens({
                                 token: resultado.Data.Token,
                                 refreshToken: resultado.Data.RefreshToken
@@ -189,6 +193,10 @@ export default {
                             });
                             _self.limpiar();
                             _self.step = 1;
+
+                            
+                            //Verificamos el estado de la caja y guardamos lo estados con vuex.
+                            _self.verificarEstadoCaja();
                         }
                     })
                     .catch((error) => {

@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <v-text-field
+   <v-text-field
       :reverse="!!reverse"
       :dense="!!dense"
       :label="!!label ? label : ''"
@@ -14,9 +13,11 @@
       :class="!!clase ? clase : ''"
       ref="txtCurrencyInput"
       :hide-details="!!hideDetails"
+      :outlined="!!outlined"
+      :disabled="!!disabled"
+      @keypress.native="$numerosDecimales($event, 2)"
     >
     </v-text-field>
-  </div>
 </template>
 <script>
 export default {
@@ -35,8 +36,15 @@ export default {
     "clase",
     "rules",
     "sgnMoneda",
-    "hideDetails"
+    "hideDetails",
+    "outlined",
+    "disabled"
   ],
+  methods:{
+    focus(){
+      this.$refs.txtCurrencyInput.focus();
+    }
+  },
   computed: {
     displayValue: {
       get: function () {

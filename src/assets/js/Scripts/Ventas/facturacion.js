@@ -1,7 +1,6 @@
 import DlgBuscarCliente from '@/components/Dialogos/DlgBuscarCliente'
 import DlgRegistrarCliente from '@/components/Dialogos/DlgCliente'
 import DlgBuscarArticulo from '@/components/Dialogos/DlgBuscarArticulo'
-import CurrencyInput from '@/components/CurrencyInput'
 import Registro from '@/views/Compras/Registro'
 import DlgAbonarCredito from '@/components/Dialogos/DlgAbonarCredito'
 import DlgPago from '@/views/Ventas/DlgPago'
@@ -13,7 +12,6 @@ export default {
         DlgBuscarCliente,
         DlgRegistrarCliente,
         DlgBuscarArticulo,
-        CurrencyInput,
         Registro,
         DlgAbonarCredito,
         DlgPago,
@@ -252,14 +250,17 @@ export default {
                 this.$root.$alertSB(`Debe de seleccionar un tipo de documento`, { type: "warning" });
                 return;
             }
+
             if (!(!!cliente.nroDocumento)) {
                 let nomTipoDocumento = this.arrDocumentos.find(x => x.value == cliente.idTipoDocumento).text;
                 this.$root.$alertSB(`Debe de ingresar el ${nomTipoDocumento}`, { type: "warning" });
                 return;
             }
+            
             let _self = this;
             this.overlayCliente = true;
             let parameteres = `${_self.cliente.idTipoDocumento}/${_self.cliente.nroDocumento}`;
+            
             this.$axios.get("/api/Cliente/GetByDocument/" + parameteres).then((response) => {
                 let data = response.data.Data;
 
@@ -417,8 +418,10 @@ export default {
                     filtro: value,
                     accion: 'Bar'
                 }
-            }
+            };
+
             this.$axios.get("/api/Articulo/GetAllByFiltersHelper", parameters).then((response) => {
+
                 let result = response.data;
                 if (!result.Resultado) {
                     _self.$refs.alerta.show(result.Mensaje, {

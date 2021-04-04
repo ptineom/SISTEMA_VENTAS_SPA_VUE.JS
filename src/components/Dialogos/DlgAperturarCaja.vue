@@ -3,8 +3,10 @@
     <v-card>
       <v-card-title class="py-2">
         <span class="headline text-button">
-          <v-icon>mdi-cash-multiple</v-icon>
-          Aperturar caja
+          <v-icon>{{
+            cajaAbierta ? "mdi-package-variant" : "mdi-package-variant-closed"
+          }}</v-icon>
+          {{ cajaAbierta ? "Caja abierta" : "Caja cerrada" }}
         </span>
         <v-spacer></v-spacer>
         <v-icon style="cursor: pointer" @click="salir">mdi-window-close</v-icon>
@@ -13,111 +15,124 @@
       <span
         class="text-body-1 font-weight-bold my-1 d-block red darken-4 py-1 px-2"
         style="color: #fff"
-        >Fecha y hora de apertura de caja: {{ fechaApertura }}</span
+        >Fecha y hora de apertura de caja: {{ modelo.fechaApertura }}</span
       >
-      <v-card-text>
-        <v-row>
-          <v-col cols="8" class="pb-0 pt-1">
-            <v-menu
-              ref="txtFecVen"
-              v-model="showFecCie"
-              transition="scale-transition"
-              offset-y
-              min-width="290px"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <div class="d-flex flex-row">
-                  <v-checkbox
-                    v-model="chkHorCie"
-                    hide-details
-                    class="shrink mt-0"
-                    label="Fecha/hora de cierre diferido"
-                    :disabled="desabilitarFechaCierre"
-                  ></v-checkbox>
-                  <v-text-field
-                    v-model="fecCieFormatted"
-                    label="Fecha cierre"
-                    prepend-inner-icon="mdi-calendar"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                    outlined
-                    dense
-                    :disabled="chkHorCie ? false : true"
-                  ></v-text-field>
-                </div>
-              </template>
-              <v-date-picker
-                v-model="fechaCierre"
-                no-title
-                @input="showFecCie = false"
-                locale="es-pe"
-                :first-day-of-week="1"
-                scrollable
+      <v-card-text class="pb-1">
+        <v-form ref="form" v-model="valid" lazy-validation>
+          <v-row>
+            <v-col cols="8" class="pb-0 pt-1">
+              <v-menu
+                ref="txtFecVen"
+                v-model="showFecCie"
+                transition="scale-transition"
+                offset-y
+                min-width="290px"
+                :close-on-content-click="false"
               >
-                <v-spacer></v-spacer>
-                <v-btn color="error" @click="showFecCie = false">
-                  Cancelar
-                </v-btn>
-              </v-date-picker>
-            </v-menu>
-          </v-col>
-          <v-col cols="4" class="pb-0 pt-1">
-            <v-menu
-              ref="txtHorCie"
-              v-model="showHorCie"
-              :close-on-content-click="false"
-              :nudge-right="40"
-              :return-value.sync="horaCierre"
-              transition="scale-transition"
-              offset-y
-              max-width="290px"
-              min-width="290px"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <div class="d-flex flex-row align-center">
-                  <v-text-field
-                    v-model="horaCierre"
-                    label="Hora cierre"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                    outlined
-                    dense
-                    append-icon="mdi-clock-time-four-outline"
-                    hide-details
-                    :disabled="chkHorCie ? false : true"
-                  ></v-text-field>
-                </div>
-              </template>
-              <v-time-picker
-                v-if="showHorCie"
-                v-model="horaCierre"
-                full-width
-                @click:minute="$refs.txtHorCie.save(horaCierre)"
-                format="24hr"
-              ></v-time-picker>
-            </v-menu>
-          </v-col>
-          <v-col cols="6" class="py-0">
-            <v-select dense label="Caja" 
-            outlined :items="listaCaja"
-            @change="seleccionarCaja()">
-            </v-select>
-          </v-col>
+                <template v-slot:activator="{ on, attrs }">
+                  <div class="d-flex flex-row">
+                    <v-checkbox
+                      v-model="chkHorCie"
+                      hide-details
+                      class="shrink mt-0"
+                      label="Fecha/hora de cierre diferido"
+                      :disabled="!cajaAbierta"
+                    ></v-checkbox>
+                    <v-text-field
+                      v-model="fecCieFormatted"
+                      label="Fecha cierre"
+                      prepend-inner-icon="mdi-calendar"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      outlined
+                      dense
+                      :disabled="chkHorCie ? false : true"
+                      :rules="reglas.fechaCierre"
+                    ></v-text-field>
+                  </div>
+                </template>
+                <v-date-picker
+                  v-model="modelo.fechaCierre"
+                  no-title
+                  @input="showFecCie = false"
+                  locale="es-pe"
+                  :first-day-of-week="1"
+                  scrollable
+                >
+                  <v-spacer></v-spacer>
+                  <v-btn color="error" @click="showFecCie = false">
+                    Cancelar
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
+            </v-col>
+            <v-col cols="4" class="pb-0 pt-1">
+              <v-menu
+                ref="txtHorCie"
+                v-model="showHorCie"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                :return-value.sync="horaCierre"
+                transition="scale-transition"
+                offset-y
+                max-width="290px"
+                min-width="290px"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <div class="d-flex flex-row align-center">
+                    <v-text-field
+                      v-model="horaCierre"
+                      label="Hora cierre"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      outlined
+                      dense
+                      append-icon="mdi-clock-time-four-outline"
+                      hide-details
+                      :disabled="chkHorCie ? false : true"
+                    ></v-text-field>
+                  </div>
+                </template>
+                <v-time-picker
+                  v-if="showHorCie"
+                  v-model="horaCierre"
+                  full-width
+                  @click:minute="$refs.txtHorCie.save(horaCierre)"
+                  format="ampm"
+                ></v-time-picker>
+              </v-menu>
+            </v-col>
+            <v-col cols="6" class="py-0">
+              <v-select
+                dense
+                label="Caja"
+                outlined
+                :items="listaCaja"
+                @change="seleccionarCaja()"
+                :disabled="cajaAbierta"
+                v-model="modelo.idCaja"
+                :rules="reglas.caja"
+              >
+              </v-select>
+            </v-col>
 
-          <v-col cols="6" class="py-0">
-            <v-text-field
-              label="Monto apertura"
-              type="text"
-              outlined
-              dense
-              :autocomplete="'off'"
-              ref="txtMonApe"
-              v-model="modelo.montoApertura"
-            ></v-text-field>
-          </v-col>
-        </v-row>
+            <v-col cols="6" class="py-0">
+              <CurrencyInput
+                :value="modelo.montoApertura"
+                @input="modelo.montoApertura = $event"
+                :label="'Monto apertura'"
+                :sgnMoneda="moneda.sgnMoneda"
+                :outlined="true"
+                :dense="true"
+                :disabled="cajaAbierta"
+                :rules="reglas.montoApertura"
+                ref="txtMontoApertura"
+              ></CurrencyInput>
+            </v-col>
+          </v-row>
+        </v-form>
 
         <v-row>
           <v-col cols="12" class="py-0">
@@ -129,19 +144,25 @@
               </v-col>
               <v-col cols="6" class="py-0 text-end font-weight-bold">
                 <v-chip color="orange" label outlined style="font-size: 18px"
-                  >Total en caja: S/ 150.60</v-chip
+                  >Total en caja: {{ moneda.sgnMoneda }}
+                  {{ $formatoMiles(montoTotal) }}</v-chip
                 ></v-col
               >
             </v-row>
 
             <v-card class="mt-3">
-              <v-list dense class="py-0">
+              <v-list class="py-0">
                 <v-list-item>
                   <v-list-item-content class="py-1">
                     <v-list-item-title>Monto apertura</v-list-item-title>
                   </v-list-item-content>
                   <v-list-item-action class="my-1">
-                    <v-list-item-title>S/ 10.30</v-list-item-title>
+                    <v-list-item-title
+                      >{{ moneda.sgnMoneda }}
+                      {{
+                        $formatoMiles(modelo.montoApertura, 2)
+                      }}</v-list-item-title
+                    >
                   </v-list-item-action>
                 </v-list-item>
                 <v-divider></v-divider>
@@ -153,7 +174,12 @@
                     >
                   </v-list-item-content>
                   <v-list-item-action>
-                    <v-list-item-title>{{moneda.sgnMoneda}} {{$formatoMiles(montos.ventaContado, 2)}}</v-list-item-title>
+                    <v-list-item-title
+                      >{{ moneda.sgnMoneda }}
+                      {{
+                        $formatoMiles(montos.ventaContado, 2)
+                      }}</v-list-item-title
+                    >
                   </v-list-item-action>
                 </v-list-item>
                 <v-divider></v-divider>
@@ -165,7 +191,12 @@
                     >
                   </v-list-item-content>
                   <v-list-item-action>
-                    <v-list-item-title>{{moneda.sgnMoneda}} {{$formatoMiles(montos.pagosPendientes, 2)}}</v-list-item-title>
+                    <v-list-item-title
+                      >{{ moneda.sgnMoneda }}
+                      {{
+                        $formatoMiles(montos.pagosPendientes, 2)
+                      }}</v-list-item-title
+                    >
                   </v-list-item-action>
                 </v-list-item>
                 <v-divider></v-divider>
@@ -175,17 +206,29 @@
                     <v-list-item-title>Otros ingresos</v-list-item-title>
                   </v-list-item-content>
                   <v-list-item-action>
-                    <v-list-item-title>{{moneda.sgnMoneda}} {{$formatoMiles(montos.otrosIngresos, 2)}}</v-list-item-title>
+                    <v-list-item-title
+                      >{{ moneda.sgnMoneda }}
+                      {{
+                        $formatoMiles(montos.otrosIngresos, 2)
+                      }}</v-list-item-title
+                    >
                   </v-list-item-action>
                 </v-list-item>
                 <v-divider></v-divider>
 
                 <v-list-item>
                   <v-list-item-content>
-                    <v-list-item-title>Salidas de caja</v-list-item-title>
+                    <v-list-item-title class="red--text"
+                      >Salidas de caja</v-list-item-title
+                    >
                   </v-list-item-content>
                   <v-list-item-action>
-                    <v-list-item-title>{{moneda.sgnMoneda}} {{$formatoMiles(montos.salidaCaja, 2)}}</v-list-item-title>
+                    <v-list-item-title class="red--text"
+                      >(-) {{ moneda.sgnMoneda }}
+                      {{
+                        $formatoMiles(montos.salidaCaja, 2)
+                      }}</v-list-item-title
+                    >
                   </v-list-item-action>
                 </v-list-item>
                 <v-divider></v-divider>
@@ -199,17 +242,31 @@
         <v-btn color="error" @click="salir"
           ><v-icon>exit_to_app</v-icon> Salir</v-btn
         >
-        <v-btn color="success" @click="grabar"
-          ><v-icon>save</v-icon> Grabar
+        <v-btn color="warning" @click="grabar"
+          ><v-icon
+            >{{
+              cajaAbierta ? "mdi-package-variant" : "mdi-package-variant-closed"
+            }}
+          </v-icon>
+          {{ cajaAbierta ? "Cerrar caja" : "Abrir caja" }}
         </v-btn>
       </v-card-actions>
+      <v-overlay :value="overlay" absolute :opacity="'0.36'">
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
+      <alerta ref="alerta"></alerta>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
+import CurrencyInput from "@/components/Utilitarios/CurrencyInput";
+import { mapState, mapActions } from "vuex";
+import alerta from "@/components/Utilitarios/AlertSB";
+
 export default {
   name: "DlgAperturarCaja",
+  components: { alerta, CurrencyInput },
   mounted() {
     let _self = this;
 
@@ -246,11 +303,10 @@ export default {
   },
   data() {
     return {
+      overlay: false,
       dialog: false,
-      fechaApertura: "28/03/2021 16:53",
       showFecCie: false,
       fecCieFormatted: "",
-      fechaCierre: null,
       showHorCie: false,
       horaCierre: "",
       chkHorCie: false,
@@ -258,46 +314,187 @@ export default {
       modelo: {
         idCaja: "",
         montoApertura: "",
-        montoTotal: 0.00
+        montoTotal: 0.0,
+        fechaApertura: "",
+        fechaCierre: null,
       },
       moneda: {
         idMoneda: "",
         sgnMoneda: "",
         nomMoneda: "",
       },
-      montos:{
-        ventaContado:0.00,
-        pagosPendientes: 0.00,
-        otrosIngresos: 0.00,
-        salidaCaja: 0.00
+      montos: {
+        ventaContado: 0.0,
+        pagosPendientes: 0.0,
+        otrosIngresos: 0.0,
+        salidaCaja: 0.0,
       },
-      desabilitarFechaCierre: false,
+      reglas: {
+        montoApertura: [
+          (value) => {
+            //Le quitará el simbolo del dolar y las comas en caso lo tuviera.
+            let newValue = parseFloat(value.replace(/[^\d\.]/g, ""));
+            if (isNaN(newValue)) newValue = 0;
+
+            if (newValue == 0) return "Ingrese el monto apertura";
+
+            return true;
+          },
+        ],
+        caja: [(value) => !!value || "Seleccione la caja"],
+        fechaCierre:[(value)=>{
+          if(this.chkHorCie){
+            if(!!value){
+              let fechaActual = this.$moment().format('YYYY/MM/DD');
+              let fechaApertura = this.$moment(this.modelo.fechaApertura,'DD/MM/YYYY h:mm:ss a').format('YYYY/MM/DD');
+
+              if(this.$moment(value, 'DD/MM/YYYY').isAfter(this.$moment(fechaActual))){
+                return "No debe ser mayor a la fecha actual."
+              }
+              if(this.$moment(value, 'DD/MM/YYYY').isBefore(this.$moment(fechaApertura))){
+                return "No debe ser menor a la fecha apertura."
+              }
+              return true;
+            }else{
+              return "Ingrese la fecha de cierre"
+            }
+          }else{
+            return true;
+          }
+        }],
+        horaCierre:[
+          (value)=>{
+            let fechaCierre = `${this.fecCieFormatted} ${value}`
+          }
+        ]
+      },
+      valid: false,
     };
   },
   methods: {
+    ...mapActions("ModCajaApertura", ["setModeloCajaApertura"]),
     salir() {
       this.dialog = false;
     },
     show() {
       let _self = this;
 
-      setInterval(() => {
-        this.fechaApertura = _self
-          .$moment()
-          .add(1, "s")
-          .format("DD/MM/YYYY h:mm:ss a");
-      }, 1000);
+      _self.habilitarSegunEstadoCaja();
 
-      this.dialog = true;
+      _self.dialog = true;
     },
-    grabar() {},
-    seleccionarCaja(){
+    habilitarSegunEstadoCaja() {
+      if (this.cajaAbierta) {
+        let model = this.modeloCajaApertura;
+
+        this.modelo.fechaApertura = this.$moment(
+          model.fechaApertura,
+          "DD/MM/YYYY HH:mm"
+        ).format("DD/MM/YYYY h:mm:ss a");
+        this.modelo.idCaja = model.idCaja;
+
+        this.montosTotalesCaja(model.idCaja, model.correlativo);
+      } else {
+        setInterval(() => {
+          this.modelo.fechaApertura = this.$moment()
+            .add(1, "s")
+            .format("DD/MM/YYYY h:mm:ss a");
+        }, 1000);
+        //apagar el setInterval cuando ya no se cierre el dialog
+      }
+    },
+    grabar() {
+      let _self = this;
+
+      let validate = _self.$refs.form.validate();
+      if (validate) {
+        let fechaCierre = "";
+        if (_self.chkHorCie)
+          fechaCierre = `${_self.fecCieFormatted} ${_self.horaCierre}`;
+
+        let parameters = {
+          Accion: _self.cajaAbierta ? "UPD" : "INS",
+          MontoApertura: _self.modelo.montoApertura,
+          IdMoneda: _self.moneda.idMoneda,
+          IdCaja: _self.modelo.idCaja,
+          FechaCierre: fechaCierre,
+          MontoTotal: _self.montoTotal,
+          Correlativo:
+            _self.modeloCajaApertura != null
+              ? _self.modeloCajaApertura.correlativo
+              : 0,
+        };
+
+        _self.overlay = true;
+
+        _self.$axios
+          .post("/api/CajaApertura/Register", parameters)
+          .then((response) => {
+            debugger;
+            let data = response.data.Data;
+
+            _self.setModeloCajaApertura(data);
+          })
+          .catch((error) => {
+            _self.$refs.alerta.show(error.response.data.Message, {
+              type: "warning",
+            });
+          })
+          .finally(() => {
+            _self.overlay = false;
+            _self.dialog = false;
+          });
+      }
+    },
+    montosTotalesCaja(idCaja, correlativo) {
+      let _self = this;
+      this.overlay = true;
+
+      this.$axios
+        .get(`/api/CajaApertura/GetTotalsByUserId/${idCaja}/${correlativo}`)
+        .then((response) => {
+          let data = response.data.Data;
+
+          _self.modelo = Object.assign(_self.modelo, {
+            montoApertura: data.MontoAperturaCaja,
+            montoTotal: data.MontoTotal,
+          });
+
+          _self.montos = {
+            ventaContado: data.MontoCobradoContado,
+            pagosPendientes: data.MontoCobradoCredito,
+            otrosIngresos: data.MontoCajaOtrosIngreso,
+            salidaCaja: data.MontoCajaSalida,
+          };
+        })
+        .catch((error) => {
+          _self.$refs.alerta.show(error.response.data.Message, {
+            type: "warning",
+          });
+        })
+        .finally(() => {
+          _self.overlay = false;
+        });
+    },
+    seleccionarCaja() {
       this.modelo.montoApertura = "";
-      this.$refs.txtMonApe.focus();
-    }
+      this.$refs.txtMontoApertura.$refs.txtCurrencyInput.focus();
+    },
+  },
+  computed: {
+    ...mapState("ModCajaApertura", ["modeloCajaApertura"]),
+    montoTotal() {
+      return this.modeloCajaApertura != null
+        ? this.modelo.montoTotal
+        : this.modelo.montoApertura;
+    },
+    cajaAbierta() {
+      if (this.modeloCajaApertura != null) return true;
+      else return false;
+    },
   },
   watch: {
-    fechaCierre(val) {
+    "modelo.fechaCierre"(val) {
       if (val == null) {
         this.fecCieFormatted = "";
         return;
@@ -307,8 +504,25 @@ export default {
     },
     chkHorCie(val) {
       if (!val) {
-        this.fechaCierre = null;
+        this.modelo.fechaCierre = null;
         this.horaCierre = "";
+      }
+    },
+    dialog(val) {
+      if (!val) {
+        this.modelo = {
+          idCaja: "",
+          montoApertura: "",
+          montoTotal: 0.0,
+          fechaApertura: "",
+        };
+        this.montos = {
+          ventaContado: 0.0,
+          pagosPendientes: 0.0,
+          otrosIngresos: 0.0,
+          salidaCaja: 0.0,
+        };
+        this.$refs.form.resetValidation();
       }
     },
   },

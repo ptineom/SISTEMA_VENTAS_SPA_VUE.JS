@@ -65,9 +65,24 @@
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
-      <v-btn icon dark @click="abrirAperturarCaja()">
-        <v-icon>mdi-apps</v-icon>
-      </v-btn>
+       <v-badge
+        bordered
+        :color="cajaAbierta?'success': 'warning'"
+        :icon="cajaAbierta?'lock_open':'mdi-lock'"
+        overlap
+        bottom
+        left
+        id="bdgCaja"
+      >
+        <v-btn
+          @click="abrirAperturarCaja()"
+          class="white--text"
+          :color="cajaAbierta?'success': 'warning'"
+          depressed
+        >
+          Caja
+        </v-btn>
+      </v-badge>
       <v-btn icon dark>
         <v-icon>mdi-bell</v-icon>
       </v-btn>
@@ -186,9 +201,15 @@ export default {
     ...mapState("ModLogin", ["arrMenuItem", "usuario", "avatar"]),
     ...mapGetters("ModLogin", ["showLayout"]),
     ...mapState("ModLayout", ["headerForm"]),
+    ...mapState("ModCajaApertura", ["modeloCajaApertura"]),
+    cajaAbierta() {
+      if (this.modeloCajaApertura != null) return true;
+      else return false;
+    }
   },
   methods: {
     ...mapActions("ModLogin", ["autoLogin"]),
+    ...mapActions("ModCajaApertura", ["verificarEstadoCaja"]),
     appBarStop() {
 
       this.drawer = !this.drawer;
@@ -206,6 +227,7 @@ export default {
   },
   created() {
     this.autoLogin();
+    this.verificarEstadoCaja();
   },
 };
 </script>
@@ -216,6 +238,15 @@ export default {
 .v-navigation-drawer__content .v-list .v-list-item__icon {
   margin-right: 10px !important;
 }
+
+#bdgCaja i{
+  font-size: 20px;
+}
+#bdgCaja .v-badge__badge {
+  inset: calc(100% - 15px) calc(100% - 15px) auto auto !important;
+  height: 27px;
+}
+
 
 /* ::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
