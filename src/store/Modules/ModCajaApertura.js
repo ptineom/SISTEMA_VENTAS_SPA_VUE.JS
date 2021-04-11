@@ -21,7 +21,9 @@ const ModCajaApertura = {
                         fechaApertura: data.FechaApertura,
                         montoApertura: data.MontoApertura,
                         idMoneda: data.IdMoneda,
-                        sgnMoneda: data.SgnMoneda
+                        sgnMoneda: data.SgnMoneda,
+                        flgReaperturado: data.FlgReaperturado,
+                        item: data.Item,
                     });
                 }
 

@@ -27,8 +27,7 @@ export default {
             fechaInicial: "",
             fechaFinal: "",
             tipoFiltro: "rangoFechas",
-            // fechaRango: this.inicializarRango(),
-            fechaRango: ['2019-01-01', '2021-03-12'],
+            fechaRango: this.inicializarRangoFechas(),
             showRangoFechas: false,
             idEstado: 0,
             listadoVentas: [],
@@ -121,9 +120,9 @@ export default {
                 _self.overlayCliente = false;
             })
         },
-        inicializarRango() {
-            let fecha1 = this.$moment(new Date()).format("YYYY-MM-DD");
-            let fecha2 = this.$moment(new Date()).subtract(7, 'days').format("YYYY-MM-DD");
+        inicializarRangoFechas() {
+            let fecha1 = this.$dayjs(new Date()).format("YYYY-MM-DD");
+            let fecha2 = this.$dayjs(new Date()).subtract(30, 'days').format("YYYY-MM-DD");
             return [fecha2, fecha1];
         },
         seleccionarDocumento() {
@@ -163,7 +162,7 @@ export default {
             }
             let fechaInicial = _self.fechaRango[0];
             let fechaFinal = _self.fechaRango[1];
-            if (_self.$moment(fechaInicial).isAfter(fechaFinal)) {
+            if (_self.$dayjs(fechaInicial).isAfter(fechaFinal)) {
                 _self.$refs.alerta.show("La fecha inicial no puede ser mayor a la fecha final", {
                     type: "warning",
                 });
@@ -178,8 +177,8 @@ export default {
                     idTipoComprobante: _self.comprobante.idTipoComprobante,
                     nroSerie: _self.comprobante.nroSerie,
                     nroDocumento: _self.comprobante.nroDocumento == "" ? 0 : _self.comprobante.nroDocumento,
-                    fechaInicio: _self.$moment(_self.fechaRango[0]).format("DD/MM/YYYY"),
-                    fechaFinal: _self.$moment(_self.fechaRango[1]).format("DD/MM/YYYY"),
+                    fechaInicial: _self.$dayjs(_self.fechaRango[0]).format("DD/MM/YYYY"),
+                    fechaFinal: _self.$dayjs(_self.fechaRango[1]).format("DD/MM/YYYY"),
                     idEstado: _self.idEstado
                 },
             };
@@ -235,7 +234,7 @@ export default {
     computed: {
         dateRangeText() {
             //convertirá el array de fechas en una cadena separadas por ' ~ ', con formato "DD/MM/YYYY"
-            return `${this.$moment(this.fechaRango[0]).format("DD/MM/YYYY")} - ${this.$moment(this.fechaRango[1]).format("DD/MM/YYYY")}`
+            return `${this.$dayjs(this.fechaRango[0]).format("DD/MM/YYYY")} - ${this.$dayjs(this.fechaRango[1]).format("DD/MM/YYYY")}`
         },
         getMaxDigitos() {
             let obj = this.arrDocumentos.find((x) => x.value == this.cliente.idTipoDocumento);

@@ -50,8 +50,8 @@ export default {
             arrEstados: [],
             arrDocumentosConsulta: [],
             arrDepartamentos:[],
-            fecEmiFormatted: this.$moment(this.getFechaActual()).format("DD/MM/YYYY"),
-            fecVenFormatted: this.$moment(this.getFechaActual()).format("DD/MM/YYYY"),
+            fecEmiFormatted: this.$dayjs(this.getFechaActual()).format("DD/MM/YYYY"),
+            fecVenFormatted: this.$dayjs(this.getFechaActual()).format("DD/MM/YYYY"),
             showFecEmi: false,
             showHorEmi: false,
             showFecVen: false,
@@ -99,14 +99,14 @@ export default {
             }
         },
         "modelo.fechaEmision"(val) {
-            this.fecEmiFormatted = this.$moment(val).format("DD/MM/YYYY");
+            this.fecEmiFormatted = this.$dayjs(val).format("DD/MM/YYYY");
 
-            if(this.$moment(this.modelo.fechaVencimiento).isBefore(this.modelo.fechaEmision)){
+            if(this.$dayjs(this.modelo.fechaVencimiento).isBefore(this.modelo.fechaEmision)){
                 this.modelo.fechaVencimiento = this.modelo.fechaEmision;
             }
         },
         "modelo.fechaVencimiento"(val) {
-            this.fecVenFormatted = this.$moment(val).format("DD/MM/YYYY")
+            this.fecVenFormatted = this.$dayjs(val).format("DD/MM/YYYY")
         },
         "totales.tasaDscto"() {
             this.calcularTotales();
@@ -125,7 +125,7 @@ export default {
             if (!val) {
                 this.modelo.abono = 0;
                 this.modelo.saldo = 0;
-                this.modelo.fechaVencimiento = this.$moment(new Date()).format("YYYY-MM-DD");
+                this.modelo.fechaVencimiento = this.$dayjs(new Date()).format("YYYY-MM-DD");
             }
         }
     },
@@ -165,10 +165,10 @@ export default {
             }
         },
         getFechaActual: function () {
-            return this.$moment(new Date()).format("YYYY-MM-DD");
+            return this.$dayjs(new Date()).format("YYYY-MM-DD");
         },
         getHoraActual() {
-            return this.$moment(new Date()).format("HH:mm");
+            return this.$dayjs(new Date()).format("HH:mm");
         },
         getIgv: function () {
             return (this.empresa.Igv / 100);
@@ -184,11 +184,11 @@ export default {
         },
         allowedDatesFechaEmision(val) {
             //Solo se habilitarán fechas menor o igual a la fecha actual.
-            return this.$moment(val).isSameOrBefore(new Date());
+            return this.$dayjs(val).isSameOrBefore(new Date());
         },
         allowedDatesFechaVencimiento(val) {
             //Solo se habilitarán fechas mayor o igual a la fecha de emisión.
-            return this.$moment(val).isSameOrAfter(this.$moment(this.modelo.fechaEmision));
+            return this.$dayjs(val).isSameOrAfter(this.$dayjs(this.modelo.fechaEmision));
         },
         parseDate(date) {
             if (!date) return null
@@ -702,8 +702,8 @@ export default {
             this.modelo.idTipoComprobante = cabecera.IdTipoComprobante;
             this.modelo.nroSerie = cabecera.NroSerie;
             this.modelo.nroDocumento = cabecera.NroDocumento;
-            this.modelo.fechaEmision = this.$moment(cabecera.FecDocumento, 'DD/MM/YYYY').format('YYYY-MM-DD');
-            this.modelo.fechaVencimiento = this.$moment(cabecera.FecVencimiento, 'DD/MM/YYYY').format('YYYY-MM-DD');
+            this.modelo.fechaEmision = this.$dayjs(cabecera.FecDocumento, 'DD/MM/YYYY').format('YYYY-MM-DD');
+            this.modelo.fechaVencimiento = this.$dayjs(cabecera.FecVencimiento, 'DD/MM/YYYY').format('YYYY-MM-DD');
             this.modelo.idMoneda = cabecera.IdMoneda;
             this.modelo.idTipoPago = cabecera.IdTipoPago;
             this.modelo.idTipoCondicion = cabecera.IdTipoCondicion;

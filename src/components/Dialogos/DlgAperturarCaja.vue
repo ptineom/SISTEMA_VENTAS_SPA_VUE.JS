@@ -6,7 +6,14 @@
           <v-icon>{{
             cajaAbierta ? "mdi-package-variant" : "mdi-package-variant-closed"
           }}</v-icon>
-          {{ cajaAbierta ? "Caja abierta" : "Caja cerrada" }}
+          {{
+            cajaAbierta
+              ? "Caja " +
+                (modeloCajaApertura.flgReaperturado
+                  ? "reaperturada"
+                  : "abierta")
+              : "Caja cerrada"
+          }}
         </span>
         <v-spacer></v-spacer>
         <v-icon style="cursor: pointer" @click="salir">mdi-window-close</v-icon>
@@ -36,7 +43,7 @@
                       hide-details
                       class="shrink mt-0"
                       label="Fecha/hora de cierre diferido"
-                      :disabled="!cajaAbierta"
+                      :disabled="cajaAbierta? modeloCajaApertura.flgReaperturado: true"
                     ></v-checkbox>
                     <v-text-field
                       v-model="fecCieFormatted"
@@ -90,8 +97,8 @@
                       outlined
                       dense
                       append-icon="mdi-clock-time-four-outline"
-                      hide-details
                       :disabled="chkHorCie ? false : true"
+                      :rules="reglas.horaCierre"
                     ></v-text-field>
                   </div>
                 </template>
@@ -127,7 +134,6 @@
                 :outlined="true"
                 :dense="true"
                 :disabled="cajaAbierta"
-                :rules="reglas.montoApertura"
                 ref="txtMontoApertura"
               ></CurrencyInput>
             </v-col>
@@ -330,43 +336,75 @@ export default {
         salidaCaja: 0.0,
       },
       reglas: {
-        montoApertura: [
+        caja: [(value) => !!value || "Seleccione la caja"],
+        fechaCierre: [
           (value) => {
-            //Le quitará el simbolo del dolar y las comas en caso lo tuviera.
-            let newValue = parseFloat(value.replace(/[^\d\.]/g, ""));
-            if (isNaN(newValue)) newValue = 0;
+            if (this.chkHorCie) {
+              if (!!value) {
+                //Validaremos solo fecha sin horas
+                let fechaActual = this.$dayjs().format("YYYY/MM/DD");
+                let fechaApertura = this.$dayjs(
+                  this.modelo.fechaApertura,
+                  "DD/MM/YYYY h:mm:ss a"
+                ).format("YYYY/MM/DD");
 
-            if (newValue == 0) return "Ingrese el monto apertura";
+                if (
+                  this.$dayjs(value, "DD/MM/YYYY").isAfter(
+                    this.$dayjs(fechaActual)
+                  )
+                ) {
+                  return "No debe ser mayor a la fecha actual.";
+                }
 
-            return true;
+                if (
+                  this.$dayjs(value, "DD/MM/YYYY").isBefore(
+                    this.$dayjs(fechaApertura)
+                  )
+                ) {
+                  return "No debe ser menor a la fecha apertura.";
+                }
+
+                return true;
+              } else {
+                return "Ingrese la fecha de cierre";
+              }
+            } else {
+              return true;
+            }
           },
         ],
-        caja: [(value) => !!value || "Seleccione la caja"],
-        fechaCierre:[(value)=>{
-          if(this.chkHorCie){
-            if(!!value){
-              let fechaActual = this.$moment().format('YYYY/MM/DD');
-              let fechaApertura = this.$moment(this.modelo.fechaApertura,'DD/MM/YYYY h:mm:ss a').format('YYYY/MM/DD');
+        horaCierre: [
+          (value) => {
+            if (this.chkHorCie) {
+              if (!!value) {
+                //Validaremos la fecha y hora ingresada(concatenada)
+                let fechaHoraCierre = this.$dayjs(
+                  `${this.fecCieFormatted} ${value}`,
+                  "DD/MM/YYYY HH:mm"
+                );
+                let fechaHoraActual = this.$dayjs();
+                let fechaHoraApertura = this.$dayjs(
+                  this.modelo.fechaApertura,
+                  "DD/MM/YYYY h:mm:ss a"
+                );
 
-              if(this.$moment(value, 'DD/MM/YYYY').isAfter(this.$moment(fechaActual))){
-                return "No debe ser mayor a la fecha actual."
+                if (fechaHoraCierre.isAfter(fechaHoraActual)) {
+                  return "No debe ser mayor a la fecha y hora actual.";
+                }
+
+                if (fechaHoraCierre.isBefore(fechaHoraApertura)) {
+                  return "No debe ser menor a la fecha y hora apertura.";
+                }
+
+                return true;
+              } else {
+                return "Ingrese la hora de cierre";
               }
-              if(this.$moment(value, 'DD/MM/YYYY').isBefore(this.$moment(fechaApertura))){
-                return "No debe ser menor a la fecha apertura."
-              }
+            } else {
               return true;
-            }else{
-              return "Ingrese la fecha de cierre"
             }
-          }else{
-            return true;
-          }
-        }],
-        horaCierre:[
-          (value)=>{
-            let fechaCierre = `${this.fecCieFormatted} ${value}`
-          }
-        ]
+          },
+        ],
       },
       valid: false,
     };
@@ -387,7 +425,7 @@ export default {
       if (this.cajaAbierta) {
         let model = this.modeloCajaApertura;
 
-        this.modelo.fechaApertura = this.$moment(
+        this.modelo.fechaApertura = this.$dayjs(
           model.fechaApertura,
           "DD/MM/YYYY HH:mm"
         ).format("DD/MM/YYYY h:mm:ss a");
@@ -396,7 +434,7 @@ export default {
         this.montosTotalesCaja(model.idCaja, model.correlativo);
       } else {
         setInterval(() => {
-          this.modelo.fechaApertura = this.$moment()
+          this.modelo.fechaApertura = this.$dayjs()
             .add(1, "s")
             .format("DD/MM/YYYY h:mm:ss a");
         }, 1000);
@@ -408,42 +446,62 @@ export default {
 
       let validate = _self.$refs.form.validate();
       if (validate) {
-        let fechaCierre = "";
-        if (_self.chkHorCie)
-          fechaCierre = `${_self.fecCieFormatted} ${_self.horaCierre}`;
+        let titulo = _self.cajaAbierta
+          ? `Caja ${
+              _self.modeloCajaApertura.flgReaperturado
+                ? "reaperturada"
+                : "abierta"
+            }`
+          : "Caja cerrada";
+        let pregunta = `¿Desea ${
+          _self.cajaAbierta ? "cerrar la caja" : "abrir la caja"
+        }?`;
 
-        let parameters = {
-          Accion: _self.cajaAbierta ? "UPD" : "INS",
-          MontoApertura: _self.modelo.montoApertura,
-          IdMoneda: _self.moneda.idMoneda,
-          IdCaja: _self.modelo.idCaja,
-          FechaCierre: fechaCierre,
-          MontoTotal: _self.montoTotal,
-          Correlativo:
-            _self.modeloCajaApertura != null
-              ? _self.modeloCajaApertura.correlativo
-              : 0,
-        };
+        _self.$root
+          .$confirm(titulo, pregunta)
+          .then(() => {
+            let fechaCierre = "";
+            if (_self.chkHorCie)
+              fechaCierre = `${_self.fecCieFormatted} ${_self.horaCierre}`;
 
-        _self.overlay = true;
+            let parameters = {
+              Accion: _self.cajaAbierta ? "UPD" : "INS",
+              MontoApertura:
+                _self.modelo.montoApertura == ""
+                  ? 0
+                  : _self.modelo.montoApertura,
+              IdMoneda: _self.moneda.idMoneda,
+              IdCaja: _self.modelo.idCaja,
+              FechaCierre: fechaCierre,
+              MontoTotal: _self.montoTotal == "" ? 0 : _self.montoTotal,
+              Correlativo:
+                _self.modeloCajaApertura != null
+                  ? _self.modeloCajaApertura.correlativo
+                  : 0,
+              FlgReaperturado: _self.cajaAbierta? _self.modeloCajaApertura.flgReaperturado: false,
+              Item: _self.cajaAbierta? _self.modeloCajaApertura.item: 0
+            };
 
-        _self.$axios
-          .post("/api/CajaApertura/Register", parameters)
-          .then((response) => {
-            debugger;
-            let data = response.data.Data;
+            _self.overlay = true;
 
-            _self.setModeloCajaApertura(data);
+            _self.$axios
+              .post("/api/CajaApertura/Register", parameters)
+              .then((response) => {
+                let data = response.data.Data;
+
+                _self.setModeloCajaApertura(data);
+              })
+              .catch((error) => {
+                _self.$refs.alerta.show(error.response.data.Message, {
+                  type: "warning",
+                });
+              })
+              .finally(() => {
+                _self.overlay = false;
+                _self.dialog = false;
+              });
           })
-          .catch((error) => {
-            _self.$refs.alerta.show(error.response.data.Message, {
-              type: "warning",
-            });
-          })
-          .finally(() => {
-            _self.overlay = false;
-            _self.dialog = false;
-          });
+          .catch(() => {});
       }
     },
     montosTotalesCaja(idCaja, correlativo) {
@@ -500,7 +558,7 @@ export default {
         return;
       }
 
-      this.fecCieFormatted = this.$moment(val).format("DD/MM/YYYY");
+      this.fecCieFormatted = this.$dayjs(val).format("DD/MM/YYYY");
     },
     chkHorCie(val) {
       if (!val) {
@@ -522,6 +580,10 @@ export default {
           otrosIngresos: 0.0,
           salidaCaja: 0.0,
         };
+
+        this.chkHorCie = false;
+        this.horaCierre = "";
+
         this.$refs.form.resetValidation();
       }
     },

@@ -110,8 +110,8 @@ export default {
       total: 0,
       saldo: 0,
       abono: 0,
-      fechaVencimiento: this.$moment(new Date()).format("YYYY-MM-DD"),
-      fecVenFormatted: this.$moment(new Date()).format("DD/MM/YYYY"),
+      fechaVencimiento: this.$dayjs(new Date()).format("YYYY-MM-DD"),
+      fecVenFormatted: this.$dayjs(new Date()).format("DD/MM/YYYY"),
       overlay: false,
       showFecVen: false,
       reglas: {
@@ -131,10 +131,10 @@ export default {
         ],
         fechaVencimiento: [
           (value) => {
-            let fechaActual = this.$moment(new Date()).format("DD/MM/YYYY");
+            let fechaActual = this.$dayjs(new Date()).format("DD/MM/YYYY");
             if (
-              this.$moment(value, "DD/MM/YYYY").isBefore(
-                this.$moment(fechaActual, "DD/MM/YYYY")
+              this.$dayjs(value, "DD/MM/YYYY").isBefore(
+                this.$dayjs(fechaActual, "DD/MM/YYYY")
               )
             )
               return "La fecha de vencimiento no puede ser menor a la fecha actual";
@@ -152,7 +152,7 @@ export default {
   },
   watch: {
     fechaVencimiento(val) {
-      this.fecVenFormatted = this.$moment(this.fechaVencimiento).format(
+      this.fecVenFormatted = this.$dayjs(this.fechaVencimiento).format(
         "DD/MM/YYYY"
       );
     },
@@ -200,7 +200,7 @@ export default {
     },
     limpiar() {
       this.abono = 0;
-      this.fechaVencimiento = this.$moment(new Date()).format("YYYY-MM-DD");
+      this.fechaVencimiento = this.$dayjs(new Date()).format("YYYY-MM-DD");
     },
   },
 };

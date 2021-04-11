@@ -5,7 +5,7 @@ import store from './store/index'
 import vuetify from './plugins/vuetify';
 
 import axios from 'axios';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import pluginsUtilidades from './plugins/utilidades'
 
 
@@ -85,7 +85,11 @@ axios.interceptors.response.use(function (config) {
 //Agregando valores globales para poder usarse en toda la app.
 Vue.prototype.$appName = "Sistemas de ventas y compras";
 Vue.prototype.$axios = axios;
-Vue.prototype.$moment = moment;
+
+var customParseFormat = require('dayjs/plugin/customParseFormat')
+dayjs.extend(customParseFormat);
+Vue.prototype.$dayjs = dayjs;
+
 
 //Agregando plugin de utilidades.
 Vue.use(pluginsUtilidades);

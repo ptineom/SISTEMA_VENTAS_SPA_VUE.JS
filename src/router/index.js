@@ -53,6 +53,11 @@ const routes = [
     component: () => import('../views/Ventas/Facturacion.vue'),
    
   },
+  {
+    path:'/reaperturarCaja',
+    name:'ReaperturarCaja',
+    component: () => import('../views/ReaperturarCaja.vue')
+  }
 ]
 
 const router = new VueRouter({

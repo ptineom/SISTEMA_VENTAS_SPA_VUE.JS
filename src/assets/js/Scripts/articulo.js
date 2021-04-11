@@ -97,9 +97,9 @@ export default {
     methods: {
         cambiarfecha(valor, item, campo) {
             if (campo == "fechaInicialPromocion")
-                item.fecIniProFormatted = this.$moment(valor).format("DD/MM/YYYY");
+                item.fecIniProFormatted = this.$dayjs(valor).format("DD/MM/YYYY");
             else if (campo == "fechaFinalPromocion")
-                item.fecFinProFormatted = this.$moment(valor).format("DD/MM/YYYY");
+                item.fecFinProFormatted = this.$dayjs(valor).format("DD/MM/YYYY");
         },
         llenarCboFamilia() {
             let _self = this;
@@ -553,9 +553,7 @@ export default {
                     }).finally(() => {
                         _self.overlay = false;
                     })
-                }).catch((mensajeError) => {
-                    _self.$root.$alertSB(mensajeError, { type: "warning" });
-                });
+                }).catch((mensajeError) => {});
             }).catch((mensajeError) => {
                 _self.$root.$alertSB(mensajeError, { type: "warning" });
             })
@@ -614,8 +612,8 @@ export default {
                         flgPromocion: x.FlgPromocion,
                         descuento: x.Descuento == 0 ? '' : x.Descuento,
                         precioVentaFinal: x.FlgPromocion ? _self.$formatoMiles(x.PrecioVentaFinal, 2) : '',
-                        fecInicioPromocion: x.FlgPromocion ? _self.$moment(x.FecInicioPromocion, "DD/MM/YYYY").format("YYYY-MM-DD") : '',
-                        fecFinalPromocion: (x.FlgPromocion && x.FecFinalPromocion != "") ? _self.$moment(x.FecFinalPromocion, "DD/MM/YYYY").format("YYYY-MM-DD") : '',
+                        fecInicioPromocion: x.FlgPromocion ? _self.$dayjs(x.FecInicioPromocion, "DD/MM/YYYY").format("YYYY-MM-DD") : '',
+                        fecFinalPromocion: (x.FlgPromocion && x.FecFinalPromocion != "") ? _self.$dayjs(x.FecFinalPromocion, "DD/MM/YYYY").format("YYYY-MM-DD") : '',
                         listaUm: _self.listaUm,
                         correlativo: (_self.detalleUmDscto.length + 1),
                         fecIniProFormatted: x.FlgPromocion ? x.FecInicioPromocion : "",

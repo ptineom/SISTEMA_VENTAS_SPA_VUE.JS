@@ -619,6 +619,7 @@
           <v-card-title class="py-0 text-button">
             <v-icon>mdi-filter</v-icon> Búsqueda por filtros
           </v-card-title>
+          
           <v-divider></v-divider>
           <v-card-text class="px-1 py-0">
             <v-row>
