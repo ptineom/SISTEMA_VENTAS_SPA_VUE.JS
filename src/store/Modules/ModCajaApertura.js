@@ -15,18 +15,8 @@ const ModCajaApertura = {
             axios.get("/api/CajaApertura/GetStateBox").then((response) => {
                 let data = response.data.Data;
                 if(data != null){
-                    store.commit("setModeloCajaApertura", {
-                        idCaja: data.IdCaja,
-                        correlativo: data.Correlativo,
-                        fechaApertura: data.FechaApertura,
-                        montoApertura: data.MontoApertura,
-                        idMoneda: data.IdMoneda,
-                        sgnMoneda: data.SgnMoneda,
-                        flgReaperturado: data.FlgReaperturado,
-                        item: data.Item,
-                    });
+                    store.dispatch('setModeloCajaApertura', data);
                 }
-
             }).catch((error) => {
                 console.error(error.response.data.Message);
             })
@@ -39,12 +29,17 @@ const ModCajaApertura = {
                     fechaApertura: payload.FechaApertura,
                     montoApertura: payload.MontoApertura,
                     idMoneda: payload.IdMoneda,
-                    sgnMoneda: payload.SgnMoneda
+                    sgnMoneda: payload.SgnMoneda,
+                    flgReaperturado: payload.FlgReaperturado,
+                    item: payload.Item,
+                    nomCaja: payload.NomCaja,
+                    flgCierreDiferido: payload.FlgCierreDiferido == undefined ? false: payload.FlgCierreDiferido,
+                    fechaCierre: payload.FechaCierre == undefined ? null: payload.FechaCierre,
+                    horaCierre: payload.HoraCierre == undefined ? '': payload.HoraCierre
                 });
             }else{
                 store.commit("setModeloCajaApertura", null);
             }
- 
         }
     }
 }

@@ -179,7 +179,7 @@ export default {
       let validate = _self.$refs.form.validate();
       if (validate) {
         _self.$root
-          .$confirm(_self.getTitulo, "¿Desea guardar los datos?")
+          .$confirm(_self.getTitulo, "¿Desea guardar los datos ingresados?")
           .then(() => {
             _self.$axios
               .post("api/Marca/Register", { NomMarca: _self.nomMarca })

@@ -57,6 +57,11 @@ const routes = [
     path:'/reaperturarCaja',
     name:'ReaperturarCaja',
     component: () => import('../views/ReaperturarCaja.vue')
+  },
+  {
+    path:'/cobranza',
+    name:'Cobranza',
+    component:() =>import('../views/Cobranza.vue')
   }
 ]
 

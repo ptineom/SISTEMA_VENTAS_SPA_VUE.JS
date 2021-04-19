@@ -775,6 +775,7 @@ export default {
     mounted() {
         let _self = this;
         _self.overlay = true;
+        
         _self.$axios.get('/api/Venta/GetData').then((response) => {
             let data = response.data.Data.Listas;
             let listaTipoDocumento = data.ListaTipoDocumento;

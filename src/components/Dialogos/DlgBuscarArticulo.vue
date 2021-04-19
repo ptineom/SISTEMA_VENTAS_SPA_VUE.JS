@@ -268,7 +268,7 @@ export default {
     paintRow(item) {
       let _self = this;
       //Marcamos la fila
-      _self.rowMarked(item.codigo);
+      _self.rowSelected(item.codigo);
 
       let articulo = _self.listaArticulo.find(
         (x) => x.idArticulo == item.idArticulo
@@ -440,7 +440,7 @@ export default {
   },
   props: ["value", "detalle", "sgnMoneda"],
   mounted() {
-    //selectedRows[], rowMarked[] vienen de un archivo js utlidades.
+    //selectedRows[], rowSelected vienen de un archivo js utlidades.
     let _self = this;
     window.addEventListener("keydown", (e) => {
       if (!_self.dialog) return;

@@ -3,52 +3,52 @@
     <v-card tile>
       <!-- <vuescroll :ops="ops">
       </vuescroll> -->
-              <v-navigation-drawer
-          v-model="drawer"
-          :absolute="$vuetify.breakpoint.xsOnly"
-          :temporary="$vuetify.breakpoint.xsOnly"
-          :permanent="!$vuetify.breakpoint.xsOnly"
-          :mini-variant.sync="miniVariant"
-          app
-          dark
-          color="#222d32"
-          v-if="showLayout"
-          id="menu"
-        >
-          <v-list-item class="blue-tool-2 text-center">
-            <v-list-item-content>
-              <v-list-item-title> Ferretería san cristobal </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item class="px-2">
-            <v-list-item-avatar>
-              <v-img :src="'data:image/jpg;base64,' + this.avatar"></v-img>
-            </v-list-item-avatar>
+      <v-navigation-drawer
+        v-model="drawer"
+        :absolute="$vuetify.breakpoint.xsOnly"
+        :temporary="$vuetify.breakpoint.xsOnly"
+        :permanent="!$vuetify.breakpoint.xsOnly"
+        :mini-variant.sync="miniVariant"
+        app
+        dark
+        color="#222d32"
+        v-if="showLayout"
+        id="menu"
+      >
+        <v-list-item class="blue-tool-2 text-center">
+          <v-list-item-content>
+            <v-list-item-title> Ferretería san cristobal  </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item class="px-2">
+          <v-list-item-avatar>
+            <v-img :src="'data:image/jpg;base64,' + this.avatar"></v-img>
+          </v-list-item-avatar>
 
-            <v-list-item-content>
-              <v-list-item-title class="subtitle-1">{{
-                usuario.FullName | capitalize
-              }}</v-list-item-title>
-              <v-list-item-subtitle class="subtitle-2">{{
-                usuario[
-                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-                ] | capitalize
-              }}</v-list-item-subtitle>
-            </v-list-item-content>
-            <v-btn icon @click.stop="appBarStop">
-              <v-icon>mdi-chevron-left</v-icon>
-            </v-btn>
-          </v-list-item>
-          <v-divider></v-divider>
+          <v-list-item-content>
+            <v-list-item-title class="subtitle-1">{{
+              usuario.FullName | capitalize
+            }}</v-list-item-title>
+            <v-list-item-subtitle class="subtitle-2">{{
+              usuario[
+                "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+              ] | capitalize
+            }}</v-list-item-subtitle>
+          </v-list-item-content>
+          <v-btn icon @click.stop="appBarStop">
+            <v-icon>mdi-chevron-left</v-icon>
+          </v-btn>
+        </v-list-item>
+        <v-divider></v-divider>
 
-          <v-list dense>
-            <Menu
-              v-for="(elem, idx) in arrMenuItem"
-              :key="idx"
-              :menuItem="elem"
-            ></Menu>
-          </v-list>
-        </v-navigation-drawer>
+        <v-list dense>
+          <Menu
+            v-for="(elem, idx) in arrMenuItem"
+            :key="idx"
+            :menuItem="elem"
+          ></Menu>
+        </v-list>
+      </v-navigation-drawer>
     </v-card>
 
     <v-app-bar dense app color="blueTool1" v-if="showLayout">
@@ -65,10 +65,10 @@
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
-       <v-badge
+      <v-badge
         bordered
-        :color="cajaAbierta?'success': 'warning'"
-        :icon="cajaAbierta?'lock_open':'mdi-lock'"
+        :color="cajaAbierta ? 'success' : 'warning'"
+        :icon="cajaAbierta ? 'lock_open' : 'mdi-lock'"
         overlap
         bottom
         left
@@ -77,7 +77,7 @@
         <v-btn
           @click="abrirAperturarCaja()"
           class="white--text"
-          :color="cajaAbierta?'success': 'warning'"
+          :color="cajaAbierta ? 'success' : 'warning'"
           depressed
         >
           Caja
@@ -123,7 +123,11 @@
             </div>
           </v-col>
 
-          <v-col class="py-0 text-right d-none d-md-inline-block " cols="12" md="6">
+          <v-col
+            class="py-0 text-right d-none d-md-inline-block"
+            cols="12"
+            md="6"
+          >
             <v-breadcrumbs
               :items="headerForm.breadcrumbs"
               class="pa-2 d-inline-block"
@@ -143,6 +147,7 @@
     <Confirm ref="confirm"></Confirm>
     <AlertSB ref="alertSB"></AlertSB>
     <DlgAperturarCaja ref="dlgAperturarCaja"></DlgAperturarCaja>
+
   </v-app>
 </template>
 
@@ -154,7 +159,15 @@ import Logout from "./components/Layout/Logout";
 
 import { mapState, mapActions, mapGetters } from "vuex";
 import vuescroll from "vuescroll";
-import DlgAperturarCaja from "@/components/Dialogos/DlgAperturarCaja"
+import DlgAperturarCaja from "@/components/Dialogos/DlgAperturarCaja";
+import { HubConnectionBuilder } from "@microsoft/signalr";
+import { ConsoleLogger } from '@microsoft/signalr/dist/esm/Utils';
+
+/* Configurando signalr*/
+let baseUrl = `http://localhost:53568/cambiarestadocajahub`;
+var connection = null;
+/* ------------------------------ */
+
 export default {
   components: {
     Confirm,
@@ -162,63 +175,87 @@ export default {
     AlertSB,
     Logout,
     vuescroll,
-    DlgAperturarCaja
+    DlgAperturarCaja,
   },
   data() {
     return {
       drawer: false,
       mini: true,
       bShowLogout: false,
-      ops: {
-        // vuescroll: {
-        //   mode: "native",
-        //   sizeStrategy: "percent",
-        //   detectResize: true,
-        //   /** Enable locking to the main axis if user moves only slightly on one of them at start */
-        //   locking: true,
-        // },
-        // scrollPanel: {
-        //   initialScrollY: false,
-        //   initialScrollX: false,
-        //   scrollingX: true,
-        //   scrollingY: true,
-        //   speed: 300,
-        //   easing: undefined,
-        //   verticalNativeBarPos: "right",
-        // },
-        // rail: {},
-        // bar: {},
-      },
     };
   },
   computed: {
     miniVariant() {
-      if (this.$vuetify.breakpoint.xsOnly) 
-        this.mini = false;
+      if (this.$vuetify.breakpoint.xsOnly) this.mini = false;
 
       return this.mini;
     },
     ...mapState("ModLogin", ["arrMenuItem", "usuario", "avatar"]),
-    ...mapGetters("ModLogin", ["showLayout"]),
+    ...mapGetters("ModLogin", ["showLayout", "isAuthenticated"]),
     ...mapState("ModLayout", ["headerForm"]),
     ...mapState("ModCajaApertura", ["modeloCajaApertura"]),
     cajaAbierta() {
       if (this.modeloCajaApertura != null) return true;
       else return false;
-    }
+    },
   },
   methods: {
     ...mapActions("ModLogin", ["autoLogin"]),
     ...mapActions("ModCajaApertura", ["verificarEstadoCaja"]),
     appBarStop() {
-
       this.drawer = !this.drawer;
       if (this.$vuetify.breakpoint.name != "xs") {
         this.mini = !this.mini;
       }
     },
-    abrirAperturarCaja(){
+    abrirAperturarCaja() {
       this.$refs.dlgAperturarCaja.show();
+    },
+    async start() {
+      try {
+        debugger;
+        await connection.start();
+      } catch (err) {
+        debugger;
+        setTimeout(() => this.start(), 5000);
+      }
+    },
+  },
+  watch: {
+    isAuthenticated(val){
+      if (val) {
+        //**************** Conección a signalr ********************/
+
+        //Configuramos la conección servidor signalr, enviando el token_access
+        connection = new HubConnectionBuilder()
+          .withUrl(baseUrl, {
+            accessTokenFactory: () =>
+              localStorage.getItem("tokenSPA_SistemaVentas"),
+          })
+          .build();
+
+        //Iniciamos la conección
+        connection
+          .start()
+          .then(() => {
+            console.log("Signalr conectado");
+          })
+          .catch((error) => {
+            console.error(error.toString());
+            setTimeout(() => this.start(), 5000);
+          });
+
+        connection.onclose(async () => this.start());
+
+        //Método que se invocará desde el servidor.
+        connection.on("actualizarEstadoCaja", () => {
+          this.verificarEstadoCaja();
+        });
+        /********** Fin de la configuración de signalr ************/
+
+        //Mostramos el estado de la caja
+        this.verificarEstadoCaja();
+      }
     }
   },
   mounted() {
@@ -227,7 +264,6 @@ export default {
   },
   created() {
     this.autoLogin();
-    this.verificarEstadoCaja();
   },
 };
 </script>
@@ -239,14 +275,13 @@ export default {
   margin-right: 10px !important;
 }
 
-#bdgCaja i{
+#bdgCaja i {
   font-size: 20px;
 }
 #bdgCaja .v-badge__badge {
   inset: calc(100% - 15px) calc(100% - 15px) auto auto !important;
   height: 27px;
 }
-
 
 /* ::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);

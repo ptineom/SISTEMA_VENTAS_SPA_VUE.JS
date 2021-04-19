@@ -74,7 +74,7 @@
                             ? 'rowSelected'
                             : ''
                         "
-                        @click="rowMarked(item.idCliente)"
+                        @click="rowSelected(item.idCliente)"
                         style="cursor: pointer"
                       >
                         <td class="px-1">

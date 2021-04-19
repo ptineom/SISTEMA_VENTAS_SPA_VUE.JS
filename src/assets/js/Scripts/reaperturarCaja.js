@@ -1,5 +1,7 @@
+import {rowMarked} from '@/assets/js/Mixins/utilidades'
 export default {
     name: "ReaperturarCaja",
+    mixins:[rowMarked],
     data() {
         return {
             overlay:false,
@@ -81,11 +83,14 @@ export default {
                     });
                 })
                 .finally(() => {
-                    _self.overlay = false;
+                   _self.overlay = false;
                 });
         },
         reaperturarCaja(modelo){
             let _self = this;
+
+            _self.rowSelected(modelo.correlativo);
+
             let titulo = "Reapertura de caja";
             let pregunta = "¿Desea reaperturar la caja seleccionada?";
 
@@ -115,7 +120,9 @@ export default {
                   }).finally(() => {
                     _self.overlay = false;
                   });
-            }).catch(()=>{});
+            }).catch(()=>{
+                _self.rowSelected(modelo.correlativo);
+            });
         }
     },
     computed: {

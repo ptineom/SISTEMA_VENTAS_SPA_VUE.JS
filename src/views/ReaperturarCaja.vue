@@ -106,7 +106,10 @@
         >
           <template v-slot:body="{ items }">
             <tbody>
-              <tr v-for="item in items" :key="item.comprobante">
+              <tr v-for="item in items" :key="item.comprobante" 
+              :class="selectedRows.indexOf(item.correlativo) >= 0
+                      ? 'rowSelected': ''"
+              >
                 <td class="pl-1 pr-0 text-caption">
                   <v-btn color="warning" small style="cursor: pointer" @click="reaperturarCaja(item)"
                   :disabled="item.flgCierre?false:true">
@@ -139,7 +142,11 @@
           </template>
         </v-data-table>
       </v-card-text>
+    
     </v-card>
+      <v-overlay :value="overlay" absolute :opacity="'0.36'">
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
   </div>
 </template>  
 <script src="@/assets/js/Scripts/reaperturarCaja.js" ></script>  

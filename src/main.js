@@ -85,9 +85,15 @@ axios.interceptors.response.use(function (config) {
 //Agregando valores globales para poder usarse en toda la app.
 Vue.prototype.$appName = "Sistemas de ventas y compras";
 Vue.prototype.$axios = axios;
+Vue.prototype.$baseUrl = "http://localhost:53568/";
 
 var customParseFormat = require('dayjs/plugin/customParseFormat')
 dayjs.extend(customParseFormat);
+var isSameOrBefore = require('dayjs/plugin/isSameOrBefore')
+dayjs.extend(isSameOrBefore);
+var isSameOrAfter  = require('dayjs/plugin/isSameOrAfter')
+dayjs.extend(isSameOrAfter );
+
 Vue.prototype.$dayjs = dayjs;
 
 
