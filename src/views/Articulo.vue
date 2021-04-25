@@ -73,7 +73,7 @@
                       hide-details
                       v-model="nomMarca"
                       readonly
-                      @click:clear="modelo.idMarca=''"
+                      @click:clear="modelo.idMarca = ''"
                     >
                       <template slot="prepend">
                         <v-icon
@@ -85,7 +85,7 @@
                       </template>
                       <template slot="append">
                         <v-btn
-                         @click="abrirDlgMarca(1)"
+                          @click="abrirDlgMarca(1)"
                           icon
                           small
                           style="cursor: pointer"
@@ -163,7 +163,13 @@
                       v-model="modelo.flgInactivo"
                     ></v-checkbox>
                   </v-col>
-                  <v-col cols="12" sm="4" md="2" offset-md="2" class="py-1 px-1">
+                  <v-col
+                    cols="12"
+                    sm="4"
+                    md="2"
+                    offset-md="2"
+                    class="py-1 px-1"
+                  >
                     <v-text-field
                       label="Moneda"
                       type="text"
@@ -286,7 +292,7 @@
                                               v-for="(item, i) in items"
                                               :key="i"
                                             >
-                                              <td >
+                                              <td>
                                                 <v-select
                                                   hide-details
                                                   v-model="item.idUm"
@@ -300,7 +306,7 @@
                                                 >
                                                 </v-select>
                                               </td>
-                                              <td >
+                                              <td>
                                                 <v-text-field
                                                   type="text"
                                                   hide-details
@@ -337,7 +343,7 @@
                                                   "
                                                 ></v-checkbox>
                                               </td>
-                                              <td >
+                                              <td>
                                                 <v-text-field
                                                   hide-details
                                                   dense
@@ -364,10 +370,13 @@
                                                       item
                                                     )
                                                   "
-                                                  @paste.native="(event) => event.preventDefault()"
+                                                  @paste.native="
+                                                    (event) =>
+                                                      event.preventDefault()
+                                                  "
                                                 ></v-text-field>
                                               </td>
-                                              <td >
+                                              <td>
                                                 <v-text-field
                                                   hide-details
                                                   dense
@@ -389,7 +398,7 @@
                                                   "
                                                 ></v-text-field>
                                               </td>
-                                              <td >
+                                              <td>
                                                 <v-menu
                                                   v-model="item.showFecIniPro"
                                                   transition="scale-transition"
@@ -447,7 +456,7 @@
                                                   </v-date-picker>
                                                 </v-menu>
                                               </td>
-                                              <td >
+                                              <td>
                                                 <v-menu
                                                   v-model="item.showFecFinPro"
                                                   transition="scale-transition"
@@ -505,7 +514,7 @@
                                                   </v-date-picker>
                                                 </v-menu>
                                               </td>
-                                              <td >
+                                              <td>
                                                 <v-btn
                                                   color="info"
                                                   small
@@ -543,24 +552,21 @@
                             <v-card-text>
                               <v-row>
                                 <v-col cols="12">
-                              <v-data-table
-                                hide-default-footer
-                                disable-pagination
-                                :headers="headersSedes"
-                                :items="listaSucursal"
-                                class="elevation-1"
-                                dense
-                                v-model="sucursalesSeleccionados"
-                                show-select
-                                item-key="idSucursal"
-                                :single-select="singleSelect"
-      
-                              >
-                              
-                              </v-data-table>
+                                  <v-data-table
+                                    hide-default-footer
+                                    disable-pagination
+                                    :headers="headersSedes"
+                                    :items="listaSucursal"
+                                    class="elevation-1"
+                                    dense
+                                    v-model="sucursalesSeleccionados"
+                                    show-select
+                                    item-key="idSucursal"
+                                    :single-select="singleSelect"
+                                  >
+                                  </v-data-table>
                                 </v-col>
                               </v-row>
-                              
                             </v-card-text>
                           </v-card>
                         </v-tab-item>
@@ -618,8 +624,15 @@
         <v-card elevation="1" tile v-show="vista == 1">
           <v-card-title class="py-0 text-button">
             <v-icon>mdi-filter</v-icon> Búsqueda por filtros
-          </v-card-title>
+            <!-- <v-btn-toggle v-model="toggle_exclusive">
           
+            </v-btn-toggle> -->
+            <v-spacer></v-spacer>
+              <v-btn dense  icon  small class="me-1"><v-icon color="red"> mdi-file-pdf </v-icon> </v-btn>
+              <v-btn dense  icon  small ><v-icon color="success"> mdi-file-excel </v-icon>
+              </v-btn>
+          </v-card-title>
+
           <v-divider></v-divider>
           <v-card-text class="px-1 py-0">
             <v-row>
@@ -660,14 +673,22 @@
                         />
                       </v-col>
                       <v-col class="pt-1">
-                        <v-btn dense color="primary" @click="consultar()" class="mb-1"
+                        <v-btn
+                          dense
+                          color="primary"
+                          @click="consultar()"
+                          class="mb-1"
                           ><v-icon> mdi-magnify </v-icon> Consultar</v-btn
                         >
-                        <v-btn class="ml-1 mb-1" dense color="info" @click="nuevo()" 
+                        <v-btn
+                          class="ml-1 mb-1"
+                          dense
+                          color="info"
+                          @click="nuevo()"
                           ><v-icon> mdi-file-plus </v-icon> Nuevo</v-btn
                         >
                         <v-btn
-                          class="ml-1  mb-1"
+                          class="ml-1 mb-1"
                           dense
                           color="default"
                           @click="consultarVentas()"
@@ -688,7 +709,7 @@
                   class="elevation-1"
                   dense
                   tile
-                           :mobile-breakpoint="0"
+                  :mobile-breakpoint="0"
                 >
                   <template v-slot:body="{ items }">
                     <tbody>

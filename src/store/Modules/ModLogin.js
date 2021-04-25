@@ -4,32 +4,32 @@ import router from '../../router/index';
 const ModLogin = {
     namespaced: true,
     state: {
-        usuario: null,
-        nameToken: 'tokenSPA_SistemaVentas',
-        arrMenuItem: [],
-        bCambiarSede: false,
-        avatar: '',
-        refreshToken: ''
+        usuario_vx: null,
+        nameToken_vx: 'tokenSPA_SistemaVentas',
+        arrMenuItem_vx: [],
+        bCambiarSede_vx: false,
+        avatar_vx: '',
+        refreshToken_vx: ''
     },
     mutations: {
-        setUsuario(state, payload) {
-            state.usuario = payload
+        SET_USUARIO(state, payload) {
+            state.usuario_vx = payload
+        }, 
+        SET_ARR_MENU_ITEM(state, payload) {
+            state.arrMenuItem_vx = payload;
         },
-        setArrMenuItem(state, payload) {
-            state.arrMenuItem = payload;
+        SET_BCAMBIAR_SEDE(state, payload) {
+            state.bCambiarSede_vx = payload;
         },
-        setBCambiarSede(state, payload) {
-            state.bCambiarSede = payload;
+        SET_AVATAR(state, payload) {
+            state.avatar_vx = payload;
         },
-        setAvatar(state, payload) {
-            state.avatar = payload;
-        },
-        setRefreshToken(state, payload) {
-            state.refreshToken = payload;
+        SET_REFRESH_TOKEN(state, payload) {
+            state.refreshToken_vx = payload;
         }
     },
     actions: {
-        guardarInfo(store, payload) {
+        guardarInfo_vx(store, payload) {
             let token = payload.token;
             let avatarB64 = payload.avatarB64;
             let menuItem = payload.menuItem;
@@ -38,13 +38,13 @@ const ModLogin = {
             //decodificamos el token
             let decodeToken = decode(token);
 
-            store.commit('setUsuario', decodeToken)
-            store.commit("setBCambiarSede", false)
-            store.commit("setAvatar", avatarB64);
-            store.commit("setArrMenuItem", menuItem.Children);
+            store.commit('SET_USUARIO', decodeToken)
+            store.commit("SET_BCAMBIAR_SEDE", false)
+            store.commit("SET_AVATAR", avatarB64);
+            store.commit("SET_ARR_MENU_ITEM", menuItem.Children);
 
             //Guardamos el token, avatar, menu, refreshToken en el localstorage
-            localStorage.setItem(store.state.nameToken, token)
+            localStorage.setItem(store.state.nameToken_vx, token)
             localStorage.setItem("avatarB64", avatarB64);
             localStorage.setItem("arrMenuItem", JSON.stringify(menuItem.Children))
             localStorage.setItem("refreshToken", refreshToken)
@@ -52,70 +52,70 @@ const ModLogin = {
             //Nos redijiremos al home despues de loguearnos correctamente.
             router.push({ name: "Home" })
         },
-        autoLogin(store) {
+        autoLogin_vx(store) {
             //Si ya tenemos un token, solo recuperamos la información.
-            let token = localStorage.getItem(store.state.nameToken);
+            let token = localStorage.getItem(store.state.nameToken_vx);
             if (token) {
                 let decodeToken = decode(token);
-                store.commit("setUsuario", decodeToken);
+                store.commit("SET_USUARIO", decodeToken);
 
                 if (localStorage.getItem("avatarB64"))
-                    store.commit("setAvatar", localStorage.getItem("avatarB64"));
+                    store.commit("SET_AVATAR", localStorage.getItem("avatarB64"));
 
                 if (localStorage.getItem("arrMenuItem"))
-                    store.commit("setArrMenuItem", JSON.parse(localStorage.getItem("arrMenuItem")));
+                    store.commit("SET_ARR_MENU_ITEM", JSON.parse(localStorage.getItem("arrMenuItem")));
 
                 if (localStorage.getItem("refreshToken"))
-                    store.commit("setRefreshToken", localStorage.getItem("refreshToken"));
+                    store.commit("SET_REFRESH_TOKEN", localStorage.getItem("refreshToken"));
 
             }
         },
-        cerrarSesion(store) {
-            let token = localStorage.getItem(store.state.nameToken);
+        cerrarSesion_vx(store) {
+            let token = localStorage.getItem(store.state.nameToken_vx);
             if (token) {
-                localStorage.removeItem(store.state.nameToken);
-                store.commit("setUsuario", null);
-                store.commit("setArrMenuItem", []);
+                localStorage.removeItem(store.state.nameToken_vx);
+                store.commit("SET_USUARIO", null);
+                store.commit("SET_ARR_MENU_ITEM", []);
 
                 //Eliminamos el avatar y el menú.
-                store.commit("setAvatar", null);
+                store.commit("SET_AVATAR", null);
                 localStorage.removeItem("avatarB64");
-                store.commit("setArrMenuItem", []);
+                store.commit("SET_ARR_MENU_ITEM", []);
                 localStorage.removeItem("arrMenuItem");
-                store.commit("setRefreshToken", null);
+                store.commit("SET_REFRESH_TOKEN", null);
                 localStorage.removeItem("refreshToken");
 
                 //Redirección al login.
                 router.push({ name: "Login" })
             }
         },
-        setBCambiarSede(store, payload) {
-            store.commit('setBCambiarSede', payload);
+        setBCambiarSede_vx(store, payload) {
+            store.commit('SET_BCAMBIAR_SEDE', payload);
         },
-        guardarTokens(store, payload) {
+        guardarTokens_vx(store, payload) {
             let token = payload.token;
             let refreshToken = payload.refreshToken;
 
             //AccessToken
             let decodeToken = decode(token);
-            store.commit('setUsuario', decodeToken)
-            localStorage.setItem(store.state.nameToken, token);
+            store.commit('SET_USUARIO', decodeToken)
+            localStorage.setItem(store.state.nameToken_vx, token);
 
             //RefreshToken
             localStorage.setItem("refreshToken", refreshToken)
         }
     },
     getters: {
-        isAuthenticated(state) {
-            if (!!state.usuario)
+        isAuthenticated_vx(state) {
+            if (!!state.usuario_vx)
                 return true
             else
                 return false
         },
-        showLayout(state) {
+        showLayout_vx(state) {
             //Se mostrará el layout siempre que exista un token y no se haya seleccionado cambiar sede del componente logout.
             //Porque cuando es seleccionado la opción cambiar sede se redijirá al route: login
-            if (!!state.usuario && !state.bCambiarSede)
+            if (!!state.usuario_vx && !state.bCambiarSede_vx)
                 return true;
 
             return false;

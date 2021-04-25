@@ -39,21 +39,27 @@ export default {
       let _self = this;
 
       if (value) {
+
         //Despué de cumplir el intervalo indicado en el timeout, desaparecerá lentamente.
         setTimeout(() => {
           let milisegundos = 200;
 
           //Disminuirá la opacidad del componente hasta desaparecer.
           _self.intervalId = setInterval(function () {
-            if(!_self.opacidad) _self.opacidad = 1;
+
+            // if(!(!!_self.opacidad)) 
+            //   _self.opacidad = 1;
 
             if (_self.opacidad > 0) {
               _self.opacidad -= 0.1;
+
             } else {
+
               _self.alert = false;
               _self.limpiar(_self.intervalId);
             }
           }, milisegundos);
+
         }, _self.options.timeout);
       }
     },

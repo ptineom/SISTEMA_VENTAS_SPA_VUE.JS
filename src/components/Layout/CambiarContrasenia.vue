@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog v-model="bDialogoCambiarContrasenia" max-width="550px" persistent>
+    <v-dialog v-model="bDialogoCambiarContrasenia_vx" max-width="550px" persistent>
       <v-card>
         <v-card-title class="headline">
           <span class="headline">Cambiar contraseña</span>
@@ -112,7 +112,7 @@ export default {
     ShowError
   },
   methods: {
-    ...mapActions("ModLayout", ["abrirDialogoCambiarContrasenia"]),
+    ...mapActions("ModLayout", ["setAbrirDialogoCambiarContrasenia_vx"]),
     cambiarContrasenia() {
       let _self = this;
       _self.errors = [];
@@ -122,7 +122,7 @@ export default {
         return;
         
       let parameters = {
-        IdUsuario: _self.usuario.IdUsuario,
+        IdUsuario: _self.usuario_vx.IdUsuario,
         ContraseniaActual: _self.modelo.contraseniaAnterior,
         ContraseniaNueva: _self.modelo.contraseniaNueva,
         RepetirContraseniaNueva: _self.modelo.repetirContrasenia,
@@ -145,7 +145,7 @@ export default {
               }
 
               _self.limpiar();
-              _self.abrirDialogoCambiarContrasenia(false);
+              _self.setAbrirDialogoCambiarContrasenia_vx(false);
               _self.$root.$alertSB("Se grabaron los datos.");
             })
             .catch((error) => {
@@ -169,13 +169,13 @@ export default {
       this.$refs.formCamCon.resetValidation();
     },
     salir() {
-      this.abrirDialogoCambiarContrasenia(false);
+      this.setAbrirDialogoCambiarContrasenia_vx(false);
       this.limpiar();
     },
   },
   computed: {
-    ...mapState("ModLayout", ["bDialogoCambiarContrasenia"]),
-    ...mapState("ModLogin", ["usuario"]),
+    ...mapState("ModLayout", ["bDialogoCambiarContrasenia_vx"]),
+    ...mapState("ModLogin", ["usuario_vx"]),
   },
   data() {
     return {

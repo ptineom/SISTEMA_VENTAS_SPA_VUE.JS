@@ -51,7 +51,9 @@ const routes = [
     path: '/facturacion',
     name: 'Facturacion',
     component: () => import('../views/Ventas/Facturacion.vue'),
-   
+    meta:{
+      pruebita: true
+    }
   },
   {
     path:'/reaperturarCaja',

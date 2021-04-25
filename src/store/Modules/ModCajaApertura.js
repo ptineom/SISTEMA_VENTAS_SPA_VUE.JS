@@ -3,27 +3,27 @@ import axios from 'axios'
 const ModCajaApertura = {
     namespaced: true,
     state: {
-        modeloCajaApertura: null
+        modeloCajaApertura_vx: null
     },
     mutations: {
-        setModeloCajaApertura(state, payload){
-            state.modeloCajaApertura = payload;
+        SET_MODELO_CAJA_APERTURA(state, payload){
+            state.modeloCajaApertura_vx = payload;
         }
     },
     actions: {
-        verificarEstadoCaja(store, payload) {
+        verificarEstadoCaja_vx(store, payload) {
             axios.get("/api/CajaApertura/GetStateBox").then((response) => {
                 let data = response.data.Data;
                 if(data != null){
-                    store.dispatch('setModeloCajaApertura', data);
+                    store.dispatch('setModeloCajaApertura_vx', data);
                 }
             }).catch((error) => {
                 console.error(error.response.data.Message);
             })
         },
-        setModeloCajaApertura(store, payload){
+        setModeloCajaApertura_vx(store, payload){
             if(payload != null){
-                store.commit("setModeloCajaApertura",{
+                store.commit("SET_MODELO_CAJA_APERTURA",{
                     idCaja: payload.IdCaja,
                     correlativo: payload.Correlativo,
                     fechaApertura: payload.FechaApertura,
@@ -38,8 +38,14 @@ const ModCajaApertura = {
                     horaCierre: payload.HoraCierre == undefined ? '': payload.HoraCierre
                 });
             }else{
-                store.commit("setModeloCajaApertura", null);
+                store.commit("SET_MODELO_CAJA_APERTURA", null);
             }
+        }
+    },
+    getters:{
+        cajaAbierta_vx(state){
+            if (state.modeloCajaApertura_vx != null) return true;
+            else return false;
         }
     }
 }

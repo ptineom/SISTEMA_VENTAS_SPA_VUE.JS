@@ -52,17 +52,14 @@ export default {
     menuItem: {},
   },
   methods: {
-    ...mapActions("ModLayout", ["setHeaderForm"]),
+    ...mapActions("ModLayout", ["setHeaderForm_vx"]),
     abrirVista(obj) {
-      this.$router.push({ name: obj.route });
+      if(this.$route.name != obj.route){
+        this.$router.push({ name: obj.route});
+      }
       //Agregamos el titulo, icono y breadcrums al formulario abierto.
       //Se reflejará en app.vue
-      this.setHeaderForm({
-        breadcrumbs: obj.Breadcrumbs,
-        titleForm: obj.TitleForm,
-        iconForm: obj.IconForm,
-        flgHome: obj.FlgHome
-      });
+      this.setHeaderForm_vx(obj);
     },
   },
   //   props: ["menuItem", "primerNivel"]

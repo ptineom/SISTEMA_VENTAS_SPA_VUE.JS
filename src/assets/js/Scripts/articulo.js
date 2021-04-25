@@ -7,6 +7,7 @@ export default {
     },
     data() {
         return {
+            toggle_exclusive:2,
             titulo: "Artículo",
             sucursalesSeleccionados: [],
             singleSelect: false,
@@ -730,14 +731,14 @@ export default {
             this.$refs.txtFiltro.focus();
         },
         vista(newValue, oldValue) {
-            this.headerForm.subtitleForm = this.getSubtitulo(newValue);
+            this.headerForm_vx.subtitleForm = this.getSubtitulo(newValue);
         }
     },
     computed: {
-        ...mapState("ModLayout", ["headerForm"]),
+        ...mapState("ModLayout", ["headerForm_vx"]),
     },
     mounted() {
-        this.headerForm.subtitleForm = this.getSubtitulo(this.vista);
+        this.headerForm_vx.subtitleForm = this.getSubtitulo(this.vista);
         let _self = this;
         _self.overlay = true;
         _self.$axios.get("/api/Articulo/GetData").then((response) => {

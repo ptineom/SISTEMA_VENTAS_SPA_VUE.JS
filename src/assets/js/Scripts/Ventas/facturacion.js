@@ -5,6 +5,7 @@ import Registro from '@/views/Compras/Registro'
 import DlgAbonarCredito from '@/components/Dialogos/DlgAbonarCredito'
 import DlgPago from '@/views/Ventas/DlgPago'
 import Consulta from '@/views/Ventas/Consulta'
+import CurrencyInput from '@/components/Utilitarios/CurrencyInput'
 
 export default {
     name: "Facturacion",
@@ -15,7 +16,8 @@ export default {
         Registro,
         DlgAbonarCredito,
         DlgPago,
-        Consulta
+        Consulta,
+        CurrencyInput
     },
     data() {
         return {

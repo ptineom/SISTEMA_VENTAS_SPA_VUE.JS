@@ -10,21 +10,21 @@
     >
       <v-list-item class="blue-tool-1 d-flex justify-center">
         <v-list-item-avatar size="80">
-          <v-img :src="'data:image/jpg;base64,' + this.avatar"></v-img>
+          <v-img :src="'data:image/jpg;base64,' + this.avatar_vx"></v-img>
         </v-list-item-avatar>
       </v-list-item>
       <v-list-item class="blue-tool-1">
         <v-list-item-content class="text-center pt-0">
           <div class="overline mb-1 white--text">
-            Sede: {{ usuario.NomSucursal | capitalize }}
+            Sede: {{ usuario_vx.NomSucursal | capitalize }}
           </div>
           <v-list-item-title class="headline mb-1 white--text">{{
-            usuario[
+            usuario_vx[
               "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
             ] | capitalize
           }}</v-list-item-title>
           <v-list-item-subtitle class="white--text">{{
-            usuario.FullName | capitalize
+            usuario_vx.FullName | capitalize
           }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -83,27 +83,26 @@ export default {
     CambiarContrasenia,
   },
   methods: {
-    ...mapActions("ModLogin", ["cerrarSesion", "setBCambiarSede"]),
-    ...mapActions("ModLayout", ["abrirDialogoCambiarContrasenia"]),
+    ...mapActions("ModLogin", ["cerrarSesion_vx", "setBCambiarSede_vx"]),
+    ...mapActions("ModLayout", ["setAbrirDialogoCambiarContrasenia_vx"]),
     cambiarSede() {
-      this.setBCambiarSede(true);
+      this.setBCambiarSede_vx(true);
       this.showLogout = false;
       this.$router.push({ name: "Login" });
     },
     salir() {
       this.showLogout = false;
-      this.cerrarSesion();
+      this.cerrarSesion_vx();
     },
     abrirDialogoCamCon(event) {
       event.stopPropagation();
-      this.abrirDialogoCambiarContrasenia(true);
+      this.setAbrirDialogoCambiarContrasenia_vx(true);
       this.showLogout = false;
     },
   },
   props: ["value"],
   computed: {
-    ...mapState("ModLogin", ["usuario", "avatar"]),
-    ...mapState("ModLayout", ["bDialogoCambiarContrasenia"]),
+    ...mapState("ModLogin", ["usuario_vx", "avatar_vx"]),
     showLogout: {
       get: function () {
         //Por el momento no se esta usando el get.

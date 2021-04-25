@@ -10,7 +10,7 @@ export default {
         ShowError,
     },
     computed: {
-        ...mapState("ModLogin", ["usuario", "bCambiarSede"]),
+        ...mapState("ModLogin", ["usuario_vx", "bCambiarSede_vx"]),
         getTitulo() {
             if (this.step == 2) {
                 return "Seleccione la sede";
@@ -37,11 +37,11 @@ export default {
     },
     methods: {
         ...mapActions("ModLogin", [
-            "guardarInfo",
-            "guardarTokens",
-            "setBCambiarSede"
+            "guardarInfo_vx",
+            "guardarTokens_vx",
+            "setBCambiarSede_vx"
         ]),
-        ...mapActions("ModCajaApertura", ["verificarEstadoCaja"]),
+        ...mapActions("ModCajaApertura", ["verificarEstadoCaja_vx"]),
         ingresar() {
             let validate = this.$refs.form.validate();
             this.errors = [];
@@ -70,7 +70,7 @@ export default {
                         if (!resultado.Data.FlgVariasSedes) {
                             //Guardamos información en el storage de vuex y localstorage: 
                             //token, refreshToken, avatar y menu.
-                            _self.guardarInfo({
+                            _self.guardarInfo_vx({
                                 token: resultado.Data.Token,
                                 avatarB64: resultado.Data.AvatarB64,
                                 menuItem: resultado.Data.MenuItem,
@@ -78,7 +78,7 @@ export default {
                             });
 
                             //Verificamos el estado de la caja y guardamos lo estados con vuex.
-                            _self.verificarEstadoCaja();
+                            _self.verificarEstadoCaja_vx();
 
                             _self.limpiar();
                         } else {
@@ -121,9 +121,9 @@ export default {
                 //Si hemos llegado a este formulario mediante el componente logout y la opción cambiar sede.
                 this.limpiar();
 
-                if (this.bCambiarSede) {
+                if (this.bCambiarSede_vx) {
                     //Inicializamos la variable y no redirijimos al route anterior.
-                    this.setBCambiarSede(!this.bCambiarSede);
+                    this.setBCambiarSede_vx(!this.bCambiarSede_vx);
                     this.$router.go(-1);
                 } else {
                     this.$refs.formSuc.resetValidation();
@@ -148,7 +148,7 @@ export default {
                 let uri = "";
                 let nomSucursal = _self.sucursales.find(x => x.value == _self.idSucursal).text;
 
-                if (_self.bCambiarSede) {
+                if (_self.bCambiarSede_vx) {
                     parameters = {
                         idSucursal: _self.idSucursal,
                         nomSucursal: nomSucursal
@@ -178,14 +178,14 @@ export default {
                         }
 
                         //Guardamos la informacion en el área local.
-                        if (_self.bCambiarSede) {
-                            _self.guardarTokens({
+                        if (_self.bCambiarSede_vx) {
+                            _self.guardarTokens_vx({
                                 token: resultado.Data.Token,
                                 refreshToken: resultado.Data.RefreshToken
                             });
                             _self.retroceder();
                         }else{
-                             _self.guardarInfo({
+                             _self.guardarInfo_vx({
                                 token: resultado.Data.Token,
                                 avatarB64: resultado.Data.AvatarB64,
                                 menuItem: resultado.Data.MenuItem,
@@ -196,7 +196,7 @@ export default {
 
                             
                             //Verificamos el estado de la caja y guardamos lo estados con vuex.
-                            _self.verificarEstadoCaja();
+                            _self.verificarEstadoCaja_vx();
                         }
                     })
                     .catch((error) => {
@@ -270,14 +270,14 @@ export default {
     },
     mounted() {
         this.errors = [];
-        //Cada vez que tenga bCambiarSede = true, quiere decir que viene desde el componente logout
+        //Cada vez que tenga bCambiarSede_vx = true, quiere decir que viene desde el componente logout
         //y opción cambiar Sede. Se listarán las sucursales.
-        if (this.bCambiarSede) {
+        if (this.bCambiarSede_vx) {
             this.step = 2;
             axios
                 .get(
                     "api/SucursalUsuario/GetSucursalesByUserId/" +
-                    this.usuario.IdUsuario
+                    this.usuario_vx.IdUsuario
                 )
                 .then((response) => {
                     let resultado = response.data;

@@ -12,7 +12,7 @@
         app
         dark
         color="#222d32"
-        v-if="showLayout"
+        v-if="showLayout_vx"
         id="menu"
       >
         <v-list-item class="blue-tool-2 text-center">
@@ -22,15 +22,15 @@
         </v-list-item>
         <v-list-item class="px-2">
           <v-list-item-avatar>
-            <v-img :src="'data:image/jpg;base64,' + this.avatar"></v-img>
+            <v-img :src="'data:image/jpg;base64,' + this.avatar_vx"></v-img>
           </v-list-item-avatar>
 
           <v-list-item-content>
             <v-list-item-title class="subtitle-1">{{
-              usuario.FullName | capitalize
+              usuario_vx.FullName | capitalize
             }}</v-list-item-title>
             <v-list-item-subtitle class="subtitle-2">{{
-              usuario[
+              usuario_vx[
                 "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
               ] | capitalize
             }}</v-list-item-subtitle>
@@ -43,7 +43,7 @@
 
         <v-list dense>
           <Menu
-            v-for="(elem, idx) in arrMenuItem"
+            v-for="(elem, idx) in arrMenuItem_vx"
             :key="idx"
             :menuItem="elem"
           ></Menu>
@@ -51,7 +51,7 @@
       </v-navigation-drawer>
     </v-card>
 
-    <v-app-bar dense app color="blueTool1" v-if="showLayout">
+    <v-app-bar dense app color="blueTool1" v-if="showLayout_vx">
       <v-app-bar-nav-icon
         @click.stop="appBarStop"
         class="blue-tool-2"
@@ -67,8 +67,8 @@
       <v-spacer></v-spacer>
       <v-badge
         bordered
-        :color="cajaAbierta ? 'success' : 'warning'"
-        :icon="cajaAbierta ? 'lock_open' : 'mdi-lock'"
+        :color="cajaAbierta_vx ? 'success' : 'warning'"
+        :icon="cajaAbierta_vx ? 'lock_open' : 'mdi-lock'"
         overlap
         bottom
         left
@@ -77,7 +77,7 @@
         <v-btn
           @click="abrirAperturarCaja()"
           class="white--text"
-          :color="cajaAbierta ? 'success' : 'warning'"
+          :color="cajaAbierta_vx ? 'success' : 'warning'"
           depressed
         >
           Caja
@@ -95,12 +95,12 @@
         class="blueTool2 elevation-0"
       >
         <v-avatar size="36">
-          <v-img :src="'data:image/jpg;base64,' + this.avatar"></v-img>
+          <v-img :src="'data:image/jpg;base64,' + this.avatar_vx"></v-img>
         </v-avatar>
         <span
           class="text-caption ml-2 text-truncate d-none d-sm-block"
           style="width: 140px"
-          >{{ usuario.FullName | capitalize }}</span
+          >{{ usuario_vx.FullName | capitalize }}</span
         >
       </v-btn>
       <!-- Estamos emitiendo un valor desde el hijo al padre  -->
@@ -110,15 +110,15 @@
 
     <v-main class="color-fondo">
       <v-container fluid class="px-2 py-0">
-        <v-row v-show="showLayout">
+        <v-row v-show="showLayout_vx">
           <v-col class="py-1" cols="12" md="6">
             <div class="font-weight-bold pl-2 text-h5">
               <v-icon style="vertical-align: text-top">
-                {{ headerForm.IconForm }}
+                {{ headerForm_vx.iconForm }}
               </v-icon>
-              {{ !!headerForm.TitleForm ? headerForm.TitleForm : "Home" }}
+              {{ !!headerForm_vx.titleForm ? headerForm_vx.titleForm : "Home" }}
               <span class="font-italic text-body-2 text--disabled">{{
-                headerForm.SubtitleForm
+                headerForm_vx.subtitleForm
               }}</span>
             </div>
           </v-col>
@@ -129,7 +129,7 @@
             md="6"
           >
             <v-breadcrumbs
-              :items="headerForm.breadcrumbs"
+              :items="headerForm_vx.breadcrumbs"
               class="pa-2 d-inline-block"
             >
               <template v-slot:divider>
@@ -190,18 +190,15 @@ export default {
 
       return this.mini;
     },
-    ...mapState("ModLogin", ["arrMenuItem", "usuario", "avatar"]),
-    ...mapGetters("ModLogin", ["showLayout", "isAuthenticated"]),
-    ...mapState("ModLayout", ["headerForm"]),
-    ...mapState("ModCajaApertura", ["modeloCajaApertura"]),
-    cajaAbierta() {
-      if (this.modeloCajaApertura != null) return true;
-      else return false;
-    },
+    ...mapState("ModLogin", ["arrMenuItem_vx", "usuario_vx", "avatar_vx"]),
+    ...mapGetters("ModLogin", ["showLayout_vx", "isAuthenticated_vx"]),
+    ...mapState("ModLayout", ["headerForm_vx"]),
+    ...mapState("ModCajaApertura", ["modeloCajaApertura_vx"]),
+    ...mapGetters("ModCajaApertura",["cajaAbierta_vx"])
   },
   methods: {
-    ...mapActions("ModLogin", ["autoLogin"]),
-    ...mapActions("ModCajaApertura", ["verificarEstadoCaja"]),
+    ...mapActions("ModLogin", ["autoLogin_vx"]),
+    ...mapActions("ModCajaApertura", ["verificarEstadoCaja_vx"]),
     appBarStop() {
       this.drawer = !this.drawer;
       if (this.$vuetify.breakpoint.name != "xs") {
@@ -209,20 +206,21 @@ export default {
       }
     },
     abrirAperturarCaja() {
+      let gg = this.$route;
+      console.log(gg.data.test)
+      debugger;
       this.$refs.dlgAperturarCaja.show();
     },
     async start() {
       try {
-        debugger;
         await connection.start();
       } catch (err) {
-        debugger;
         setTimeout(() => this.start(), 5000);
       }
     },
   },
   watch: {
-    isAuthenticated(val){
+    isAuthenticated_vx(val){
       if (val) {
         //**************** Conección a signalr ********************/
 
@@ -231,8 +229,7 @@ export default {
           .withUrl(baseUrl, {
             accessTokenFactory: () =>
               localStorage.getItem("tokenSPA_SistemaVentas"),
-          })
-          .build();
+          }).build();
 
         //Iniciamos la conección
         connection
@@ -249,12 +246,12 @@ export default {
 
         //Método que se invocará desde el servidor.
         connection.on("actualizarEstadoCaja", () => {
-          this.verificarEstadoCaja();
+          this.verificarEstadoCaja_vx();
         });
         /********** Fin de la configuración de signalr ************/
 
         //Mostramos el estado de la caja
-        this.verificarEstadoCaja();
+        this.verificarEstadoCaja_vx();
       }
     }
   },
@@ -263,7 +260,7 @@ export default {
     this.$root.$alertSB = this.$refs.alertSB.show;
   },
   created() {
-    this.autoLogin();
+    this.autoLogin_vx();
   },
 };
 </script>

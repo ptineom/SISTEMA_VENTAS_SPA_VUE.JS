@@ -1,29 +1,30 @@
+/*headerForm_vx: Se almacenará los datos de la opcion del menú clicleado*/
 const ModLayout = {
     namespaced: true,
     state: {
-        headerForm: {
+        headerForm_vx: {
             breadcrumbs: [{ 'text': 'Home', disabled: false }],
             titleForm: 'Home',
             iconForm: 'mdi-home',
             flgHome: true,
             subtitleForm: ''
         },
-        bDialogoCambiarContrasenia: false
+        bDialogoCambiarContrasenia_vx: false
     },
     mutations: {
-        setHeaderForm(state, payload) {
-            state.headerForm = payload;
+        SET_HEADER_FORM(state, payload) {
+            state.headerForm_vx = payload;
         },
-        setDialogoCambiarContrasenia(state, payload){
+        SET_DIALOGO_CAMBIAR_CONTRASENIA(state, payload){
             state.bDialogoCambiarContrasenia = payload;
         }
     },
     actions: {
-        setHeaderForm(store, payload) {
-            store.commit('setHeaderForm', payload);
+        setHeaderForm_vx(store, payload) {
+            store.commit('SET_HEADER_FORM', payload);
         },
-        abrirDialogoCambiarContrasenia(store, payload) {
-            store.commit('setDialogoCambiarContrasenia', payload);
+        setAbrirDialogoCambiarContrasenia_vx(store, payload) {
+            store.commit('SET_DIALOGO_CAMBIAR_CONTRASENIA', payload);
         }
     }
 }

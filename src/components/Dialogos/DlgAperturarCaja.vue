@@ -4,12 +4,12 @@
       <v-card-title class="py-2">
         <span class="headline text-button">
           <v-icon>{{
-            cajaAbierta ? "mdi-package-variant" : "mdi-package-variant-closed"
+            cajaAbierta_vx ? "mdi-package-variant" : "mdi-package-variant-closed"
           }}</v-icon>
           {{
-            cajaAbierta
+            cajaAbierta_vx
               ? "Caja " +
-                (modeloCajaApertura.flgReaperturado
+                (modeloCajaApertura_vx.flgReaperturado
                   ? "reaperturada"
                   : "abierta")
               : "Aperturar caja"
@@ -43,7 +43,9 @@
                       hide-details
                       class="shrink mt-0"
                       label="Cierre diferido"
-                      :disabled="cajaAbierta? modeloCajaApertura.flgReaperturado: true"
+                      :disabled="
+                        cajaAbierta_vx ? modeloCajaApertura_vx.flgReaperturado : true
+                      "
                     ></v-checkbox>
                     <v-text-field
                       v-model="fecCieFormatted"
@@ -54,7 +56,13 @@
                       v-on="on"
                       outlined
                       dense
-                      :disabled="cajaAbierta? (modeloCajaApertura.flgReaperturado?true:!modelo.chkHorCie): true"
+                      :disabled="
+                        cajaAbierta_vx
+                          ? modeloCajaApertura_vx.flgReaperturado
+                            ? true
+                            : !modelo.chkHorCie
+                          : true
+                      "
                       :rules="reglas.fechaCierre"
                     ></v-text-field>
                   </div>
@@ -97,7 +105,13 @@
                       outlined
                       dense
                       append-icon="mdi-clock-time-four-outline"
-                      :disabled="cajaAbierta? (modeloCajaApertura.flgReaperturado?true:!modelo.chkHorCie): true"
+                      :disabled="
+                        cajaAbierta_vx
+                          ? modeloCajaApertura_vx.flgReaperturado
+                            ? true
+                            : !modelo.chkHorCie
+                          : true
+                      "
                       :rules="reglas.horaCierre"
                     ></v-text-field>
                   </div>
@@ -118,7 +132,7 @@
                 outlined
                 :items="listaCaja"
                 @change="seleccionarCaja()"
-                :disabled="cajaAbierta"
+                :disabled="cajaAbierta_vx"
                 v-model="modelo.idCaja"
                 :rules="reglas.caja"
               >
@@ -133,7 +147,7 @@
                 :sgnMoneda="moneda.sgnMoneda"
                 :outlined="true"
                 :dense="true"
-                :disabled="cajaAbierta"
+                :disabled="cajaAbierta_vx"
                 ref="txtMontoApertura"
               ></CurrencyInput>
             </v-col>
@@ -271,10 +285,10 @@
         <v-btn color="warning" @click="grabar"
           ><v-icon
             >{{
-              cajaAbierta ? "mdi-package-variant" : "mdi-package-variant-closed"
+              cajaAbierta_vx ? "mdi-package-variant" : "mdi-package-variant-closed"
             }}
           </v-icon>
-          {{ cajaAbierta ? "Cerrar caja" : "Abrir caja" }}
+          {{ cajaAbierta_vx ? "Cerrar caja" : "Abrir caja" }}
         </v-btn>
       </v-card-actions>
       <v-overlay :value="overlay" absolute :opacity="'0.36'">
@@ -287,9 +301,13 @@
 
 <script>
 import CurrencyInput from "@/components/Utilitarios/CurrencyInput";
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 import alerta from "@/components/Utilitarios/AlertSB";
 
+/*
+modeloCajaApertura_vx: Objeto que almacenará los datos de alguna caja en estado aperturada, pero si no existe ninguna caja abierta, el modelo sera null.
+modelo: Objeto que servirá de modelo para el binding de los elementos que se gurdaran en bd para el estado de la caja.
+*/
 export default {
   name: "DlgAperturarCaja",
   components: { alerta, CurrencyInput },
@@ -354,7 +372,7 @@ export default {
               } else {
                 return "Ingrese la fecha de cierre";
               }
-            } 
+            }
             return true;
           },
         ],
@@ -367,7 +385,7 @@ export default {
                   `${this.fecCieFormatted} ${value}`,
                   "DD/MM/YYYY HH:mm"
                 );
-                let fechaHoraActual = this.$dayjs();
+                let fechaHoraActual = new Date();
                 let fechaHoraApertura = this.$dayjs(
                   this.modelo.fechaApertura,
                   "DD/MM/YYYY HH:mm:ss"
@@ -395,7 +413,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions("ModCajaApertura", ["setModeloCajaApertura"]),
+    ...mapActions("ModCajaApertura", ["setModeloCajaApertura_vx"]),
     salir() {
       this.dialog = false;
     },
@@ -406,9 +424,9 @@ export default {
       _self.dialog = true;
     },
     inicializarSegunEstadoCaja() {
-      if (this.cajaAbierta) {
+      if (this.cajaAbierta_vx) {
         //Traemos los datos almacenados en el storage de vuex al aperturar la caja.
-        let obj = this.modeloCajaApertura;
+        let obj = this.modeloCajaApertura_vx;
 
         this.modelo.fechaApertura = this.$dayjs(
           obj.fechaApertura,
@@ -455,29 +473,31 @@ export default {
     },
     grabar() {
       let _self = this;
-
       let validate = _self.$refs.form.validate();
+
       if (validate) {
-        let titulo = _self.cajaAbierta
+        let titulo = _self.cajaAbierta_vx
           ? `Caja ${
-              _self.modeloCajaApertura.flgReaperturado
+              _self.modeloCajaApertura_vx.flgReaperturado
                 ? "reaperturada"
                 : "abierta"
             }`
           : "Caja cerrada";
+
         let pregunta = `¿Desea ${
-          _self.cajaAbierta ? "cerrar la caja" : "abrir la caja"
+          _self.cajaAbierta_vx ? "cerrar la caja" : "abrir la caja"
         }?`;
 
         _self.$root
           .$confirm(titulo, pregunta)
           .then(() => {
             let fechaCierre = "";
+
             if (_self.modelo.chkHorCie)
               fechaCierre = `${_self.fecCieFormatted} ${_self.modelo.horaCierre}`;
 
             let parameters = {
-              Accion: _self.cajaAbierta ? "UPD" : "INS",
+              Accion: _self.cajaAbierta_vx ? "UPD" : "INS",
               MontoApertura:
                 _self.modelo.montoApertura == ""
                   ? 0
@@ -487,14 +507,14 @@ export default {
               FechaCierre: fechaCierre,
               MontoTotal: _self.montoTotal == "" ? 0 : _self.montoTotal,
               Correlativo:
-                _self.modeloCajaApertura != null
-                  ? _self.modeloCajaApertura.correlativo
+                _self.cajaAbierta_vx
+                  ? _self.modeloCajaApertura_vx.correlativo
                   : 0,
-              FlgReaperturado: _self.cajaAbierta
-                ? _self.modeloCajaApertura.flgReaperturado
+              FlgReaperturado: _self.cajaAbierta_vx
+                ? _self.modeloCajaApertura_vx.flgReaperturado
                 : false,
-              Item: _self.cajaAbierta ? _self.modeloCajaApertura.item : 0,
-              flgCierreDiferido: _self.modelo.chkHorCie
+              Item: _self.cajaAbierta_vx ? _self.modeloCajaApertura_vx.item : 0,
+              flgCierreDiferido: _self.modelo.chkHorCie,
             };
 
             _self.overlay = true;
@@ -504,7 +524,10 @@ export default {
               .then((response) => {
                 let data = response.data.Data;
 
-                _self.setModeloCajaApertura(data);
+                //Actualizamos el estado de la caja de vuex
+                _self.setModeloCajaApertura_vx(data);
+
+                _self.dialog = false;
               })
               .catch((error) => {
                 _self.$refs.alerta.show(error.response.data.Message, {
@@ -513,7 +536,6 @@ export default {
               })
               .finally(() => {
                 _self.overlay = false;
-                _self.dialog = false;
               });
           })
           .catch(() => {});
@@ -590,16 +612,13 @@ export default {
     },
   },
   computed: {
-    ...mapState("ModCajaApertura", ["modeloCajaApertura"]),
+    ...mapState("ModCajaApertura", ["modeloCajaApertura_vx"]),
     ...mapState("ModLogin", ["usuario"]),
+    ...mapGetters("ModCajaApertura",["cajaAbierta_vx"]),
     montoTotal() {
-      return this.modeloCajaApertura != null
+      return this.modeloCajaApertura_vx != null
         ? this.modelo.montoTotal
         : this.modelo.montoApertura;
-    },
-    cajaAbierta() {
-      if (this.modeloCajaApertura != null) return true;
-      else return false;
     },
   },
   watch: {
